@@ -127,8 +127,13 @@ document.getElementById('pimage').addEventListener('input', e => {
 document.getElementById('pfile').addEventListener('change', e => {
   const file = e.target.files[0];
   if (!file) return;
-  if (file.size > 800 * 1024) {
-    showToast('⚠️ Image > 800 Ko. Privilégier une URL.');
+  // Les images uploadées partent en base64 dans localStorage (quota ~5 Mo
+  // pour TOUT le catalogue) : au-delà de 400 Ko on refuse pour éviter de
+  // corrompre/perdre le catalogue. Utiliser une URL d'image à la place.
+  if (file.size > 400 * 1024) {
+    showToast('❌ Image trop lourde (max 400 Ko). Utilise plutôt une URL de photo.');
+    e.target.value = '';
+    return;
   }
   const reader = new FileReader();
   reader.onload = ev => {
