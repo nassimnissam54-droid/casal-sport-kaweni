@@ -20,9 +20,17 @@
    ============================================================ */
 
 exports.handler = async function (event) {
+  // CORS restreint : uniquement le site lui-même (même origine) et
+  // les préviews locales — plus de wildcard « * » qui permettrait à
+  // n'importe quel site de créer des paiements à notre nom.
+  const reqOrigin = (event.headers && (event.headers.origin || event.headers.Origin)) || '';
+  const siteUrl = process.env.URL || '';
+  const allowed = [siteUrl, 'http://localhost:3338', 'http://localhost:8888'].filter(Boolean);
+  const corsOrigin = allowed.includes(reqOrigin) ? reqOrigin : siteUrl || 'null';
   const headers = {
     'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': corsOrigin,
+    'Vary': 'Origin',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type'
   };
