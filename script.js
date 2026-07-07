@@ -1291,3 +1291,27 @@ document.querySelectorAll('[data-fcat], [data-fsub]').forEach(link => {
     setTimeout(() => card.classList.remove('spotlight'), 5000);
   }, 350);
 })();
+
+/* ============================================================
+   A11y (audit V8) : le focus clavier reste piégé dans la modale
+   ou le tiroir ouvert (Tab / Shift+Tab cyclent à l'intérieur).
+   ============================================================ */
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Tab') return;
+  const overlay = [...document.querySelectorAll('.modal-overlay')].find(m => !m.hidden);
+  const panel = (overlay && overlay.querySelector('.modal-box'))
+    || (cartDrawer.classList.contains('open') ? cartDrawer : null)
+    || (filterDrawer.classList.contains('open') ? filterDrawer : null);
+  if (!panel) return;
+  const focusables = panel.querySelectorAll(
+    'button:not([disabled]), [href], input:not([disabled]), select, textarea, [tabindex]:not([tabindex="-1"])'
+  );
+  if (!focusables.length) return;
+  const first = focusables[0];
+  const last  = focusables[focusables.length - 1];
+  if (e.shiftKey && (document.activeElement === first || !panel.contains(document.activeElement))) {
+    last.focus(); e.preventDefault();
+  } else if (!e.shiftKey && (document.activeElement === last || !panel.contains(document.activeElement))) {
+    first.focus(); e.preventDefault();
+  }
+});
