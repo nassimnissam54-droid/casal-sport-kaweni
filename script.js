@@ -633,12 +633,19 @@ document.getElementById('cartCheckout').addEventListener('click', () => {
 const payMethodsWrap = document.getElementById('payMethods');
 const orderPayment   = document.getElementById('orderPayment');
 
+/* Icônes SVG des modes de paiement (l'emoji de PAYMENT_CONFIG reste
+   utilisé dans le message WhatsApp, plus lisible en texte brut) */
+const PAY_SVG = {
+  'online-card': 'i-card', 'card-onsite': 'i-terminal',
+  'cash': 'i-cash', 'transfer': 'i-bank',
+};
+
 function renderPayMethods() {
   if (!payMethodsWrap) return;
   payMethodsWrap.innerHTML = PAYMENT_CONFIG.methods.map(m => `
     <label class="pay-method" data-pay="${m.id}">
       <input type="radio" name="payMethod" value="${m.id}" />
-      <span class="pay-method-icon">${m.icon}</span>
+      <span class="pay-method-icon"><svg class="icon"><use href="#${PAY_SVG[m.id] || 'i-card'}"/></svg></span>
       <span class="pay-method-txt">
         <strong>${esc(m.label)}</strong>
         <small>${esc(m.desc)}</small>

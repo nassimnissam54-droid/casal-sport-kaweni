@@ -3533,3 +3533,17 @@ body { background: var(--sable-bg); }
 /* Un seul accent : corail (le lagon/hibiscus hérités sortent des composants) */
 .card-badge.new { background: var(--palmier); }
 .testimonial:nth-child(3) { border-color: var(--corail); }
+
+/* ===== Iconographie SVG unifiée (audit D1) ===== */
+.icon {
+  width: 1.15em; height: 1.15em;
+  fill: none; stroke: currentColor;
+  stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+  vertical-align: -0.2em; flex-shrink: 0;
+}
+.icon-lg { width: 1.6em; height: 1.6em; }
+.icon-xl { width: 2.2em; height: 2.2em; }
+.trust-item .icon-lg { display: block; margin-bottom: .45rem; color: var(--corail); }
+.pay-method-icon .icon { width: 1.4em; height: 1.4em; color: var(--corail-deep); }
+.mobile-nav .icon { width: 1.35em; height: 1.35em; }
+.wa-fab-main .icon { color: #fff; }

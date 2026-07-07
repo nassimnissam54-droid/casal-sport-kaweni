@@ -65,6 +65,27 @@
 </head>
 <body>
 
+  <!-- Sprite d'icônes SVG (une seule famille, trait 1.8) — remplace les
+       emojis structurels pour un rendu identique sur tous les OS -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></symbol>
+    <symbol id="i-cart" viewBox="0 0 24 24"><circle cx="9" cy="20" r="1.6"/><circle cx="17" cy="20" r="1.6"/><path d="M3 4h2l2.4 11h10.2l2.4-8H6.4"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></symbol>
+    <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M8 3l4 2 4-2 5 4-3 3.5V21H6V10.5L3 7z"/></symbol>
+    <symbol id="i-shoe" viewBox="0 0 24 24"><path d="M3 17c0-2 1-3.5 3-3.5 2 0 3.5-2 5-2.5l2.5 2.5c4 .5 7.5 1.5 7.5 3.5v2H3z"/><path d="M11 11l1.5 1.5M13.5 10.5L15 12"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 11.5a8 8 0 0 1-8 8H4l1.6-3.2A8 8 0 1 1 21 11.5z"/></symbol>
+    <symbol id="i-card" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></symbol>
+    <symbol id="i-cash" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M5.5 9.5h.01M18.5 14.5h.01"/></symbol>
+    <symbol id="i-bank" viewBox="0 0 24 24"><path d="M12 3L2.5 9h19z"/><path d="M4.5 9v9M9.5 9v9M14.5 9v9M19.5 9v9"/><line x1="2.5" y1="21" x2="21.5" y2="21"/></symbol>
+    <symbol id="i-terminal" viewBox="0 0 24 24"><rect x="6" y="2.5" width="12" height="19" rx="2"/><line x1="9" y1="6.5" x2="15" y2="6.5"/><path d="M9.5 11h.01M12 11h.01M14.5 11h.01M9.5 14h.01M12 14h.01M14.5 14h.01M9.5 17h.01M12 17h.01M14.5 17h.01"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21.5S5 15.7 5 10.2a7 7 0 0 1 14 0c0 5.5-7 11.3-7 11.3z"/><circle cx="12" cy="10" r="2.5"/></symbol>
+    <symbol id="i-bag" viewBox="0 0 24 24"><path d="M5.5 8h13l-1 13h-11z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></symbol>
+    <symbol id="i-ticket" viewBox="0 0 24 24"><path d="M3 9a2.5 2.5 0 0 0 0 6v4.5h18V15a2.5 2.5 0 0 1 0-6V4.5H3z"/><path d="M13.5 4.5v2.5M13.5 11v2M13.5 17v2.5"/></symbol>
+    <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 13.5L4 9l5-4.5"/><path d="M4 9h9.5a6.75 6.75 0 1 1 0 13.5H8"/></symbol>
+  </svg>
+
   <a href="#vetements" class="skip-link">Aller au catalogue</a>
 
   <!-- ============ ANNOUNCE BAR ============ -->
@@ -92,7 +113,7 @@
         <button class="burger-btn" id="burger" aria-label="Menu">
           <span></span><span></span><span></span>
         </button>
-        <button class="header-icon" id="searchToggle" aria-label="Rechercher" title="Rechercher">🔍</button>
+        <button class="header-icon" id="searchToggle" aria-label="Rechercher" title="Rechercher"><svg class="icon"><use href="#i-search"/></svg></button>
       </div>
 
       <a href="#top" class="logo-link">
@@ -112,11 +133,11 @@
 
       <div class="header-right">
         <a href="#favoris" class="header-icon" aria-label="Favoris" title="Favoris">
-          ♡<span class="count" id="favCounter">0</span>
+          <svg class="icon"><use href="#i-heart"/></svg><span class="count" id="favCounter">0</span>
         </a>
-        <a href="compte.html" class="header-icon" aria-label="Mon compte" title="Mon compte">👤</a>
+        <a href="compte.html" class="header-icon" aria-label="Mon compte" title="Mon compte"><svg class="icon"><use href="#i-user"/></svg></a>
         <a href="#" class="header-icon" id="cartToggle" aria-label="Panier" title="Mon panier">
-          🛒<span class="count" id="cartCounter" hidden>0</span>
+          <svg class="icon"><use href="#i-cart"/></svg><span class="count" id="cartCounter" hidden>0</span>
         </a>
       </div>
     </div>
@@ -284,16 +305,16 @@
 
   <!-- ============ TRUST STRIP ============ -->
   <div class="trust-strip">
-    <div class="trust-item">🛍️ <strong>Retrait gratuit</strong><small>Au magasin de Kawéni, avec ton code de retrait</small></div>
-    <div class="trust-item">💳 <strong>Paie comme tu veux</strong><small>Carte au retrait · Espèces · Virement</small></div>
-    <div class="trust-item">↩️ <strong>Retour offert</strong><small>Sous 14 jours, directement au magasin</small></div>
-    <div class="trust-item">💬 <strong>WhatsApp 7j/7</strong><small>Service client humain</small></div>
+    <div class="trust-item"><svg class="icon icon-lg"><use href="#i-bag"/></svg> <strong>Retrait gratuit</strong><small>Au magasin de Kawéni, avec ton code de retrait</small></div>
+    <div class="trust-item"><svg class="icon icon-lg"><use href="#i-card"/></svg> <strong>Paie comme tu veux</strong><small>Carte au retrait · Espèces · Virement</small></div>
+    <div class="trust-item"><svg class="icon icon-lg"><use href="#i-undo"/></svg> <strong>Retour offert</strong><small>Sous 14 jours, directement au magasin</small></div>
+    <div class="trust-item"><svg class="icon icon-lg"><use href="#i-chat"/></svg> <strong>WhatsApp 7j/7</strong><small>Service client humain</small></div>
   </div>
 
   <!-- ============ BOUTIQUE KAWÉNI ============ -->
   <section class="shop-band">
     <div class="shop-band-inner">
-      <div class="shop-icon">📍</div>
+      <div class="shop-icon"><svg class="icon icon-xl"><use href="#i-pin"/></svg></div>
       <div class="shop-info">
         <span class="shop-eyebrow">Notre magasin · Point de retrait de tes commandes</span>
         <h2 class="shop-title">KAWÉNI · MAYOTTE</h2>
@@ -608,11 +629,11 @@
 
   <!-- ============ MOBILE BOTTOM NAV ============ -->
   <nav class="mobile-nav">
-    <a href="#top"><span>⌂</span><span>Accueil</span></a>
-    <a href="#vetements"><span>👕</span><span>Textile</span></a>
-    <a href="#baskets"><span>👟</span><span>Chaussures</span></a>
-    <a href="compte.html"><span>👤</span><span>Compte</span></a>
-    <a href="#" id="cartToggleMobile"><span>🛒</span><span>Panier</span><span class="badge" id="mobileCartBadge" hidden>0</span></a>
+    <a href="#top"><span><svg class="icon"><use href="#i-home"/></svg></span><span>Accueil</span></a>
+    <a href="#vetements"><span><svg class="icon"><use href="#i-shirt"/></svg></span><span>Textile</span></a>
+    <a href="#baskets"><span><svg class="icon"><use href="#i-shoe"/></svg></span><span>Chaussures</span></a>
+    <a href="compte.html"><span><svg class="icon"><use href="#i-user"/></svg></span><span>Compte</span></a>
+    <a href="#" id="cartToggleMobile"><span><svg class="icon"><use href="#i-cart"/></svg></span><span>Panier</span><span class="badge" id="mobileCartBadge" hidden>0</span></a>
   </nav>
 
   <!-- ============ MENU OVERLAY (mobile burger) ============ -->
@@ -655,7 +676,7 @@
   <!-- ============ FAB WHATSAPP ============ -->
   <div class="wa-fab" id="waFab">
     <button class="wa-fab-main" id="waFabMain" aria-label="WhatsApp">
-      <span class="wa-icon">💬</span>
+      <span class="wa-icon"><svg class="icon icon-lg"><use href="#i-chat"/></svg></span>
       <span class="wa-pulse"></span>
     </button>
     <div class="wa-fab-menu" id="waFabMenu" hidden>
@@ -678,7 +699,7 @@
   <div class="cart-overlay" id="cartOverlay"></div>
   <aside class="cart-drawer" id="cartDrawer" aria-label="Panier">
     <div class="cart-drawer-head">
-      <h3>🛒 Mon panier (<span id="cartCountTitle">0</span>)</h3>
+      <h3><svg class="icon"><use href="#i-cart"/></svg> Mon panier (<span id="cartCountTitle">0</span>)</h3>
       <button class="modal-close" id="cartClose" aria-label="Fermer le panier">×</button>
     </div>
     <div class="cart-items" id="cartItems"></div>
