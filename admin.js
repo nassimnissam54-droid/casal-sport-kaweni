@@ -47,7 +47,9 @@ loginForm.addEventListener('submit', e => {
   }
 });
 document.getElementById('logoutBtn').addEventListener('click', logout);
-if (isLogged()) showDashboard();
+// Session déjà ouverte : n'ouvre le dashboard qu'une fois TOUT le script
+// initialisé (sinon renderTable crashe sur les const déclarées plus bas).
+document.addEventListener('DOMContentLoaded', () => { if (isLogged()) showDashboard(); });
 
 /* ============ ONGLETS ============ */
 document.querySelectorAll('.admin-tab').forEach(tab => {
@@ -122,7 +124,9 @@ form.addEventListener('submit', e => {
   const id = document.getElementById('pid').value;
   const data = {
     name:     document.getElementById('pname').value.trim(),
-    type:     document.getElementById('ptype').value,
+    sub:      document.getElementById('psub').value,
+    // Le type technique (section Textile ou Chaussures) découle du type d'article
+    type:     document.getElementById('psub').value === 'basket' ? 'basket' : 'vetement',
     cat:      document.getElementById('pcat').value,
     price:    parseFloat(document.getElementById('pprice').value),
     oldPrice: document.getElementById('poldprice').value ? parseFloat(document.getElementById('poldprice').value) : null,
@@ -153,7 +157,7 @@ function editProduct(id) {
   if (!p) return;
   document.getElementById('pid').value       = p.id;
   document.getElementById('pname').value     = p.name;
-  document.getElementById('ptype').value     = p.type;
+  document.getElementById('psub').value      = p.sub || (p.type === 'basket' ? 'basket' : 'equipement');
   document.getElementById('pcat').value      = p.cat;
   document.getElementById('pprice').value    = p.price;
   document.getElementById('poldprice').value = p.oldPrice ?? '';
@@ -234,7 +238,7 @@ function renderTable() {
   const fc = filterCat.value;
   const fs = filterStatusEl.value;
   const list = ProductDB.getAll().filter(p =>
-    (ft === 'all' || p.type === ft) &&
+    (ft === 'all' || (p.sub || (p.type === 'basket' ? 'basket' : 'equipement')) === ft) &&
     (fc === 'all' || p.cat === fc)  &&
     (fs === 'all' || (p.status || 'live') === fs) &&
     (!q || p.name.toLowerCase().includes(q) || (p.desc||'').toLowerCase().includes(q))
@@ -260,7 +264,7 @@ function renderTable() {
         ${p.badge ? `<span class="row-badge">${esc(p.badge)}</span>` : ''}
       </td>
       <td>
-        ${p.type === 'vetement' ? '👕 Vêt.' : '👟 Basket'}<br>
+        ${SUB_LABELS[p.sub] || (p.type === 'basket' ? 'Basket' : 'Vêt.')}<br>
         <span class="cat-label ${p.cat}" style="font-size:0.65rem">${labelOf(p.cat)}</span>
       </td>
       <td>

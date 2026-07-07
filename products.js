@@ -2,7 +2,7 @@
    CASAL SPORT - Donnees & API
    ============================================================ */
 
-const STORAGE_KEY  = 'casal_products_v2';
+const STORAGE_KEY  = 'casal_products_v3';
 const WISHLIST_KEY = 'casal_wishlist_v1';
 const REVIEWS_KEY  = 'casal_reviews_v1';
 const ORDERS_KEY   = 'casal_orders_v1';
@@ -72,135 +72,81 @@ const PROMO_CODES = {
 };
 
 /* ============================================================
+   TYPES D'ARTICLES (sous-catégories des onglets Homme/Femme/Garçon/Fille)
+   ============================================================ */
+const SUB_LABELS = {
+  tshirt:      'Tee-shirt',
+  ensemble:    'Ensemble',
+  casquette:   'Casquette',
+  short:       'Short',
+  chaussettes: 'Chaussettes',
+  basket:      'Basket',
+  equipement:  'Équipement'
+};
+
+/* ============================================================
    PRODUITS PAR DEFAUT (avec photos Unsplash + stock + textes plus emotionnels)
    ============================================================ */
 const NOW = Date.now();
 const D = day => NOW - day * 24 * 3600 * 1000;
 
 const DEFAULT_PRODUCTS = [
-  // ===== TEXTILE & TRAINING HOMME =====
-  { id:1, type:'vetement', cat:'homme', name:'Maillot Match Domicile',
-    price:34.99, oldPrice:null, badge:'',
-    desc:"Le maillot technique des matchs qui comptent. Tissu à séchage rapide, coupe athlétique, respirant même sous le soleil de Mayotte — pour le club comme pour la détente.",
-    material:'100% Polyester recyclé · Anti-transpiration',
-    sizes:'S — M — L — XL — XXL',
+  /* ===================== HOMME ===================== */
+  { id:1, type:'vetement', sub:'tshirt', cat:'homme', name:'Tee-shirt Training Homme',
+    price:19.99, oldPrice:null, badge:'',
+    desc:"Le tee-shirt technique de toutes tes séances. Tissu respirant à séchage rapide, coupe athlétique — reste au sec même sous le soleil de Mayotte.",
+    material:'100% Polyester respirant · Anti-transpiration',
+    sizes:'XS — S — M — L — XL — XXL',
     icon:'👕', stock:'in', status:'live',
-    imageUrl:'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=600&q=80',
-    color1:'#c0392b', color2:'#e74c3c', createdAt: D(2), rating:4.8 },
+    imageUrl:'https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=600&q=80',
+    color1:'#2d3436', color2:'#d63031', createdAt: D(2), rating:4.8 },
 
-  { id:2, type:'vetement', cat:'homme', name:'Short Training Pro',
+  { id:2, type:'vetement', sub:'ensemble', cat:'homme', name:'Ensemble Survêtement Homme',
+    price:49.99, oldPrice:59.99, badge:'-17%',
+    desc:"Veste zippée + pantalon assorti : l'ensemble complet de l'échauffement à la récup. Tissu tricot résistant, doublure mesh respirante.",
+    material:'100% Polyester tricot · Doublure mesh',
+    sizes:'S — M — L — XL — XXL',
+    icon:'🧥', stock:'in', status:'live',
+    imageUrl:'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=600&q=80',
+    color1:'#0f3460', color2:'#533483', createdAt: D(6), rating:4.7 },
+
+  { id:3, type:'vetement', sub:'casquette', cat:'homme', name:'Casquette Perf Homme',
+    price:14.99, oldPrice:null, badge:'',
+    desc:"Légère, aérée, anti-UV : la casquette qui te suit du running au terrain. Bandeau intérieur anti-transpiration, réglage rapide.",
+    material:'Polyester léger · Œillets d\'aération · Anti-UV',
+    sizes:'Taille unique — réglable',
+    icon:'🧢', stock:'in', status:'live',
+    imageUrl:'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=600&q=80',
+    color1:'#2d3436', color2:'#636e72', createdAt: D(4), rating:4.6 },
+
+  { id:4, type:'vetement', sub:'short', cat:'homme', name:'Short Training Pro Homme',
     price:24.99, oldPrice:null, badge:'',
-    desc:"Le short qui suit tous tes entraînements. Tissu léger et extensible, poche zippée pour le téléphone, taille élastique avec cordon — liberté de mouvement totale.",
+    desc:"Le short qui suit tous tes entraînements. Tissu léger et extensible, poche zippée pour le téléphone, taille élastique avec cordon.",
     material:'88% Polyester · 12% Élasthanne',
     sizes:'S — M — L — XL — XXL',
     icon:'🩳', stock:'in', status:'live',
     imageUrl:'https://images.unsplash.com/photo-1599058917212-d750089bc07e?w=600&q=80',
     color1:'#2d3436', color2:'#636e72', createdAt: D(15), rating:4.6 },
 
-  { id:3, type:'vetement', cat:'homme', name:'Hoodie Training Casal',
-    price:39.99, oldPrice:49.99, badge:'-20%',
-    desc:"Le sweat d'avant-match et d'après-séance. Molleton doux, capuche ajustable, coupe confort — l'indispensable des soirées d'entraînement.",
-    material:'80% Coton · 20% Polyester recyclé',
-    sizes:'S — M — L — XL — XXL',
-    icon:'🧥', stock:'low', status:'live',
-    imageUrl:'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=600&q=80',
-    color1:'#0f3460', color2:'#533483', createdAt: D(40), rating:4.9 },
+  { id:5, type:'vetement', sub:'chaussettes', cat:'homme', name:'Chaussettes Sport Homme ×3',
+    price:9.99, oldPrice:null, badge:'',
+    desc:"Lot de 3 paires renforcées talon et pointe. Maintien de la voûte plantaire, tissu respirant — le basique qu'on n'a jamais en trop.",
+    material:'75% Coton peigné · 23% Polyamide · 2% Élasthanne',
+    sizes:'39-42 — 43-46',
+    icon:'🧦', stock:'in', status:'live',
+    imageUrl:'',
+    color1:'#2d3436', color2:'#0984e3', createdAt: D(10), rating:4.5 },
 
-  // ===== TEXTILE & TRAINING FEMME =====
-  { id:4, type:'vetement', cat:'femme', name:'Brassière Impact',
-    price:29.99, oldPrice:null, badge:'',
-    desc:"Maintien élevé pour les séances intenses : running, HIIT, sports co. Bretelles réglables, dos nageur, tissu respirant — le confort qui ne lâche rien.",
-    material:'78% Polyamide · 22% Élasthanne',
-    sizes:'XS — S — M — L',
-    icon:'🎽', stock:'in', status:'live',
-    imageUrl:'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&q=80',
-    color1:'#fd79a8', color2:'#e84393', createdAt: D(1), rating:5.0 },
-
-  { id:5, type:'vetement', cat:'femme', name:'Legging Sculpt',
-    price:34.99, oldPrice:null, badge:'',
-    desc:"Le legging taille haute qui sculpte et qui tient. Opaque en squat, ceinture gainante, poche latérale — du studio de yoga à la salle de muscu.",
-    material:'75% Polyamide · 25% Élasthanne',
-    sizes:'XS — S — M — L — XL',
-    icon:'🧘', stock:'in', status:'live',
-    imageUrl:'https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=600&q=80',
-    color1:'#6c5ce7', color2:'#a29bfe', createdAt: D(3), rating:4.8 },
-
-  { id:6, type:'vetement', cat:'femme', name:'Short Running Femme',
-    price:24.99, oldPrice:29.99, badge:'-17%',
-    desc:"Ultra-léger, presque invisible sur la foulée. Cuissard intégré anti-frottement, bande réfléchissante — pense à toi, pas à ta tenue.",
-    material:'100% Polyester léger déperlant',
-    sizes:'XS — S — M — L — XL',
-    icon:'🏃', stock:'in', status:'live',
-    imageUrl:'https://images.unsplash.com/photo-1483721310020-03333e577078?w=600&q=80',
-    color1:'#00b894', color2:'#55efc4', createdAt: D(20), rating:4.7 },
-
-  // ===== TEXTILE ENFANT =====
-  { id:7, type:'vetement', cat:'garcon', name:'Survêtement Junior',
-    price:39.99, oldPrice:null, badge:'',
-    desc:"L'ensemble complet des champions de demain. Veste zippée + pantalon assorti, tissu résistant aux récrés comme aux entraînements.",
-    material:'100% Polyester tricot · Doublure mesh',
-    sizes:'6A — 8A — 10A — 12A — 14A',
-    icon:'⚽', stock:'in', status:'live',
-    imageUrl:'https://images.unsplash.com/photo-1503944583220-79d8926ad5e2?w=600&q=80',
-    color1:'#0984e3', color2:'#74b9ff', createdAt: D(5), rating:4.9 },
-
-  { id:8, type:'vetement', cat:'fille', name:'Ensemble Training Fille',
-    price:34.99, oldPrice:null, badge:'',
-    desc:"Brassière légère + legging assorti pour bouger sans limite. Matière douce et extensible, coutures plates — la panoplie gym, danse et athlé.",
-    material:'80% Polyamide · 20% Élasthanne',
-    sizes:'6A — 8A — 10A — 12A — 14A',
-    icon:'🤸', stock:'in', status:'live',
-    imageUrl:'https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?w=600&q=80',
-    color1:'#e84393', color2:'#fd79a8', createdAt: D(8), rating:4.8 },
-
-  // ===== ÉQUIPEMENT (mixte) =====
-  { id:9, type:'vetement', cat:'mixte', name:'Ballon Match Taille 5',
-    price:22.99, oldPrice:null, badge:'',
-    desc:"Cousu machine, homologué compétition. Excellente tenue en l'air, résistance à l'abrasion — prêt pour les terrains de toute l'île.",
-    material:'Enveloppe PU · Vessie butyle haute rétention',
-    sizes:'Taille 5',
-    icon:'⚽', stock:'in', status:'live',
-    imageUrl:'https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=600&q=80',
-    color1:'#2d3436', color2:'#00b894', createdAt: D(4), rating:4.7 },
-
-  { id:10, type:'vetement', cat:'mixte', name:'Haltères Hexa 2 × 10 kg',
-    price:59.99, oldPrice:null, badge:'',
-    desc:"La paire d'haltères qui ne roule pas. Revêtement caoutchouc anti-choc, poignée moletée chromée — muscu à la maison ou en salle.",
-    material:'Fonte · Revêtement caoutchouc · Poignée acier',
-    sizes:'2 × 10 kg',
-    icon:'🏋️', stock:'low', status:'live',
-    imageUrl:'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=600&q=80',
-    color1:'#2d3436', color2:'#e17055', createdAt: D(6), rating:4.9 },
-
-  { id:11, type:'vetement', cat:'mixte', name:'Sac de Sport 45 L',
-    price:39.99, oldPrice:null, badge:'',
-    desc:"De la salle au terrain sans rien oublier. Compartiment chaussures ventilé, poche humide, bandoulière rembourrée — le vestiaire qui te suit partout.",
-    material:'Polyester 600D déperlant · Zips renforcés',
-    sizes:'45 L',
-    icon:'🎒', stock:'in', status:'live',
-    imageUrl:'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&q=80',
-    color1:'#e17055', color2:'#fdcb6e', createdAt: D(12), rating:4.6 },
-
-  { id:12, type:'vetement', cat:'mixte', name:'Corde à Sauter Speed',
-    price:12.99, oldPrice:null, badge:'',
-    desc:"Cardio express, n'importe où. Câble acier gainé, roulements à billes, longueur réglable — l'accessoire le plus rentable de ton sac.",
-    material:'Câble acier gainé PVC · Poignées alu',
-    sizes:'Réglable 3 m',
-    icon:'⏱️', stock:'in', status:'live',
-    imageUrl:'https://images.unsplash.com/photo-1434682881908-b43d0467b798?w=600&q=80',
-    color1:'#00b894', color2:'#0984e3', createdAt: D(25), rating:4.5 },
-
-  // ===== CHAUSSURES HOMME =====
-  { id:13, type:'basket', cat:'homme', name:'Pulse Runner',
+  { id:6, type:'basket', sub:'basket', cat:'homme', name:'Basket Pulse Runner',
     price:89.99, oldPrice:null, badge:'',
-    desc:"Légère, réactive, taillée pour la route et la chaleur. Amorti dynamique, tige mesh ultra-respirante — ton nouveau record perso commence ici.",
+    desc:"Légère, réactive, taillée pour la route et la chaleur. Amorti dynamique, tige mesh ultra-respirante — ton record perso commence ici.",
     material:'Tige mesh · Semelle EVA · Gomme carbone',
     sizes:'40 — 41 — 42 — 43 — 44 — 45',
     icon:'👟', stock:'in', status:'live',
     imageUrl:'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80',
     color1:'#d63031', color2:'#e17055', createdAt: D(1), rating:4.9 },
 
-  { id:14, type:'basket', cat:'homme', name:'Court Pro Mid',
+  { id:7, type:'basket', sub:'basket', cat:'homme', name:'Basket Court Pro Mid',
     price:79.99, oldPrice:null, badge:'',
     desc:"Maintien de cheville renforcé et grip qui accroche le parquet comme le playground. Pour dominer la raquette des deux côtés du terrain.",
     material:'Cuir synthétique · Mesh · Semelle multi-surfaces',
@@ -209,17 +155,53 @@ const DEFAULT_PRODUCTS = [
     imageUrl:'https://images.unsplash.com/photo-1556906781-9a412961c28c?w=600&q=80',
     color1:'#2d3436', color2:'#d63031', createdAt: D(7), rating:4.8 },
 
-  { id:15, type:'basket', cat:'homme', name:'Crampons Strike FG',
-    price:64.99, oldPrice:74.99, badge:'-13%',
-    desc:"Terrain sec, appuis francs. Crampons moulés FG, tige ajustée pour un toucher de balle précis — fais parler la poudre sur l'aile.",
-    material:'Tige synthétique · Semelle crampons moulés FG',
-    sizes:'39 — 40 — 41 — 42 — 43 — 44 — 45',
-    icon:'⚽', stock:'in', status:'live',
-    imageUrl:'https://images.unsplash.com/photo-1511886929837-354d827aae26?w=600&q=80',
-    color1:'#00b894', color2:'#2d3436', createdAt: D(10), rating:4.7 },
+  /* ===================== FEMME ===================== */
+  { id:8, type:'vetement', sub:'tshirt', cat:'femme', name:'Tee-shirt Respirant Femme',
+    price:19.99, oldPrice:null, badge:'',
+    desc:"Coupe ajustée, tissu ultra-doux à séchage rapide. Du yoga au fractionné, il ne bouge pas, toi si.",
+    material:'92% Polyester recyclé · 8% Élasthanne',
+    sizes:'XS — S — M — L — XL',
+    icon:'👚', stock:'in', status:'live',
+    imageUrl:'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&q=80',
+    color1:'#fd79a8', color2:'#e84393', createdAt: D(1), rating:5.0 },
 
-  // ===== CHAUSSURES FEMME =====
-  { id:16, type:'basket', cat:'femme', name:'Air Flow W',
+  { id:9, type:'vetement', sub:'ensemble', cat:'femme', name:'Ensemble Training Femme',
+    price:44.99, oldPrice:null, badge:'',
+    desc:"Brassière maintien élevé + legging sculptant assorti. Opaque en squat, ceinture gainante — la panoplie complète de la salle au studio.",
+    material:'75% Polyamide · 25% Élasthanne',
+    sizes:'XS — S — M — L — XL',
+    icon:'🧘', stock:'in', status:'live',
+    imageUrl:'https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=600&q=80',
+    color1:'#6c5ce7', color2:'#a29bfe', createdAt: D(3), rating:4.8 },
+
+  { id:10, type:'vetement', sub:'casquette', cat:'femme', name:'Casquette Run Femme',
+    price:14.99, oldPrice:null, badge:'',
+    desc:"Profil bas, tissu léger anti-UV et passage pour queue de cheval. Ta meilleure alliée des sorties longues au soleil.",
+    material:'Polyester léger · Anti-UV · Réglage scratch',
+    sizes:'Taille unique — réglable',
+    icon:'🧢', stock:'in', status:'live',
+    imageUrl:'',
+    color1:'#fd79a8', color2:'#ffeaa7', createdAt: D(5), rating:4.7 },
+
+  { id:11, type:'vetement', sub:'short', cat:'femme', name:'Short Running Femme',
+    price:24.99, oldPrice:29.99, badge:'-17%',
+    desc:"Ultra-léger, presque invisible sur la foulée. Cuissard intégré anti-frottement, bande réfléchissante — pense à toi, pas à ta tenue.",
+    material:'100% Polyester léger déperlant',
+    sizes:'XS — S — M — L — XL',
+    icon:'🏃', stock:'in', status:'live',
+    imageUrl:'https://images.unsplash.com/photo-1483721310020-03333e577078?w=600&q=80',
+    color1:'#00b894', color2:'#55efc4', createdAt: D(20), rating:4.7 },
+
+  { id:12, type:'vetement', sub:'chaussettes', cat:'femme', name:'Chaussettes Run Femme ×3',
+    price:9.99, oldPrice:null, badge:'',
+    desc:"Lot de 3 paires fines et respirantes, zéro couture qui frotte. Maintien doux de la voûte — tes pieds diront merci au 10e kilomètre.",
+    material:'78% Coton peigné · 20% Polyamide · 2% Élasthanne',
+    sizes:'35-38 — 39-42',
+    icon:'🧦', stock:'in', status:'live',
+    imageUrl:'',
+    color1:'#fd79a8', color2:'#a29bfe', createdAt: D(12), rating:4.6 },
+
+  { id:13, type:'basket', sub:'basket', cat:'femme', name:'Basket Air Flow W',
     price:84.99, oldPrice:null, badge:'',
     desc:"L'amorti nuage pour tes kilomètres. Drop doux, mousse à retour d'énergie, coloris pastel — la running qui donne envie de se lever tôt.",
     material:'Mesh technique · Mousse à retour d\'énergie',
@@ -228,7 +210,7 @@ const DEFAULT_PRODUCTS = [
     imageUrl:'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=600&q=80',
     color1:'#a29bfe', color2:'#fd79a8', createdAt: D(2), rating:5.0 },
 
-  { id:17, type:'basket', cat:'femme', name:'Studio Trainer W',
+  { id:14, type:'basket', sub:'basket', cat:'femme', name:'Basket Studio Trainer W',
     price:59.99, oldPrice:null, badge:'',
     desc:"Stable en squat, souple en burpee. Semelle plate adhérente, maintien latéral — la polyvalente du cross-training et des cours collectifs.",
     material:'Toile renforcée · Semelle caoutchouc plate',
@@ -237,8 +219,53 @@ const DEFAULT_PRODUCTS = [
     imageUrl:'https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?w=600&q=80',
     color1:'#6c5ce7', color2:'#00cec9', createdAt: D(18), rating:4.6 },
 
-  // ===== CHAUSSURES ENFANT =====
-  { id:18, type:'basket', cat:'garcon', name:'Junior Flash',
+  /* ===================== GARÇON ===================== */
+  { id:15, type:'vetement', sub:'tshirt', cat:'garcon', name:'Tee-shirt Sport Garçon',
+    price:12.99, oldPrice:null, badge:'',
+    desc:"Respirant, résistant aux récrés comme aux entraînements. Tissu doux qui garde ses couleurs lavage après lavage.",
+    material:'100% Polyester respirant',
+    sizes:'6A — 8A — 10A — 12A — 14A',
+    icon:'👕', stock:'in', status:'live',
+    imageUrl:'https://images.unsplash.com/photo-1503944583220-79d8926ad5e2?w=600&q=80',
+    color1:'#0984e3', color2:'#74b9ff', createdAt: D(5), rating:4.9 },
+
+  { id:16, type:'vetement', sub:'ensemble', cat:'garcon', name:'Ensemble Survêtement Garçon',
+    price:39.99, oldPrice:null, badge:'',
+    desc:"Veste zippée + pantalon assorti pour les champions de demain. Coupe confortable, tissu costaud, poches zippées.",
+    material:'100% Polyester tricot · Doublure mesh',
+    sizes:'6A — 8A — 10A — 12A — 14A',
+    icon:'⚽', stock:'in', status:'live',
+    imageUrl:'',
+    color1:'#0984e3', color2:'#00b894', createdAt: D(8), rating:4.8 },
+
+  { id:17, type:'vetement', sub:'casquette', cat:'garcon', name:'Casquette Junior Garçon',
+    price:9.99, oldPrice:null, badge:'',
+    desc:"Anti-UV et réglable : la protection soleil des petits sportifs, du bord du terrain à la plage.",
+    material:'Coton twill · Anti-UV · Réglage scratch',
+    sizes:'Enfant — réglable',
+    icon:'🧢', stock:'in', status:'live',
+    imageUrl:'',
+    color1:'#0984e3', color2:'#ffeaa7', createdAt: D(9), rating:4.6 },
+
+  { id:18, type:'vetement', sub:'short', cat:'garcon', name:'Short Foot Garçon',
+    price:14.99, oldPrice:null, badge:'',
+    desc:"Le short de match et d'entraînement. Léger, séchage rapide, taille élastique — prêt pour tous les terrains de l'île.",
+    material:'100% Polyester à séchage rapide',
+    sizes:'6A — 8A — 10A — 12A — 14A',
+    icon:'🩳', stock:'in', status:'live',
+    imageUrl:'',
+    color1:'#00b894', color2:'#0984e3', createdAt: D(11), rating:4.7 },
+
+  { id:19, type:'vetement', sub:'chaussettes', cat:'garcon', name:'Chaussettes Sport Garçon ×3',
+    price:7.99, oldPrice:null, badge:'',
+    desc:"Lot de 3 paires renforcées pour les journées qui n'arrêtent pas. Douces, respirantes, faciles à assortir.",
+    material:'75% Coton · 23% Polyamide · 2% Élasthanne',
+    sizes:'27-30 — 31-34 — 35-38',
+    icon:'🧦', stock:'in', status:'live',
+    imageUrl:'',
+    color1:'#0984e3', color2:'#636e72', createdAt: D(13), rating:4.5 },
+
+  { id:20, type:'basket', sub:'basket', cat:'garcon', name:'Basket Junior Flash',
     price:44.99, oldPrice:null, badge:'',
     desc:"Scratch facile, semelle qui absorbe les sprints de récré. Renfort à la pointe pour durer toute l'année scolaire — et après.",
     material:'Mesh + synthétique · Semelle EVA souple',
@@ -247,14 +274,97 @@ const DEFAULT_PRODUCTS = [
     imageUrl:'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=600&q=80',
     color1:'#0984e3', color2:'#00b894', createdAt: D(9), rating:4.9 },
 
-  { id:19, type:'basket', cat:'fille', name:'Runner Rose Fille',
+  /* ===================== FILLE ===================== */
+  { id:21, type:'vetement', sub:'tshirt', cat:'fille', name:'Tee-shirt Sport Fille',
+    price:12.99, oldPrice:null, badge:'',
+    desc:"Doux, léger et respirant — pour courir, danser et tout le reste. Couleurs éclatantes qui résistent au lavage.",
+    material:'100% Polyester respirant',
+    sizes:'6A — 8A — 10A — 12A — 14A',
+    icon:'👚', stock:'in', status:'live',
+    imageUrl:'https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?w=600&q=80',
+    color1:'#e84393', color2:'#fd79a8', createdAt: D(4), rating:4.8 },
+
+  { id:22, type:'vetement', sub:'ensemble', cat:'fille', name:'Ensemble Training Fille',
+    price:34.99, oldPrice:null, badge:'',
+    desc:"Brassière légère + legging assorti pour bouger sans limite. Matière douce et extensible, coutures plates — gym, danse et athlé.",
+    material:'80% Polyamide · 20% Élasthanne',
+    sizes:'6A — 8A — 10A — 12A — 14A',
+    icon:'🤸', stock:'in', status:'live',
+    imageUrl:'',
+    color1:'#e84393', color2:'#a29bfe', createdAt: D(8), rating:4.8 },
+
+  { id:23, type:'vetement', sub:'casquette', cat:'fille', name:'Casquette Junior Fille',
+    price:9.99, oldPrice:null, badge:'',
+    desc:"Anti-UV, réglable, avec passage pour queue de cheval. Le soleil de Mayotte n'a qu'à bien se tenir.",
+    material:'Coton twill · Anti-UV · Réglage scratch',
+    sizes:'Enfant — réglable',
+    icon:'🧢', stock:'in', status:'live',
+    imageUrl:'',
+    color1:'#fd79a8', color2:'#ffeaa7', createdAt: D(10), rating:4.7 },
+
+  { id:24, type:'vetement', sub:'short', cat:'fille', name:'Short Gym Fille',
+    price:14.99, oldPrice:null, badge:'',
+    desc:"Souple et léger, avec cuissard intégré pour bouger en toute liberté. Parfait pour la gym, la danse et le sport à l'école.",
+    material:'90% Polyester · 10% Élasthanne',
+    sizes:'6A — 8A — 10A — 12A — 14A',
+    icon:'🩳', stock:'in', status:'live',
+    imageUrl:'',
+    color1:'#e84393', color2:'#55efc4', createdAt: D(12), rating:4.6 },
+
+  { id:25, type:'vetement', sub:'chaussettes', cat:'fille', name:'Chaussettes Sport Fille ×3',
+    price:7.99, oldPrice:null, badge:'',
+    desc:"Lot de 3 paires toutes douces, sans couture qui gratte. Respirantes et colorées — les pieds aussi ont du style.",
+    material:'75% Coton · 23% Polyamide · 2% Élasthanne',
+    sizes:'27-30 — 31-34 — 35-38',
+    icon:'🧦', stock:'in', status:'live',
+    imageUrl:'',
+    color1:'#fd79a8', color2:'#a29bfe', createdAt: D(14), rating:4.6 },
+
+  { id:26, type:'basket', sub:'basket', cat:'fille', name:'Basket Runner Rose Fille',
     price:44.99, oldPrice:null, badge:'',
     desc:"Légère comme une plume, rose comme elle veut. Semelle souple, scratch rapide — pour courir, danser et tout le reste.",
     material:'Mesh respirant · Semelle EVA souple',
     sizes:'28 — 30 — 32 — 34 — 36',
     icon:'🌸', stock:'in', status:'live',
     imageUrl:'https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=600&q=80',
-    color1:'#fd79a8', color2:'#ffeaa7', createdAt: D(14), rating:4.7 }
+    color1:'#fd79a8', color2:'#ffeaa7', createdAt: D(14), rating:4.7 },
+
+  /* ============ ÉQUIPEMENT (mixte — hors onglets genre) ============ */
+  { id:27, type:'vetement', sub:'equipement', cat:'mixte', name:'Ballon Match Taille 5',
+    price:22.99, oldPrice:null, badge:'',
+    desc:"Cousu machine, homologué compétition. Excellente tenue en l'air, résistance à l'abrasion — prêt pour les terrains de toute l'île.",
+    material:'Enveloppe PU · Vessie butyle haute rétention',
+    sizes:'Taille 5',
+    icon:'⚽', stock:'in', status:'live',
+    imageUrl:'https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=600&q=80',
+    color1:'#2d3436', color2:'#00b894', createdAt: D(4), rating:4.7 },
+
+  { id:28, type:'vetement', sub:'equipement', cat:'mixte', name:'Haltères Hexa 2 × 10 kg',
+    price:59.99, oldPrice:null, badge:'',
+    desc:"La paire d'haltères qui ne roule pas. Revêtement caoutchouc anti-choc, poignée moletée chromée — muscu à la maison ou en salle.",
+    material:'Fonte · Revêtement caoutchouc · Poignée acier',
+    sizes:'2 × 10 kg',
+    icon:'🏋️', stock:'low', status:'live',
+    imageUrl:'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=600&q=80',
+    color1:'#2d3436', color2:'#e17055', createdAt: D(6), rating:4.9 },
+
+  { id:29, type:'vetement', sub:'equipement', cat:'mixte', name:'Sac de Sport 45 L',
+    price:39.99, oldPrice:null, badge:'',
+    desc:"De la salle au terrain sans rien oublier. Compartiment chaussures ventilé, poche humide, bandoulière rembourrée.",
+    material:'Polyester 600D déperlant · Zips renforcés',
+    sizes:'45 L',
+    icon:'🎒', stock:'in', status:'live',
+    imageUrl:'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&q=80',
+    color1:'#e17055', color2:'#fdcb6e', createdAt: D(12), rating:4.6 },
+
+  { id:30, type:'vetement', sub:'equipement', cat:'mixte', name:'Corde à Sauter Speed',
+    price:12.99, oldPrice:null, badge:'',
+    desc:"Cardio express, n'importe où. Câble acier gainé, roulements à billes, longueur réglable — l'accessoire le plus rentable de ton sac.",
+    material:'Câble acier gainé PVC · Poignées alu',
+    sizes:'Réglable 3 m',
+    icon:'⏱️', stock:'in', status:'live',
+    imageUrl:'https://images.unsplash.com/photo-1434682881908-b43d0467b798?w=600&q=80',
+    color1:'#00b894', color2:'#0984e3', createdAt: D(25), rating:4.5 }
 ];
 
 /* ============================================================
@@ -319,7 +429,7 @@ const ProductDB = {
   /** Export CSV de tout le catalogue */
   exportCSV() {
     const rows = this.getAll();
-    const headers = ['id','name','type','cat','price','oldPrice','stock','status','sizes','material','desc','imageUrl'];
+    const headers = ['id','name','type','sub','cat','price','oldPrice','stock','status','sizes','material','desc','imageUrl'];
     const csv = [
       headers.join(';'),
       ...rows.map(r => headers.map(h => `"${String(r[h] ?? '').replace(/"/g,'""')}"`).join(';'))

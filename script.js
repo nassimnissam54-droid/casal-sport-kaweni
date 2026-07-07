@@ -31,8 +31,8 @@ allMegas.forEach(m => m.addEventListener('mouseleave', () => m.classList.remove(
 
 /* ============ ETAT FILTRES (multi-dimensionnel) ============ */
 const filterState = {
-  'grid-vet': { type:'vetement', cats:[], prices:[], inStock:false, promo:false, news:false, q:'', sort:'new' },
-  'grid-bas': { type:'basket',   cats:[], prices:[], inStock:false, promo:false, news:false, q:'', sort:'new' }
+  'grid-vet': { type:'vetement', cats:[], subs:[], prices:[], inStock:false, promo:false, news:false, q:'', sort:'new' },
+  'grid-bas': { type:'basket',   cats:[], subs:[], prices:[], inStock:false, promo:false, news:false, q:'', sort:'new' }
 };
 
 const SORT_LABELS = {
@@ -46,6 +46,7 @@ const SORT_LABELS = {
 function filterList(state) {
   let list = ProductDB.getLive().filter(p => p.type === state.type);
   if (state.cats.length)   list = list.filter(p => state.cats.includes(p.cat));
+  if (state.subs && state.subs.length) list = list.filter(p => state.subs.includes(p.sub));
   if (state.prices.length) {
     list = list.filter(p => state.prices.some(r => {
       const [min, max] = r.split('-').map(Number);
@@ -89,6 +90,8 @@ function applyFilter(id) {
 /* ============ ACTIVE FILTERS PILLS ============ */
 const FILTER_LABELS = {
   homme:'Homme', femme:'Femme', garcon:'Garçon', fille:'Fille', mixte:'Mixte / Équipement',
+  tshirt:'Tee-shirt', ensemble:'Ensemble', casquette:'Casquette',
+  short:'Short', chaussettes:'Chaussettes', basket:'Basket', equipement:'Équipement',
   '0-30':'< 30 €', '30-60':'30–60 €', '60-100':'60–100 €', '100-9999':'> 100 €',
   inStock:'En stock', promo:'En promo', news:'Nouveautés'
 };
@@ -96,6 +99,7 @@ const FILTER_LABELS = {
 function activeFiltersOf(state) {
   const out = [];
   state.cats.forEach(c => out.push({ key:'cats', val:c, label:FILTER_LABELS[c] || c }));
+  (state.subs || []).forEach(s => out.push({ key:'subs', val:s, label:FILTER_LABELS[s] || s }));
   state.prices.forEach(p => out.push({ key:'prices', val:p, label:FILTER_LABELS[p] || p }));
   if (state.inStock) out.push({ key:'inStock', val:true, label:FILTER_LABELS.inStock });
   if (state.promo)   out.push({ key:'promo',   val:true, label:FILTER_LABELS.promo });
@@ -131,7 +135,7 @@ function renderActiveFilters(id) {
 }
 
 function countActiveFilters(state) {
-  return state.cats.length + state.prices.length
+  return state.cats.length + (state.subs || []).length + state.prices.length
     + (state.inStock ? 1 : 0) + (state.promo ? 1 : 0) + (state.news ? 1 : 0);
 }
 
@@ -152,7 +156,7 @@ function updateSortLabel(id) {
 
 function resetFilters(id) {
   const s = filterState[id];
-  s.cats = []; s.prices = []; s.inStock = false; s.promo = false; s.news = false;
+  s.cats = []; s.subs = []; s.prices = []; s.inStock = false; s.promo = false; s.news = false;
   applyFilter(id);
 }
 
@@ -220,7 +224,7 @@ function cardHTML(p) {
       <button class="quick-add" data-id="${p.id}" ${orderDisabled}>${orderLabel}</button>
     </div>
     <div class="card-body">
-      <span class="card-cat">${labelOf(p.cat)} · ${p.type === 'basket' ? 'Chaussures' : 'Textile &amp; Équip.'}</span>
+      <span class="card-cat">${labelOf(p.cat)} · ${SUB_LABELS[p.sub] || (p.type === 'basket' ? 'Basket' : 'Textile &amp; Équip.')}</span>
       <h3 class="card-name">${esc(p.name)}</h3>
       ${ratingHTML}
       <div class="card-prices">
@@ -338,7 +342,7 @@ function updateApplyCount() {
   if (!filterDrawerTarget) return;
   // Construit un état temporaire à partir des cases cochées du drawer
   const base = filterState[filterDrawerTarget];
-  const tmp = { ...base, cats:[], prices:[], inStock:false, promo:false, news:false };
+  const tmp = { ...base, cats:[], subs:[], prices:[], inStock:false, promo:false, news:false };
   filterDrawer.querySelectorAll('input[data-fkey]:checked').forEach(input => {
     const k = input.dataset.fkey;
     if (Array.isArray(tmp[k])) tmp[k].push(input.value);
@@ -355,7 +359,7 @@ filterDrawer.querySelectorAll('input[data-fkey]').forEach(input => {
 document.getElementById('filterApply').addEventListener('click', () => {
   if (!filterDrawerTarget) { closeFilterDrawer(); return; }
   const s = filterState[filterDrawerTarget];
-  s.cats = []; s.prices = []; s.inStock = false; s.promo = false; s.news = false;
+  s.cats = []; s.subs = []; s.prices = []; s.inStock = false; s.promo = false; s.news = false;
   filterDrawer.querySelectorAll('input[data-fkey]:checked').forEach(input => {
     const k = input.dataset.fkey;
     if (Array.isArray(s[k])) s[k].push(input.value);
@@ -1242,9 +1246,28 @@ document.querySelectorAll('.collection-tile[data-cat]').forEach(tile => {
     e.preventDefault();
     const cat = tile.dataset.cat;
     const s = filterState['grid-vet'];
-    s.cats = [cat]; s.prices = []; s.inStock = false; s.promo = false; s.news = false;
+    s.cats = [cat]; s.subs = []; s.prices = []; s.inStock = false; s.promo = false; s.news = false;
     applyFilter('grid-vet');
     document.getElementById('vetements')?.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+
+/* ===== Liens des méga-menus → filtre catégorie + type d'article ===== */
+document.querySelectorAll('[data-fcat], [data-fsub]').forEach(link => {
+  link.addEventListener('click', e => {
+    e.preventDefault();
+    closeAllMegas();
+    const sub = link.dataset.fsub || '';
+    const cat = link.dataset.fcat || '';
+    // Les baskets vivent dans la section Chaussures, le reste dans Textile
+    const gridId = sub === 'basket' ? 'grid-bas' : 'grid-vet';
+    const s = filterState[gridId];
+    s.cats = cat ? [cat] : [];
+    s.subs = (sub && sub !== 'basket') ? [sub] : [];
+    s.prices = []; s.inStock = false; s.promo = false; s.news = false;
+    applyFilter(gridId);
+    const sectionId = gridId === 'grid-bas' ? 'baskets' : 'vetements';
+    document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' });
   });
 });
 
@@ -1258,7 +1281,7 @@ document.querySelectorAll('.collection-tile[data-cat]').forEach(tile => {
   const gridId = product.type === 'basket' ? 'grid-bas' : 'grid-vet';
   // Reset les filtres pour garantir la visibilité du produit
   const s = filterState[gridId];
-  s.cats = []; s.prices = []; s.inStock = false; s.promo = false; s.news = false; s.q = '';
+  s.cats = []; s.subs = []; s.prices = []; s.inStock = false; s.promo = false; s.news = false; s.q = '';
   applyFilter(gridId);
   setTimeout(() => {
     const card = document.querySelector(`#${gridId} .card[data-id="${pid}"]`);
