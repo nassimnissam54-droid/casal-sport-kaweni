@@ -859,21 +859,26 @@ function saveOrderLocal() {
 }
 
 /**
- * Envoie le reçu par e-mail via la fonction Netlify (Resend).
- * Échec silencieux : le code de retrait figure de toute façon dans le
- * message WhatsApp/email et dans « Mon compte ».
+ * Enregistre la commande CÔTÉ SERVEUR (/api/orders, Netlify Blobs).
+ * Le serveur valide les prix contre le catalogue publié, stocke la
+ * commande (visible dans l'admin même sans WhatsApp) et envoie le
+ * reçu e-mail avec le code de retrait (Resend).
+ * Échec silencieux : le code figure de toute façon dans le message
+ * WhatsApp et dans « Mon compte ».
  */
 function sendReceiptEmail(order) {
   try {
-    fetch('/.netlify/functions/send-receipt', {
+    fetch('/api/orders', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         name: order.name, email: order.email, phone: order.phone,
         pickupCode: order.pickupCode, total: order.total,
-        payment: order.payment, paymentLabel: paymentLabelOf(order.payment),
-        promo: order.promo,
-        items: order.items.map(i => ({ productName: i.productName, size: i.size, qty: i.qty, price: i.price }))
+        payment: order.payment, promo: order.promo,
+        items: order.items.map(i => ({
+          productId: i.productId, productName: i.productName,
+          size: i.size, qty: i.qty, price: i.price
+        }))
       })
     }).catch(() => {});
   } catch { /* silencieux */ }
@@ -1333,4 +1338,17 @@ document.addEventListener('keydown', e => {
   } else if (!e.shiftKey && (document.activeElement === last || !panel.contains(document.activeElement))) {
     first.focus(); e.preventDefault();
   }
+});
+
+/* ============================================================
+   SYNCHRO CATALOGUE (audit V1) : si l'admin a publié un catalogue
+   en ligne, on re-rend les grilles avec la version à jour.
+   ============================================================ */
+syncCatalogFromServer().then(changed => {
+  if (!changed) return;
+  applyFilter('grid-vet');
+  applyFilter('grid-bas');
+  renderCarousel();
+  renderFavorites();
+  updateFavCounter();
 });

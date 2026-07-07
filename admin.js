@@ -48,6 +48,9 @@ function showDashboard() {
   loginScreen.classList.add('hidden');
   dashboard.classList.remove('hidden');
   refreshAll();
+  // Récupère la version en ligne du catalogue (édition multi-appareils)
+  syncCatalogFromServer().then(changed => { if (changed) refreshAll(); });
+  syncOrdersFromServer(); // commandes passées sur d'autres appareils (audit V2)
 }
 
 loginForm.addEventListener('submit', async e => {
@@ -174,6 +177,7 @@ form.addEventListener('submit', e => {
   }
   resetForm();
   refreshAll();
+  pushCatalog();
 });
 
 function editProduct(id) {
@@ -209,6 +213,7 @@ function deleteProduct(id) {
   ProductDB.remove(id);
   showToast('🗑️ Produit supprimé');
   refreshAll();
+  pushCatalog();
 }
 
 function duplicateProduct(id) {
@@ -216,6 +221,7 @@ function duplicateProduct(id) {
   if (copy) {
     showToast(`📋 « ${copy.name} » créé en brouillon`);
     refreshAll();
+    pushCatalog();
   }
 }
 
@@ -223,6 +229,7 @@ function toggleStatus(id) {
   const p = ProductDB.toggleStatus(id);
   showToast(p.status === 'live' ? '🟢 Mis en ligne' : '📝 Mis en brouillon');
   refreshAll();
+  pushCatalog();
 }
 
 document.getElementById('resetBtn').addEventListener('click', () => {
@@ -230,6 +237,7 @@ document.getElementById('resetBtn').addEventListener('click', () => {
   ProductDB.reset();
   showToast('🔄 Catalogue réinitialisé');
   refreshAll();
+  pushCatalog();
 });
 
 /* ============ EXPORT CSV ============ */
@@ -330,6 +338,65 @@ function refreshStats() {
 
 function refreshAll() { renderTable(); refreshStats(); }
 
+/* ============================================================
+   PUBLICATION EN LIGNE (audit V1) — Netlify Blobs
+   Chaque modification du catalogue est poussée vers /api/catalog :
+   les visiteurs voient les changements immédiatement, sur tous
+   leurs appareils. Auth : le mot de passe saisi au login (comparé
+   côté serveur à la variable d'environnement ADMIN_PASSWORD).
+   ============================================================ */
+let pushTimer = null;
+function pushCatalog() {
+  clearTimeout(pushTimer);
+  pushTimer = setTimeout(async () => {
+    const key = sessionStorage.getItem('casal_admin_key');
+    if (!key) { showToast('🔑 Reconnecte-toi (mot de passe) pour publier en ligne'); return; }
+    try {
+      const r = await fetch('/api/catalog', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-key': key },
+        body: JSON.stringify({ action: 'replace', catalog: ProductDB.getAll() })
+      });
+      if (r.ok) showToast('☁️ Catalogue publié en ligne');
+      else if (r.status === 401) showToast('☁️ Publication refusée : configure ADMIN_PASSWORD sur Netlify avec CE mot de passe');
+      else if (r.status === 501) showToast('☁️ Publication non configurée (variable ADMIN_PASSWORD absente sur Netlify)');
+    } catch { /* préview locale / hors-ligne : les changements restent locaux */ }
+  }, 600);
+}
+
+/* Récupère les commandes passées côté serveur (audit V2) et les
+   fusionne avec les commandes locales de ce navigateur. */
+async function syncOrdersFromServer() {
+  const key = sessionStorage.getItem('casal_admin_key');
+  if (!key) return;
+  try {
+    const r = await fetch('/api/orders', { headers: { 'x-admin-key': key } });
+    if (!r.ok) return;
+    const remote = await r.json();
+    const local = OrderDB.getAll();
+    let added = 0;
+    remote.forEach(ro => {
+      const l = local.find(x => x.id === ro.id);
+      if (l) {
+        // Le serveur fait foi sur le statut (mis à jour depuis n'importe où)
+        l.status = ro.status; l.statusHistory = ro.statusHistory;
+      } else {
+        local.push({
+          ...ro,
+          total: ro.totalDisplayed || (ro.totalComputed.toFixed(2).replace('.', ',') + ' €'),
+          mode: 'retrait'
+        });
+        added++;
+      }
+    });
+    local.sort((a, b) => b.id - a.id);
+    OrderDB._save(local);
+    if (added) showToast(`☁️ ${added} commande(s) récupérée(s) du serveur`);
+    renderOrders();
+    refreshStats();
+  } catch { /* hors-ligne : commandes locales uniquement */ }
+}
+
 /* ============ COMMANDES REÇUES ============ */
 function orderItemsSummary(o) {
   if (o.items && o.items.length) {
@@ -395,10 +462,20 @@ function renderOrders() {
   // Bind les étapes cliquables
   wrap.querySelectorAll('.track-step[data-order]').forEach(btn => {
     btn.addEventListener('click', () => {
-      OrderDB.setStatus(parseInt(btn.dataset.order, 10), btn.dataset.status);
+      const orderId = parseInt(btn.dataset.order, 10);
+      OrderDB.setStatus(orderId, btn.dataset.status);
       renderOrders();
       const s = ORDER_STATUS_FLOW.find(x => x.id === btn.dataset.status);
       showToast(`${s.icon} Statut : ${s.label}`);
+      // Répercute le statut côté serveur (visible depuis tout appareil)
+      const key = sessionStorage.getItem('casal_admin_key');
+      if (key) {
+        fetch('/api/orders', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', 'x-admin-key': key },
+          body: JSON.stringify({ id: orderId, status: btn.dataset.status })
+        }).catch(() => {});
+      }
     });
   });
 }

@@ -439,6 +439,23 @@ const ProductDB = {
 };
 
 /* ============================================================
+   SYNCHRO CATALOGUE SERVEUR (audit V1)
+   Au chargement, on remplace le catalogue local par la version
+   publiée par l'admin (/api/catalog, Netlify Blobs). En préview
+   locale ou hors-ligne : silencieux, le catalogue par défaut reste.
+   ============================================================ */
+async function syncCatalogFromServer() {
+  try {
+    const r = await fetch('/api/catalog');
+    if (!r.ok) return false; // 404 = rien de publié encore
+    const list = await r.json();
+    if (!Array.isArray(list) || !list.length) return false;
+    ProductDB.saveAll(list);
+    return true;
+  } catch { return false; }
+}
+
+/* ============================================================
    API WISHLIST
    ============================================================ */
 const WishlistDB = {
