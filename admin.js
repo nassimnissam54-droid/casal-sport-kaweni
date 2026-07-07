@@ -1,9 +1,24 @@
 /* ============================================================
    ADMIN — CASAL SPORT
-   ⚠️ Auth client uniquement. Pour vraie sécurité : Netlify Identity.
+   Le mot de passe n'apparaît JAMAIS en clair dans le code :
+   seule son empreinte SHA-256 (salée) est stockée ci-dessous.
+   Pour changer le mot de passe :
+     printf '%s' 'NOUVEAU_MDP·casal-admin' | sha256sum
+   puis remplacer la constante ADMIN_PASSWORD_SHA256.
+   ⚠️ Gate d'interface uniquement (les données restent locales) ;
+   les opérations serveur sont vérifiées côté Netlify Functions.
    ============================================================ */
 
-const ADMIN_PASSWORD   = 'Lafamillejoi2*';
+// ⚠️ MOT DE PASSE TEMPORAIRE : « CS-Temp!Kaweni-2026 » — à remplacer
+// dès que le propriétaire fournit le mot de passe définitif.
+const ADMIN_PASSWORD_SHA256 = '56e6ccda928be1cf46aa8e5a26b9f78c4ff2cf0e490a86fd5d767a2ce1fc6744';
+
+/** SHA-256 hex via WebCrypto (dispo sur localhost et HTTPS) */
+async function sha256Hex(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
 // Nommés ADMIN_* pour ne pas entrer en collision avec SESSION_KEY
 // déclaré dans products.js (espace client), chargé sur la même page.
 const ADMIN_SESSION_KEY      = 'casal_admin_session';
@@ -35,11 +50,15 @@ function showDashboard() {
   refreshAll();
 }
 
-loginForm.addEventListener('submit', e => {
+loginForm.addEventListener('submit', async e => {
   e.preventDefault();
   const pwd = document.getElementById('loginPwd').value;
-  if (pwd === ADMIN_PASSWORD) {
+  const hash = await sha256Hex(pwd + '·casal-admin');
+  if (hash === ADMIN_PASSWORD_SHA256) {
     loginError.textContent = '';
+    // Conservé en session pour authentifier les appels aux Netlify
+    // Functions (x-admin-key) — jamais écrit dans le code ni le repo.
+    sessionStorage.setItem('casal_admin_key', pwd);
     login();
   } else {
     loginError.textContent = '❌ Mot de passe incorrect';
