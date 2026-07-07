@@ -111,7 +111,6 @@
           <button class="account-nav-item" data-pane="paneOrders">📦 Mes commandes <span class="badge-mini" id="ordersBadgeMini"></span></button>
           <button class="account-nav-item" data-pane="paneInfo">ℹ️ Mes informations</button>
           <button class="account-nav-item" data-pane="paneSecurity">🔐 Sécurité</button>
-          <button class="account-nav-item" data-pane="paneGifts">🎁 Cartes cadeaux <span class="badge-mini" id="giftsBadgeMini"></span></button>
           <button class="account-nav-item" data-pane="paneRating">⭐ Noter le site</button>
           <button class="account-nav-item logout" id="logoutBtn">🚪 Déconnexion</button>
         </nav>
@@ -140,8 +139,8 @@
               <strong id="profileFavs">0</strong>
             </div>
             <div class="profile-card">
-              <span class="profile-card-label">Cartes cadeaux</span>
-              <strong id="profileGifts">0,00 €</strong>
+              <span class="profile-card-label">Code de retrait en cours</span>
+              <strong id="profilePickup">—</strong>
             </div>
           </div>
           <div class="profile-info-box">
@@ -208,28 +207,6 @@
             <p>Supprimer ton compte effacera définitivement tes informations stockées sur ce navigateur.</p>
             <button class="btn-ghost danger" id="deleteAccountBtn">Supprimer mon compte</button>
           </div>
-        </section>
-
-        <!-- ============ CARTES CADEAUX ============ -->
-        <section class="account-pane" id="paneGifts">
-          <header class="pane-head">
-            <span class="section-eyebrow">Cadeaux</span>
-            <h2 class="section-title">Cartes cadeaux</h2>
-          </header>
-          <div class="gifts-summary">
-            <div>
-              <span class="profile-card-label">Solde total disponible</span>
-              <strong id="giftsTotalAmount" class="big-amount">0,00 €</strong>
-            </div>
-          </div>
-          <form id="giftForm" class="account-form inline-form">
-            <label>Ajouter une carte cadeau
-              <input type="text" id="giftCode" placeholder="Saisis ton code (ex: CASAL25)" />
-            </label>
-            <button type="submit" class="btn">Activer</button>
-          </form>
-          <p class="pane-msg" id="giftMsg"></p>
-          <div id="giftsList"></div>
         </section>
 
         <!-- ============ NOTER LE SITE ============ -->

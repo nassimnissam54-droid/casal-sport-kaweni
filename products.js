@@ -626,20 +626,6 @@ const UserDB = {
     localStorage.removeItem(SESSION_KEY);
   },
 
-  /** Cartes cadeaux */
-  addGiftCard(code, amount) {
-    const u = this.get(); if (!u) return false;
-    u.giftCards = u.giftCards || [];
-    if (u.giftCards.find(g => g.code === code)) return false;
-    u.giftCards.push({ code, amount: parseFloat(amount), used:false, addedAt:Date.now() });
-    this._save(u);
-    return true;
-  },
-  giftCardsTotal() {
-    const u = this.get(); if (!u) return 0;
-    return (u.giftCards || []).filter(g => !g.used).reduce((s,g) => s + g.amount, 0);
-  },
-
   /** Note du site (1-5) + commentaire optionnel */
   saveRating(stars, comment) {
     const u = this.get();
@@ -648,12 +634,6 @@ const UserDB = {
   }
 };
 
-/** Codes-cadeaux pré-générés (peut être étendu côté admin) */
-const VALID_GIFT_CARDS = {
-  'CASAL25':    25,
-  'KAWENI50':   50,
-  'NOEL100':   100
-};
 
 /* ============================================================
    SUIVI DE COMMANDE — étapes du click & collect (retrait Kawéni)

@@ -124,17 +124,15 @@ function refreshAll() {
   $('#profileOrders').textContent = orders.length;
   const favs = (typeof WishlistDB !== 'undefined') ? WishlistDB.count() : 0;
   $('#profileFavs').textContent = favs;
-  $('#profileGifts').textContent = UserDB.giftCardsTotal().toFixed(2).replace('.', ',') + ' €';
+  // Dernier code de retrait d'une commande non encore retirée
+  const pending = orders.find(o => o.pickupCode && o.status !== 'retiree');
+  $('#profilePickup').textContent = pending ? pending.pickupCode : '—';
   // Badges mini
   const ob = $('#ordersBadgeMini');
   if (orders.length) { ob.textContent = orders.length; ob.hidden = false; } else { ob.hidden = true; }
-  const gb = $('#giftsBadgeMini');
-  const nbGifts = (u.giftCards || []).filter(g => !g.used).length;
-  if (nbGifts) { gb.textContent = nbGifts; gb.hidden = false; } else { gb.hidden = true; }
   // Sections individuelles
   renderOrders();
   fillInfoForm();
-  renderGifts();
   initRating();
 }
 
@@ -264,53 +262,6 @@ $('#deleteAccountBtn').addEventListener('click', () => {
   UserDB.deleteAccount();
   showToast('🗑️ Compte supprimé');
   showAuth();
-});
-
-/* ============ CARTES CADEAUX ============ */
-function renderGifts() {
-  const u = UserDB.get(); if (!u) return;
-  const list = u.giftCards || [];
-  $('#giftsTotalAmount').textContent = UserDB.giftCardsTotal().toFixed(2).replace('.', ',') + ' €';
-  const wrap = $('#giftsList');
-  if (!list.length) {
-    wrap.innerHTML = `<div class="empty-state"><p>🎁 Aucune carte cadeau pour l'instant</p><p class="muted">Saisis un code ci-dessus pour activer ta première carte.</p></div>`;
-    return;
-  }
-  wrap.innerHTML = list.map(g => `
-    <div class="gift-card ${g.used ? 'used' : ''}">
-      <div>
-        <div class="gift-code">${esc(g.code)}</div>
-        <small>Ajoutée le ${new Date(g.addedAt).toLocaleDateString('fr-FR')}</small>
-      </div>
-      <div class="gift-amount">${g.amount.toFixed(2).replace('.', ',')} €</div>
-      <span class="gift-status">${g.used ? 'Utilisée' : 'Disponible'}</span>
-    </div>
-  `).join('');
-}
-
-$('#giftForm').addEventListener('submit', e => {
-  e.preventDefault();
-  const code = $('#giftCode').value.trim().toUpperCase();
-  const msg = $('#giftMsg');
-  if (!code) return;
-  const amount = VALID_GIFT_CARDS[code];
-  if (!amount) {
-    msg.textContent = '❌ Code invalide ou expiré.';
-    msg.className = 'pane-msg bad';
-    return;
-  }
-  const ok = UserDB.addGiftCard(code, amount);
-  if (!ok) {
-    msg.textContent = '⚠ Cette carte est déjà activée sur ton compte.';
-    msg.className = 'pane-msg bad';
-    return;
-  }
-  msg.textContent = `✅ Carte ${code} de ${amount} € activée !`;
-  msg.className = 'pane-msg ok';
-  $('#giftCode').value = '';
-  renderGifts();
-  refreshAll();
-  showToast(`🎁 +${amount} € sur ton compte`);
 });
 
 /* ============ NOTER LE SITE ============ */
