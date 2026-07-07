@@ -3481,3 +3481,55 @@ a:focus:not(:focus-visible) { outline: none; }
   outline-offset: 2px;
   border-radius: 2px;
 }
+
+/* ============================================================
+   DIRECTION « SABLE CHAUD » (audit — axe D, parti pris validé)
+   Fond sable clair, chaleur boutique de quartier, arrondis doux,
+   corail = accent unique. Couche d'override volontairement groupée
+   ici pour rester lisible et réversible.
+   ============================================================ */
+:root {
+  --sable-bg:   #FBF5EA;   /* fond de page */
+  --sable-card: #FFFFFF;   /* surfaces posées sur le sable */
+  --sable-line: #EBDCC3;   /* traits chauds */
+  --r-lg: 18px;
+}
+
+body { background: var(--sable-bg); }
+
+/* Header & navigation : blanc chaud */
+.header { background: #FFFDF7; border-bottom-color: var(--sable-line); }
+.category-nav { border-color: var(--sable-line); }
+.mobile-nav { background: #FFFDF7; border-top: 1px solid var(--sable-line); }
+
+/* Boutons : pilule chaleureuse, accent corail assumé */
+.btn, .btn-wa, .btn-mail, .btn-copy { border-radius: 999px; }
+.btn:hover { background: var(--corail-deep); border-color: var(--corail-deep); }
+
+/* Cartes produit : posées sur le sable */
+.card {
+  background: var(--sable-card);
+  border: 1px solid var(--sable-line);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+.card-img-wrap { background: var(--gris-50); }
+
+/* Sections crème → vrai sable */
+.section-cream { background: var(--sable); }
+.trust-strip { background: #FFFDF7; border-color: var(--sable-line); }
+
+/* Surfaces flottantes arrondies */
+.modal-box { border-radius: var(--r-lg); }
+.cart-drawer { border-radius: var(--r-lg) 0 0 var(--r-lg); }
+.filter-drawer { border-radius: 0 var(--r-lg) var(--r-lg) 0; }
+.mega-menu { border-radius: 0 0 var(--r-lg) var(--r-lg); }
+.order-form input, .order-form select, .order-form textarea,
+.auth-form input, .auth-form textarea,
+.newsletter-box input, .search-box input { border-radius: 12px; }
+.pay-method { border-radius: 12px; }
+.collection-tile, .split-banner, .testimonial { border-radius: var(--r-lg); overflow: hidden; }
+
+/* Un seul accent : corail (le lagon/hibiscus hérités sortent des composants) */
+.card-badge.new { background: var(--palmier); }
+.testimonial:nth-child(3) { border-color: var(--corail); }
