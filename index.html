@@ -1,214 +1,972 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Casal Sport Kaweni — Équipement sportif à Mayotte | Achat en ligne, retrait en magasin</title>
-  <meta name="description" content="Casal Sport Kaweni (Mamoudzou, Mayotte) : chaussures, textile et équipement de sport. Commandez en ligne, payez comme vous voulez, retirez en magasin avec votre code de retrait.">
-  <meta property="og:title" content="Casal Sport Kaweni — Équipement sportif à Mayotte">
-  <meta property="og:description" content="Commandez en ligne, retirez en magasin à Kawéni. Running, football, basket, fitness, musculation.">
-  <meta property="og:type" content="website">
-  <meta property="og:locale" content="fr_FR">
-  <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#000000" />
+
+  <!-- SEO -->
+  <title>CASAL SPORT — Équipement sportif à Mayotte · Magasin de Kawéni</title>
+  <meta name="description" content="CASAL SPORT, magasin de sport à Kawéni (Mayotte). Chaussures, textile et équipement pour le running, le foot, le basket et le fitness. Commande en ligne, retrait gratuit en magasin avec code de retrait." />
+  <meta name="keywords" content="casal sport, kaweni, mayotte, sport, running, football, basket, fitness, musculation, chaussures, click and collect, retrait magasin" />
+  <link rel="canonical" href="https://casal-sport-kaweni.netlify.app/" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://casal-sport-kaweni.netlify.app/" />
+  <meta property="og:title" content="CASAL SPORT — Équipement sportif à Kawéni, Mayotte" />
+  <meta property="og:description" content="Chaussures, textile et équipement de sport. Commande en ligne, retrait gratuit au magasin de Kawéni avec ton code de retrait." />
+  <meta property="og:image" content="https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=1200&h=630&fit=crop&q=80" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="fr_FR" />
+  <meta property="og:site_name" content="CASAL SPORT" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="CASAL SPORT — Équipement sportif à Mayotte" />
+  <meta name="twitter:description" content="Chaussures, textile & équipement de sport. Retrait gratuit au magasin de Kawéni." />
+  <meta name="twitter:image" content="https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=1200&h=630&fit=crop&q=80" />
+
+  <link rel="icon" type="image/svg+xml" href="logo.svg" />
+  <link rel="apple-touch-icon" href="logo.svg" />
+
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "SportingGoodsStore",
-    "name": "Casal Sport Kaweni",
+    "name": "CASAL SPORT",
+    "url": "https://casal-sport-kaweni.netlify.app",
+    "description": "Magasin d'équipement sportif à Kawéni (Mayotte) — commande en ligne, retrait gratuit en magasin.",
     "address": {
       "@type": "PostalAddress",
-      "streetAddress": "Zone commerciale de Kawéni",
-      "addressLocality": "Mamoudzou",
+      "addressLocality": "Kawéni, Mamoudzou",
       "postalCode": "97600",
+      "addressRegion": "Mayotte",
       "addressCountry": "YT"
     },
-    "openingHours": "Mo-Sa 08:30-17:30",
-    "priceRange": "€€"
+    "areaServed": ["Mayotte"],
+    "paymentAccepted": ["Cash", "Credit Card", "Bank Transfer"],
+    "currenciesAccepted": "EUR",
+    "telephone": "+262 639 07 00 35"
   }
   </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://images.unsplash.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Préchargement de l'image hero (LCP) -->
+  <link rel="preload" as="image"
+        href="https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=1100&q=80"
+        imagesrcset="https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=700&q=80 700w, https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=1100&q=80 1100w, https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=1600&q=80 1600w"
+        imagesizes="100vw" fetchpriority="high" />
+
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <a class="skip-link" href="#main">Aller au contenu</a>
 
-  <header class="site-header">
-    <div class="container inner">
-      <a class="logo" href="index.html" aria-label="Casal Sport Kaweni — accueil">
-        <span class="mark" aria-hidden="true">CS</span>
-        <span>Casal Sport<small>KAWENI · MAYOTTE</small></span>
-      </a>
-      <button class="nav-toggle" aria-expanded="false" aria-label="Ouvrir le menu">☰</button>
-      <nav class="main-nav" aria-label="Navigation principale">
-        <a href="index.html" aria-current="page">Accueil</a>
-        <a href="boutique.html">Boutique</a>
-        <a href="contact.html">Le magasin</a>
-        <a class="cart-link" href="panier.html">Panier <span class="cart-count" aria-label="articles dans le panier">0</span></a>
-      </nav>
+  <a href="#vetements" class="skip-link">Aller au catalogue</a>
+
+  <!-- ============ ANNOUNCE BAR ============ -->
+  <div class="announce-bar" aria-label="Informations magasin">
+    <div class="announce-track">
+      <span>📍 MAGASIN À KAWÉNI · MAYOTTE</span>
+      <span>🛍️ COMMANDE EN LIGNE · RETRAIT GRATUIT EN MAGASIN</span>
+      <span>🎫 CODE DE RETRAIT ENVOYÉ APRÈS TA COMMANDE</span>
+      <span>💳 CARTE · ESPÈCES · VIREMENT</span>
+      <span>🎁 CODE BIENVENUE10 — -10% PREMIÈRE COMMANDE</span>
+      <span>💬 COMMANDE FACILE PAR WHATSAPP</span>
+      <span>📍 MAGASIN À KAWÉNI · MAYOTTE</span>
+      <span>🛍️ COMMANDE EN LIGNE · RETRAIT GRATUIT EN MAGASIN</span>
+      <span>🎫 CODE DE RETRAIT ENVOYÉ APRÈS TA COMMANDE</span>
+      <span>💳 CARTE · ESPÈCES · VIREMENT</span>
+      <span>🎁 CODE BIENVENUE10 — -10% PREMIÈRE COMMANDE</span>
+      <span>💬 COMMANDE FACILE PAR WHATSAPP</span>
     </div>
+  </div>
+
+  <!-- ============ HEADER ============ -->
+  <header class="header" id="top">
+    <div class="header-row">
+      <div class="header-left">
+        <button class="burger-btn" id="burger" aria-label="Menu">
+          <span></span><span></span><span></span>
+        </button>
+        <button class="header-icon" id="searchToggle" aria-label="Rechercher" title="Rechercher">🔍</button>
+      </div>
+
+      <a href="#top" class="logo-link">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+            <rect width="64" height="64" rx="8" fill="#0A0A0A"/>
+            <text x="32" y="46" text-anchor="middle" font-family="Impact,'Arial Narrow Bold','Anton',sans-serif" font-weight="900" font-size="38" fill="#FFFFFF" letter-spacing="-2.5">CS</text>
+            <path d="M 14 56 Q 22 51, 30 56 T 46 56 T 54 53" stroke="#FF4D3D" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+            <circle cx="52" cy="13" r="3.5" fill="#FF4D3D"/>
+          </svg>
+        </span>
+        <span class="brand-text">
+          CASAL <span class="accent">SPORT</span>
+          <span class="logo-tag">Kawéni · Mayotte</span>
+        </span>
+      </a>
+
+      <div class="header-right">
+        <a href="#favoris" class="header-icon" aria-label="Favoris" title="Favoris">
+          ♡<span class="count" id="favCounter">0</span>
+        </a>
+        <a href="compte.html" class="header-icon" aria-label="Mon compte" title="Mon compte">👤</a>
+        <a href="#" class="header-icon" id="cartToggle" aria-label="Panier" title="Mon panier">
+          🛒<span class="count" id="cartCounter" hidden>0</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Nav catégories avec mega menu -->
+    <nav class="category-nav" aria-label="Catégories">
+      <div class="category-track">
+        <a href="#nouveautes" class="category-item featured">★ Nouveautés</a>
+        <a href="#vetements"  class="category-item" data-mega="megaFemme">Femme</a>
+        <a href="#vetements"  class="category-item" data-mega="megaHomme">Homme</a>
+        <a href="#vetements"  class="category-item" data-mega="megaEnfant">Enfant</a>
+        <a href="#baskets"    class="category-item" data-mega="megaBaskets">Chaussures</a>
+        <a href="#favoris"    class="category-item">Favoris</a>
+        <a href="#pourquoi"   class="category-item">Le magasin</a>
+      </div>
+
+      <!-- Méga-menu Femme -->
+      <div class="mega-menu" id="megaFemme">
+        <div class="mega-col">
+          <h5>Textile</h5>
+          <a href="#vetements">Brassières</a>
+          <a href="#vetements">Leggings</a>
+          <a href="#vetements">Shorts running</a>
+          <a href="#vetements">T-shirts techniques</a>
+        </div>
+        <div class="mega-col">
+          <h5>Chaussures</h5>
+          <a href="#baskets">Running</a>
+          <a href="#baskets">Training &amp; fitness</a>
+          <a href="#baskets">Sports co</a>
+        </div>
+        <div class="mega-col">
+          <h5>Sports</h5>
+          <a href="#vetements">Running</a>
+          <a href="#vetements">Fitness &amp; yoga</a>
+          <a href="#vetements">Musculation</a>
+        </div>
+        <div class="mega-col">
+          <h5>Aide</h5>
+          <a href="javascript:openSizeGuide()">Guide des tailles</a>
+          <a href="cgv.html">Retrait &amp; retours</a>
+          <a href="#contact">Nous contacter</a>
+        </div>
+        <a href="#vetements" class="mega-promo">
+          <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&q=70" alt="Sport femme" />
+          <strong>SPORT<br>FEMME</strong>
+        </a>
+      </div>
+
+      <!-- Méga-menu Homme -->
+      <div class="mega-menu" id="megaHomme">
+        <div class="mega-col">
+          <h5>Textile</h5>
+          <a href="#vetements">Maillots</a>
+          <a href="#vetements">Shorts training</a>
+          <a href="#vetements">Hoodies &amp; sweats</a>
+          <a href="#vetements">Survêtements</a>
+        </div>
+        <div class="mega-col">
+          <h5>Chaussures</h5>
+          <a href="#baskets">Running</a>
+          <a href="#baskets">Basketball</a>
+          <a href="#baskets">Crampons foot</a>
+        </div>
+        <div class="mega-col">
+          <h5>Sports</h5>
+          <a href="#vetements">Football</a>
+          <a href="#baskets">Basket</a>
+          <a href="#vetements">Musculation</a>
+        </div>
+        <div class="mega-col">
+          <h5>Aide</h5>
+          <a href="javascript:openSizeGuide()">Guide des tailles</a>
+          <a href="cgv.html">Retrait &amp; retours</a>
+          <a href="#contact">Nous contacter</a>
+        </div>
+        <a href="#vetements" class="mega-promo">
+          <img src="https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?w=400&q=70" alt="Sport homme" />
+          <strong>SPORT<br>HOMME</strong>
+        </a>
+      </div>
+
+      <!-- Méga-menu Enfant -->
+      <div class="mega-menu" id="megaEnfant">
+        <div class="mega-col">
+          <h5>Fille</h5>
+          <a href="#vetements">Ensembles training</a>
+          <a href="#vetements">Gym &amp; danse</a>
+          <a href="#baskets">Chaussures fille</a>
+        </div>
+        <div class="mega-col">
+          <h5>Garçon</h5>
+          <a href="#vetements">Survêtements</a>
+          <a href="#vetements">Maillots de foot</a>
+          <a href="#baskets">Chaussures garçon</a>
+        </div>
+        <div class="mega-col">
+          <h5>Tailles</h5>
+          <a href="javascript:openSizeGuide()">6-10 ans</a>
+          <a href="javascript:openSizeGuide()">10-14 ans</a>
+          <a href="javascript:openSizeGuide()">Pointures enfant</a>
+        </div>
+        <div class="mega-col">
+          <h5>Aide</h5>
+          <a href="javascript:openSizeGuide()">Guide des tailles</a>
+          <a href="cgv.html">Retrait &amp; retours</a>
+        </div>
+        <a href="#vetements" class="mega-promo">
+          <img src="https://images.unsplash.com/photo-1503944583220-79d8926ad5e2?w=400&q=70" alt="Sport enfant" />
+          <strong>KIDS<br>SPORT</strong>
+        </a>
+      </div>
+
+      <!-- Méga-menu Chaussures -->
+      <div class="mega-menu" id="megaBaskets">
+        <div class="mega-col">
+          <h5>Par sport</h5>
+          <a href="#baskets">Running</a>
+          <a href="#baskets">Basketball</a>
+          <a href="#baskets">Football (crampons)</a>
+          <a href="#baskets">Training &amp; fitness</a>
+        </div>
+        <div class="mega-col">
+          <h5>Homme</h5>
+          <a href="#baskets">Pulse Runner</a>
+          <a href="#baskets">Court Pro Mid</a>
+          <a href="#baskets">Crampons Strike FG</a>
+        </div>
+        <div class="mega-col">
+          <h5>Femme &amp; enfant</h5>
+          <a href="#baskets">Air Flow W</a>
+          <a href="#baskets">Studio Trainer W</a>
+          <a href="#baskets">Junior Flash</a>
+        </div>
+        <div class="mega-col">
+          <h5>Aide</h5>
+          <a href="javascript:openSizeGuide()">Pointures</a>
+          <a href="cgv.html">Retours</a>
+        </div>
+        <a href="#baskets" class="mega-promo">
+          <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=70" alt="Chaussures de sport" />
+          <strong>SHOE<br>DROP</strong>
+        </a>
+      </div>
+    </nav>
   </header>
 
-  <main id="main" class="no-pad">
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <img class="hero-bg"
+         src="https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=1100&q=80"
+         srcset="https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=700&q=80 700w, https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=1100&q=80 1100w, https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=1600&q=80 1600w"
+         sizes="100vw" fetchpriority="high" decoding="async"
+         alt="Athlète au départ sur une piste d'athlétisme" />
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <span class="hero-eyebrow">📍 Mayotte · Kawéni · Saison 2026</span>
+      <h1 class="hero-title">Le sport de toute l'île<br><em>commence ici</em></h1>
+      <div class="hero-actions">
+        <a href="#baskets" class="btn">Voir les Chaussures →</a>
+        <a href="#vetements" class="btn btn-outline on-dark">Textile & Équipement</a>
+      </div>
+    </div>
+  </section>
 
-    <!-- ================= HERO 3D IMMERSIF =================
-         Le scroll pilote la scène Three.js (js/hero3d.js).
-         Sans WebGL / prefers-reduced-motion : repli statique (body.no-3d). -->
-    <div class="hero-wrap" id="hero-wrap">
-      <section class="hero-stage" id="hero-stage" aria-label="Présentation immersive des collections">
-        <div id="hero-canvas" aria-hidden="true"></div>
+  <!-- ============ TRUST STRIP ============ -->
+  <div class="trust-strip">
+    <div class="trust-item">🛍️ <strong>Retrait gratuit</strong><small>Au magasin de Kawéni, avec ton code de retrait</small></div>
+    <div class="trust-item">💳 <strong>Paie comme tu veux</strong><small>Carte au retrait · Espèces · Virement</small></div>
+    <div class="trust-item">↩️ <strong>Retour offert</strong><small>Sous 14 jours, directement au magasin</small></div>
+    <div class="trust-item">💬 <strong>WhatsApp 7j/7</strong><small>Service client humain</small></div>
+  </div>
 
-        <button class="sound-toggle" id="sound-toggle" aria-pressed="false" hidden>
-          ♪ Activer le son
-        </button>
+  <!-- ============ BOUTIQUE KAWÉNI ============ -->
+  <section class="shop-band">
+    <div class="shop-band-inner">
+      <div class="shop-icon">📍</div>
+      <div class="shop-info">
+        <span class="shop-eyebrow">Notre magasin · Point de retrait de tes commandes</span>
+        <h2 class="shop-title">KAWÉNI · MAYOTTE</h2>
+      </div>
+      <div class="shop-actions">
+        <a href="https://wa.me/262639070035?text=Bonjour%20CASAL%20SPORT%20%F0%9F%91%8B%0AJ%27ai%20une%20question%20sur%20le%20magasin%20de%20Kaw%C3%A9ni." class="btn" target="_blank">💬 Nous écrire</a>
+        <a href="https://www.google.com/maps/search/Casal+Sport+Kaweni+Mamoudzou+Mayotte" target="_blank" rel="noopener" class="btn btn-outline">🗺️ Itinéraire</a>
+      </div>
+    </div>
+  </section>
 
-        <!-- Chapitre 1 : RUNNING -->
-        <div class="hero-chapter" data-chapter="0">
-          <span class="badge">CASAL × MAYOTTE</span>
-          <h1 class="split-text">Cours plus <span class="accent">loin</span></h1>
-          <p>Chaussures de running conçues pour la route et la chaleur.
-             Commande en ligne, retire ta paire au magasin de Kawéni.</p>
-          <p><a class="btn btn-primary" href="boutique.html?sport=running">Voir le running</a></p>
+  <!-- ============ COLLECTIONS (tuiles catégories) ============ -->
+  <section class="section section-tight" id="collections">
+    <div class="section-head">
+      <div>
+        <span class="section-eyebrow">Shopper par</span>
+        <h2 class="section-title">Collections</h2>
+      </div>
+    </div>
+    <div class="collections-grid">
+      <a href="#vetements" class="collection-tile" data-cat="femme">
+        <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=700&q=75" alt="Sport Femme" loading="lazy" decoding="async" />
+        <div class="collection-tile-overlay">
+          <h3>Femme</h3>
+          <span>Explorer →</span>
         </div>
-
-        <!-- Chapitre 2 : FOOTBALL -->
-        <div class="hero-chapter" data-chapter="1">
-          <span class="badge">ESPRIT CLUB</span>
-          <h2 class="split-text">Le terrain <span class="accent">t'attend</span></h2>
-          <p>Ballons, maillots et équipement pour les clubs et les passionnés
-             de football de toute l'île.</p>
-          <p><a class="btn btn-primary" href="boutique.html?sport=football">Voir le football</a></p>
+      </a>
+      <a href="#vetements" class="collection-tile" data-cat="homme">
+        <img src="https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?w=700&q=75" alt="Sport Homme" loading="lazy" decoding="async" />
+        <div class="collection-tile-overlay">
+          <h3>Homme</h3>
+          <span>Explorer →</span>
         </div>
-
-        <!-- Chapitre 3 : MUSCULATION -->
-        <div class="hero-chapter" data-chapter="2">
-          <span class="badge">FORCE &amp; FITNESS</span>
-          <h2 class="split-text">Deviens plus <span class="accent">fort</span></h2>
-          <p>Haltères, accessoires et textile training : équipe ta salle,
-             chez toi ou en club.</p>
-          <p><a class="btn btn-primary" href="boutique.html?sport=musculation">Voir la muscu</a>
-             <a class="btn btn-ghost" href="boutique.html">Toute la boutique</a></p>
+      </a>
+      <a href="#vetements" class="collection-tile" data-cat="garcon">
+        <img src="https://images.unsplash.com/photo-1503944583220-79d8926ad5e2?w=700&q=75" alt="Sport Garçon" loading="lazy" decoding="async" />
+        <div class="collection-tile-overlay">
+          <h3>Garçon</h3>
+          <span>Explorer →</span>
         </div>
+      </a>
+      <a href="#vetements" class="collection-tile" data-cat="fille">
+        <img src="https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?w=700&q=75" alt="Sport Fille" loading="lazy" decoding="async" />
+        <div class="collection-tile-overlay">
+          <h3>Fille</h3>
+          <span>Explorer →</span>
+        </div>
+      </a>
+    </div>
+  </section>
 
-        <div class="scroll-hint" id="scroll-hint">Scroll to explore</div>
-      </section>
+  <!-- ============ NOUVEAUTÉS ============ -->
+  <section class="section section-tight" id="nouveautes">
+    <div class="section-head">
+      <div>
+        <span class="section-eyebrow">★ Just dropped</span>
+        <h2 class="section-title">Nouveautés</h2>
+      </div>
+      <a href="#vetements" class="section-link">Voir tout →</a>
+    </div>
+    <div class="carousel-wrapper">
+      <button class="carousel-arrow" id="carouselPrev" aria-label="Précédent">‹</button>
+      <div class="carousel" id="carouselNew"></div>
+      <button class="carousel-arrow" id="carouselNext" aria-label="Suivant">›</button>
+    </div>
+  </section>
+
+  <!-- ============ SPLIT BANNERS (lookbook) ============ -->
+  <section class="section-full">
+    <div class="split-banners">
+      <a href="#baskets" class="split-banner">
+        <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1200&q=80" alt="Chaussures de running" loading="lazy" decoding="async" />
+        <div class="split-banner-overlay">
+          <div>
+            <h3>Running<br>2026</h3>
+            <p>Découvrir les chaussures</p>
+          </div>
+        </div>
+      </a>
+      <a href="#vetements" class="split-banner">
+        <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1200&q=80" alt="Équipement de musculation" loading="lazy" decoding="async" />
+        <div class="split-banner-overlay">
+          <div>
+            <h3>Muscu<br>&amp; Fitness</h3>
+            <p>Découvrir l'équipement</p>
+          </div>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ============ FAVORIS ============ -->
+  <section class="section" id="favoris">
+    <div class="section-head">
+      <div>
+        <span class="section-eyebrow">Tes coups de cœur</span>
+        <h2 class="section-title">Mes favoris</h2>
+        <span class="section-sub" id="favSubtitle" hidden></span>
+      </div>
+    </div>
+    <div class="products-grid" id="grid-fav"></div>
+  </section>
+
+  <!-- ============ VÊTEMENTS ============ -->
+  <section class="section" id="vetements">
+    <div class="section-head">
+      <div>
+        <span class="section-eyebrow">Textile &amp; matériel</span>
+        <h2 class="section-title">Textile &amp; Équipement</h2>
+      </div>
+      <span class="results-count" id="countVet"></span>
     </div>
 
-    <!-- ================= COLLECTIONS ================= -->
-    <section class="section container" aria-labelledby="collections-title">
-      <div class="section-head">
-        <div>
-          <h2 id="collections-title">Les <span class="accent">collections</span></h2>
-          <p>Tout l'équipement, du débutant au compétiteur.</p>
+    <div class="toolbar-bar">
+      <button class="toolbar-btn" data-action="filter" data-target="grid-vet">
+        <span class="ico">▤</span> Filtrer <span class="num" id="filterCountVet" hidden></span>
+      </button>
+      <button class="toolbar-btn" data-action="sort" data-target="grid-vet">
+        <span class="ico">↕</span> Trier <span class="current" id="sortLabelVet">: Nouveautés</span>
+      </button>
+    </div>
+
+    <div class="active-filters" id="activeFiltersVet" hidden></div>
+
+    <div class="toolbar">
+      <div class="search-box">
+        <input type="search" id="searchVet" placeholder="Rechercher..." aria-label="Rechercher" />
+      </div>
+      <button class="size-guide-link" onclick="openSizeGuide()">📏 Guide des tailles</button>
+    </div>
+
+    <div class="products-grid" id="grid-vet"></div>
+  </section>
+
+  <!-- ============ POURQUOI NOUS ============ -->
+  <section class="section-full" id="pourquoi">
+    <div class="story">
+      <div class="story-img">
+        <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=900&q=80" alt="Plage de l'Océan Indien" loading="lazy" decoding="async" />
+      </div>
+      <div class="story-content">
+        <span class="section-eyebrow">Notre magasin</span>
+        <h2 class="section-title">Le sport de Mayotte a son adresse : Kawéni</h2>
+        <p><strong>CASAL SPORT</strong>, c'est le magasin d'équipement sportif de <strong>Kawéni (Mamoudzou)</strong> : chaussures, textile technique et matériel pour le running, le foot, le basket, le fitness et la muscu.</p>
+        <p>Tu commandes en ligne quand tu veux, tu reçois ton <strong>code de retrait</strong>, et tu viens chercher ta commande au magasin — zéro frais de livraison, zéro attente postale, et l'équipe est là pour te conseiller.</p>
+        <div class="story-points">
+          <div class="story-point">
+            <strong>Stock réel</strong>
+            <span>Ce que tu commandes est au magasin</span>
+          </div>
+          <div class="story-point">
+            <strong>Service humain</strong>
+            <span>On répond vite par WhatsApp</span>
+          </div>
+          <div class="story-point">
+            <strong>Retrait gratuit</strong>
+            <span>À Kawéni, avec ton code</span>
+          </div>
+          <div class="story-point">
+            <strong>Sans engagement</strong>
+            <span>Retour 14j au magasin</span>
+          </div>
         </div>
-        <a class="btn btn-ghost" href="boutique.html">Toute la boutique</a>
       </div>
-      <div class="collections-grid">
-        <a class="collection-card" href="boutique.html?cat=chaussures">
-          <h3>Chaussures</h3><span>Running · Basket · Foot</span>
-        </a>
-        <a class="collection-card" href="boutique.html?cat=textile">
-          <h3>Textile</h3><span>Maillots · Shorts · Brassières</span>
-        </a>
-        <a class="collection-card" href="boutique.html?cat=equipement">
-          <h3>Équipement</h3><span>Ballons · Haltères · Sacs</span>
-        </a>
-        <a class="collection-card" href="boutique.html?genre=femme">
-          <h3>Femme</h3><span>La sélection femme</span>
-        </a>
-      </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- ================= PRODUITS PHARES ================= -->
-    <section class="section container" aria-labelledby="featured-title">
-      <div class="section-head">
-        <div>
-          <h2 id="featured-title">En ce <span class="accent">moment</span></h2>
-          <p>Les produits phares du magasin.</p>
-        </div>
-      </div>
-      <div class="products-grid" id="featured-grid" aria-live="polite"></div>
-    </section>
-
-    <!-- ================= RÉASSURANCE ================= -->
-    <section class="section container" aria-labelledby="reassure-title">
-      <h2 id="reassure-title" class="sr-only" style="position:absolute;left:-9999px">Nos garanties</h2>
-      <div class="reassure">
-        <article>
-          <span class="ico" aria-hidden="true">🏬</span>
-          <h3>Retrait en magasin à Kawéni</h3>
-          <p>Pas de frais de livraison, pas d'attente postale : tu commandes en ligne
-             et tu récupères ton article directement au magasin, avec ton code de retrait.</p>
-        </article>
-        <article>
-          <span class="ico" aria-hidden="true">💳</span>
-          <h3>Paie comme tu veux</h3>
-          <p>Carte en ligne, carte au magasin, espèces au retrait ou virement bancaire :
-             tous les moyens de paiement sont acceptés.</p>
-        </article>
-        <article>
-          <span class="ico" aria-hidden="true">📧</span>
-          <h3>Reçu immédiat par e-mail</h3>
-          <p>Juste après ta commande, tu reçois un e-mail avec ton code de retrait
-             et le détail de tes articles.</p>
-        </article>
-        <article>
-          <span class="ico" aria-hidden="true">🇾🇹</span>
-          <h3>100 % Mayotte</h3>
-          <p>Un stock réel, sur l'île, vérifié par l'équipe du magasin.
-             Ce que tu commandes est disponible à Kawéni.</p>
-        </article>
-      </div>
-    </section>
-  </main>
-
-  <footer class="site-footer">
-    <div class="container footer-grid">
+  <!-- ============ BASKETS ============ -->
+  <section class="section section-dark" id="baskets">
+    <div class="section-head">
       <div>
-        <h3>Casal Sport Kaweni</h3>
+        <span class="section-eyebrow">Running · Basket · Foot · Training</span>
+        <h2 class="section-title">Chaussures de Sport</h2>
+      </div>
+      <span class="results-count" id="countBas"></span>
+    </div>
+
+    <div class="toolbar-bar">
+      <button class="toolbar-btn" data-action="filter" data-target="grid-bas">
+        <span class="ico">▤</span> Filtrer <span class="num" id="filterCountBas" hidden></span>
+      </button>
+      <button class="toolbar-btn" data-action="sort" data-target="grid-bas">
+        <span class="ico">↕</span> Trier <span class="current" id="sortLabelBas">: Nouveautés</span>
+      </button>
+    </div>
+
+    <div class="active-filters" id="activeFiltersBas" hidden></div>
+
+    <div class="toolbar">
+      <div class="search-box">
+        <input type="search" id="searchBas" placeholder="Rechercher..." aria-label="Rechercher" />
+      </div>
+      <button class="size-guide-link" onclick="openSizeGuide()">📏 Guide des pointures</button>
+    </div>
+
+    <div class="products-grid" id="grid-bas"></div>
+  </section>
+
+  <!-- ============ TÉMOIGNAGES ============ -->
+  <section class="section section-cream">
+    <div class="section-head centered">
+      <span class="section-eyebrow">Vos retours</span>
+      <h2 class="section-title">Ils en parlent</h2>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testimonial">
+        <div class="testimonial-stars">★★★★★</div>
+        <p>« Commandé dimanche soir, code de retrait reçu direct, récupéré lundi midi à Kawéni. Simple et rapide, mes nouvelles running sont parfaites ! »</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">A</div>
+          <div><strong>Aïsha M.</strong><small>Mamoudzou · Mayotte</small></div>
+        </div>
+      </div>
+      <div class="testimonial">
+        <div class="testimonial-stars">★★★★★</div>
+        <p>« On a équipé tout le club en maillots et ballons. Bon conseil au magasin, prix corrects, et le retrait avec le code c'est super pratique. »</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">L</div>
+          <div><strong>Loïc D.</strong><small>Coach · Koungou</small></div>
+        </div>
+      </div>
+      <div class="testimonial">
+        <div class="testimonial-stars">★★★★★</div>
+        <p>« Mes enfants sont équipés pour l'année : survêt, chaussures, sac. Payé en espèces au retrait, aucun souci. Merci CASAL SPORT ! »</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">F</div>
+          <div><strong>Fatima B.</strong><small>Dzaoudzi · Mayotte</small></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ NEWSLETTER ============ -->
+  <section class="newsletter-bar">
+    <h2 class="section-title">Reste dans la boucle</h2>
+    <p>Inscris-toi et reçois <strong>-10%</strong> sur ta première commande + les nouveautés en avant-première</p>
+    <form class="newsletter-form-inline" onsubmit="handleNewsletter(event)">
+      <input type="email" placeholder="TON.EMAIL@EXEMPLE.COM" required />
+      <button type="submit" class="btn btn-coral">M'inscrire</button>
+    </form>
+  </section>
+
+  <!-- ============ CONTACT (caché par défaut, accessible via footer) ============ -->
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="footer">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="#top" class="logo-link">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+              <rect width="64" height="64" rx="8" fill="#0A0A0A"/>
+              <text x="32" y="46" text-anchor="middle" font-family="Impact,'Arial Narrow Bold','Anton',sans-serif" font-weight="900" font-size="38" fill="#FFFFFF" letter-spacing="-2.5">CS</text>
+              <path d="M 14 56 Q 22 51, 30 56 T 46 56 T 54 53" stroke="#FF4D3D" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+              <circle cx="52" cy="13" r="3.5" fill="#FF4D3D"/>
+            </svg>
+          </span>
+          <span class="brand-text">CASAL <span class="accent">SPORT</span></span>
+        </a>
+        <p>Magasin d'équipement sportif à <strong>Kawéni (Mayotte)</strong>. Chaussures, textile et matériel pour toute la famille. Commande en ligne, retrait gratuit en magasin.</p>
+        <div class="footer-socials">
+          <a href="#" aria-label="Instagram">📷</a>
+          <a href="#" aria-label="Facebook">📘</a>
+          <a href="#" aria-label="TikTok">🎵</a>
+          <a href="https://wa.me/33628782826" aria-label="WhatsApp">💬</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Boutique</h4>
         <ul>
-          <li>Zone commerciale de Kawéni</li>
-          <li>97600 Mamoudzou, Mayotte</li>
-          <li>Lun–Sam : 8h30 – 17h30</li>
+          <li><a href="#nouveautes">Nouveautés</a></li>
+          <li><a href="#vetements">Textile &amp; Équipement</a></li>
+          <li><a href="#baskets">Chaussures</a></li>
+          <li><a href="#favoris">Favoris</a></li>
         </ul>
       </div>
-      <div>
-        <h3>Boutique</h3>
+      <div class="footer-col">
+        <h4>Catégories</h4>
         <ul>
-          <li><a href="boutique.html?cat=chaussures">Chaussures</a></li>
-          <li><a href="boutique.html?cat=textile">Textile</a></li>
-          <li><a href="boutique.html?cat=equipement">Équipement</a></li>
+          <li><a href="#vetements">Femme</a></li>
+          <li><a href="#vetements">Homme</a></li>
+          <li><a href="#vetements">Enfant garçon</a></li>
+          <li><a href="#vetements">Enfant fille</a></li>
         </ul>
       </div>
-      <div>
-        <h3>Informations</h3>
+      <div class="footer-col">
+        <h4>Aide</h4>
         <ul>
-          <li><a href="contact.html">Le magasin &amp; contact</a></li>
-          <li><a href="cgv.html">Conditions générales de vente</a></li>
+          <li><a href="cgv.html">CGV</a></li>
           <li><a href="mentions.html">Mentions légales</a></li>
-          <li><a href="confidentialite.html">Confidentialité</a></li>
+          <li><a href="javascript:openSizeGuide()">Guide des tailles</a></li>
+          <li><a href="https://wa.me/33628782826">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Paiements</h4>
+        <div class="footer-payments">
+          <span>CB au retrait</span><span>Espèces</span><span>Virement</span>
+        </div>
+        <h4 style="margin-top:1.2rem">Retrait</h4>
+        <ul>
+          <li>📍 Magasin de Kawéni</li>
+          <li>🎫 Avec ton code de retrait</li>
+          <li>🆓 Gratuit · sans livraison</li>
         </ul>
       </div>
     </div>
-    <div class="container legal">
-      <span>© 2026 Casal Sport Kaweni — Retrait en point de vente uniquement, aucune livraison.</span>
-      <a href="admin.html">Admin</a>
+    <div class="footer-bottom">
+      © 2026 CASAL SPORT · Tous droits réservés · <a href="cgv.html">CGV</a> · <a href="mentions.html">Mentions légales</a>
     </div>
   </footer>
 
-  <!-- GSAP (globals) pour le scroll cinématique -->
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js" defer></script>
-  <!-- Import map : Three.js chargé uniquement si la 3D est activée (lazy import) -->
-  <script type="importmap">
-  {
-    "imports": {
-      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-    }
-  }
-  </script>
-  <script type="module" src="js/home.js"></script>
+  <!-- ============ MOBILE BOTTOM NAV ============ -->
+  <nav class="mobile-nav">
+    <a href="#top"><span>⌂</span><span>Accueil</span></a>
+    <a href="#vetements"><span>👕</span><span>Textile</span></a>
+    <a href="#baskets"><span>👟</span><span>Chaussures</span></a>
+    <a href="compte.html"><span>👤</span><span>Compte</span></a>
+    <a href="#" id="cartToggleMobile"><span>🛒</span><span>Panier</span><span class="badge" id="mobileCartBadge" hidden>0</span></a>
+  </nav>
+
+  <!-- ============ MENU OVERLAY (mobile burger) ============ -->
+  <div class="menu-overlay" id="menuOverlay">
+    <div class="menu-overlay-head">
+      <a href="#top" class="logo-link">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+            <rect width="64" height="64" rx="8" fill="#0A0A0A"/>
+            <text x="32" y="46" text-anchor="middle" font-family="Impact,'Arial Narrow Bold','Anton',sans-serif" font-weight="900" font-size="38" fill="#FFFFFF" letter-spacing="-2.5">CS</text>
+            <path d="M 14 56 Q 22 51, 30 56 T 46 56 T 54 53" stroke="#FF4D3D" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+            <circle cx="52" cy="13" r="3.5" fill="#FF4D3D"/>
+          </svg>
+        </span>
+        <span class="brand-text">CASAL <span class="accent">SPORT</span></span>
+      </a>
+      <button class="burger-btn" id="menuClose" aria-label="Fermer">×</button>
+    </div>
+    <nav>
+      <a href="#nouveautes" class="menu-link">★ Nouveautés</a>
+      <a href="#vetements"  class="menu-link">Femme</a>
+      <a href="#vetements"  class="menu-link">Homme</a>
+      <a href="#vetements"  class="menu-link">Enfant</a>
+      <a href="#baskets"    class="menu-link">Chaussures</a>
+      <a href="#favoris"    class="menu-link">Favoris</a>
+      <a href="compte.html" class="menu-link">👤 Mon compte</a>
+      <a href="#pourquoi"   class="menu-link">Le magasin</a>
+      <a href="javascript:openSizeGuide()" class="menu-link">Guide des tailles</a>
+      <a href="cgv.html"    class="menu-link">CGV</a>
+      <a href="admin.html"  class="menu-link">⚙ Admin</a>
+    </nav>
+    <p class="menu-overlay-foot">
+      📍 Boutique Kawéni · Mayotte<br>
+      🇾🇹 +262 639 07 00 35 · 📞 +33 6 28 78 28 26
+    </p>
+  </div>
+
+  <a href="#top" class="scroll-top" id="scrollTop" aria-label="Retour en haut">↑</a>
+
+  <!-- ============ FAB WHATSAPP ============ -->
+  <div class="wa-fab" id="waFab">
+    <button class="wa-fab-main" id="waFabMain" aria-label="WhatsApp">
+      <span class="wa-icon">💬</span>
+      <span class="wa-pulse"></span>
+    </button>
+    <div class="wa-fab-menu" id="waFabMenu" hidden>
+      <p class="wa-fab-title">Discutons sur WhatsApp</p>
+      <a href="#" class="wa-fab-item" data-num="262639070035">
+        <span>🇾🇹</span>
+        <div><strong>Mayotte</strong><small>+262 639 07 00 35</small></div>
+      </a>
+      <a href="#" class="wa-fab-item" data-num="33628782826">
+        <span>📞</span>
+        <div><strong>Ligne mobile</strong><small>+33 6 28 78 28 26</small></div>
+      </a>
+    </div>
+  </div>
+
+  <!-- ============ TOAST ============ -->
+  <div class="toast" id="toast">✅ Message envoyé</div>
+
+  <!-- ============ CART DRAWER (tiroir panier) ============ -->
+  <div class="cart-overlay" id="cartOverlay"></div>
+  <aside class="cart-drawer" id="cartDrawer" aria-label="Panier">
+    <div class="cart-drawer-head">
+      <h3>🛒 Mon panier (<span id="cartCountTitle">0</span>)</h3>
+      <button class="modal-close" id="cartClose" aria-label="Fermer le panier">×</button>
+    </div>
+    <div class="cart-items" id="cartItems"></div>
+    <div class="cart-footer">
+      <div class="cart-subtotal">
+        <span>Sous-total</span>
+        <span id="cartSubtotal">0,00 €</span>
+      </div>
+      <p class="cart-shipping">🆓 Retrait gratuit au magasin de Kawéni — aucun frais de livraison</p>
+      <button class="btn btn-block" id="cartCheckout">Finaliser la commande →</button>
+      <p class="cart-note">🎫 Ton code de retrait t'est envoyé juste après la commande</p>
+    </div>
+  </aside>
+
+  <!-- ============ MODAL SIZE PICKER (ajout panier) ============ -->
+  <div class="modal-overlay" id="sizePickerModal" hidden>
+    <div class="modal-box">
+      <button class="modal-close" id="sizePickerClose" aria-label="Fermer">×</button>
+      <div class="modal-product" id="sizePickerProduct"></div>
+      <h2>Choisis ta taille</h2>
+      <p class="modal-sub">Sélectionne ta taille puis ajoute au panier.</p>
+      <div class="size-picker-grid" id="sizePickerOptions"></div>
+      <button type="button" class="btn btn-block" id="sizePickerAdd">🛒 Ajouter au panier</button>
+    </div>
+  </div>
+
+  <!-- ============ MODAL CHECKOUT (finalisation commande multi-articles) ============ -->
+  <div class="modal-overlay" id="orderModal" hidden>
+    <div class="modal-box">
+      <button class="modal-close" id="modalClose" aria-label="Fermer">×</button>
+      <h2>Finaliser ma commande</h2>
+      <p class="modal-sub">Vérifie ton panier et remplis tes coordonnées — tu recevras ton <strong>code de retrait</strong> à présenter au magasin de Kawéni.</p>
+
+      <div class="cart-summary" id="orderCartSummary"></div>
+
+      <form id="orderForm" class="order-form">
+        <label>Code promo
+          <div class="promo-input">
+            <input type="text" id="orderPromo" placeholder="BIENVENUE10" />
+            <button type="button" id="applyPromo">Appliquer</button>
+          </div>
+        </label>
+        <p class="promo-msg" id="promoMsg"></p>
+
+        <div class="order-total">
+          <span>Total estimé</span>
+          <span id="orderTotal">0,00 €</span>
+        </div>
+
+        <label>Nom complet
+          <input type="text" id="orderName" placeholder="Marie Dupont" required />
+        </label>
+
+        <label>Téléphone
+          <input type="tel" id="orderPhone" placeholder="06 39 12 34 56" required />
+        </label>
+
+        <label>Email <small>(pour recevoir ton reçu et ton code de retrait)</small>
+          <input type="email" id="orderEmail" placeholder="ton.email@exemple.com" required />
+        </label>
+
+        <!-- Retrait en magasin : seul mode de réception -->
+        <input type="hidden" id="orderMode" value="retrait" />
+        <div class="order-total" style="background:rgba(0,184,148,.08);border:1px solid rgba(0,184,148,.35);border-radius:10px;padding:.8rem 1rem">
+          <span>🛍️ Retrait au magasin de Kawéni</span>
+          <span style="color:#00b894;font-weight:700">Gratuit</span>
+        </div>
+
+        <label>Mode de paiement
+          <div class="pay-methods" id="payMethods"></div>
+          <input type="hidden" id="orderPayment" required />
+        </label>
+
+        <label>Précisions <small>(optionnel — question, créneau de passage, etc.)</small>
+          <textarea id="orderDetails" rows="3" placeholder="Ex: je passe samedi matin, taille à confirmer..."></textarea>
+        </label>
+
+        <div class="modal-actions">
+          <div class="wa-group" id="waGroup">
+            <p class="wa-title">Envoyer sur WhatsApp</p>
+          </div>
+          <button type="button" class="btn-mail" id="sendEmail">✉ Email</button>
+          <button type="button" class="btn-copy" id="copyMessage">📋 Copier</button>
+        </div>
+        <p class="modal-note">Le message s'ouvre pour validation finale — ton <strong>code de retrait</strong> y figure et t'est aussi envoyé par e-mail. Panier vidé après envoi.</p>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============ MODAL GUIDE TAILLES ============ -->
+  <div class="modal-overlay" id="sizeModal" hidden>
+    <div class="modal-box modal-wide">
+      <button class="modal-close" onclick="closeSizeGuide()" aria-label="Fermer">×</button>
+      <h2>Guide des tailles</h2>
+      <p class="modal-sub">Trouve ta taille idéale. En cas de doute, choisis la taille au-dessus.</p>
+
+      <div class="size-tabs">
+        <button class="size-tab active" data-tab="vet-adulte">Vêtements adulte</button>
+        <button class="size-tab" data-tab="ch-adulte">Chaussures adulte</button>
+        <button class="size-tab" data-tab="vet-enfant">Vêtements enfant</button>
+        <button class="size-tab" data-tab="ch-enfant">Chaussures enfant</button>
+      </div>
+
+      <div class="size-content active" id="vet-adulte">
+        <h3>Vêtements adulte (cm)</h3>
+        <table class="size-table">
+          <thead><tr><th>Taille</th><th>Poitrine</th><th>Taille</th><th>Hanches</th></tr></thead>
+          <tbody>
+            <tr><td><strong>XS</strong></td><td>82-86</td><td>62-66</td><td>88-92</td></tr>
+            <tr><td><strong>S</strong></td><td>86-90</td><td>66-70</td><td>92-96</td></tr>
+            <tr><td><strong>M</strong></td><td>90-96</td><td>72-78</td><td>96-102</td></tr>
+            <tr><td><strong>L</strong></td><td>98-104</td><td>80-86</td><td>104-110</td></tr>
+            <tr><td><strong>XL</strong></td><td>106-112</td><td>88-94</td><td>112-118</td></tr>
+            <tr><td><strong>XXL</strong></td><td>114-120</td><td>96-102</td><td>120-126</td></tr>
+          </tbody>
+        </table>
+        <h3>Pantalons / Jeans</h3>
+        <table class="size-table">
+          <thead><tr><th>Taille FR</th><th>Tour de taille (cm)</th></tr></thead>
+          <tbody>
+            <tr><td><strong>36</strong></td><td>72</td></tr>
+            <tr><td><strong>38</strong></td><td>76</td></tr>
+            <tr><td><strong>40</strong></td><td>80</td></tr>
+            <tr><td><strong>42</strong></td><td>84</td></tr>
+            <tr><td><strong>44</strong></td><td>88</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="size-content" id="ch-adulte">
+        <h3>Chaussures adulte</h3>
+        <table class="size-table">
+          <thead><tr><th>FR/EU</th><th>UK</th><th>US F</th><th>US H</th><th>Pied (cm)</th></tr></thead>
+          <tbody>
+            <tr><td><strong>36</strong></td><td>3.5</td><td>5.5</td><td>—</td><td>22.5</td></tr>
+            <tr><td><strong>37</strong></td><td>4</td><td>6</td><td>—</td><td>23.5</td></tr>
+            <tr><td><strong>38</strong></td><td>5</td><td>7</td><td>—</td><td>24</td></tr>
+            <tr><td><strong>39</strong></td><td>5.5</td><td>7.5</td><td>—</td><td>24.5</td></tr>
+            <tr><td><strong>40</strong></td><td>6.5</td><td>8.5</td><td>7</td><td>25.5</td></tr>
+            <tr><td><strong>41</strong></td><td>7</td><td>9</td><td>8</td><td>26</td></tr>
+            <tr><td><strong>42</strong></td><td>8</td><td>10</td><td>9</td><td>27</td></tr>
+            <tr><td><strong>43</strong></td><td>9</td><td>—</td><td>10</td><td>28</td></tr>
+            <tr><td><strong>44</strong></td><td>9.5</td><td>—</td><td>10.5</td><td>28.5</td></tr>
+            <tr><td><strong>45</strong></td><td>10.5</td><td>—</td><td>11.5</td><td>29.5</td></tr>
+            <tr><td><strong>46</strong></td><td>11</td><td>—</td><td>12</td><td>30</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="size-content" id="vet-enfant">
+        <h3>Vêtements enfant (par âge)</h3>
+        <table class="size-table">
+          <thead><tr><th>Âge</th><th>Taille</th><th>Hauteur (cm)</th></tr></thead>
+          <tbody>
+            <tr><td><strong>2 ans</strong></td><td>92</td><td>86-92</td></tr>
+            <tr><td><strong>3 ans</strong></td><td>98</td><td>92-98</td></tr>
+            <tr><td><strong>4 ans</strong></td><td>104</td><td>98-104</td></tr>
+            <tr><td><strong>6 ans</strong></td><td>116</td><td>110-116</td></tr>
+            <tr><td><strong>8 ans</strong></td><td>128</td><td>122-128</td></tr>
+            <tr><td><strong>10 ans</strong></td><td>140</td><td>134-140</td></tr>
+            <tr><td><strong>12 ans</strong></td><td>152</td><td>146-152</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="size-content" id="ch-enfant">
+        <h3>Chaussures enfant</h3>
+        <table class="size-table">
+          <thead><tr><th>FR/EU</th><th>Âge approx.</th><th>Pied (cm)</th></tr></thead>
+          <tbody>
+            <tr><td><strong>22</strong></td><td>1 an</td><td>13.5</td></tr>
+            <tr><td><strong>24</strong></td><td>1.5-2 ans</td><td>15</td></tr>
+            <tr><td><strong>26</strong></td><td>2-3 ans</td><td>16</td></tr>
+            <tr><td><strong>28</strong></td><td>3-4 ans</td><td>17.5</td></tr>
+            <tr><td><strong>30</strong></td><td>4-5 ans</td><td>19</td></tr>
+            <tr><td><strong>32</strong></td><td>6-7 ans</td><td>20</td></tr>
+            <tr><td><strong>34</strong></td><td>7-8 ans</td><td>21.5</td></tr>
+            <tr><td><strong>36</strong></td><td>9-10 ans</td><td>22.5</td></tr>
+            <tr><td><strong>38</strong></td><td>10-11 ans</td><td>24</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="modal-note">💡 Mesure un vêtement que tu portes déjà — c'est le moyen le plus fiable.</p>
+    </div>
+  </div>
+
+  <!-- ============ MODAL NEWSLETTER ============ -->
+  <div class="modal-overlay newsletter-modal" id="newsletterModal" hidden>
+    <div class="modal-box newsletter-box">
+      <button class="modal-close" id="newsletterClose" aria-label="Fermer">×</button>
+      <div class="palm-emoji">🌺</div>
+      <h2>-10% sur ta 1ère commande</h2>
+      <p>Inscris-toi à notre newsletter et reçois ton code promo + les nouveautés en avant-première.</p>
+      <form id="newsletterForm">
+        <input type="email" id="newsletterEmail" placeholder="ton.email@exemple.com" required />
+        <button type="submit" class="btn btn-block">Je m'inscris 🎁</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============ FILTER DRAWER ============ -->
+  <div class="filter-overlay" id="filterOverlay"></div>
+  <aside class="filter-drawer" id="filterDrawer" aria-label="Filtres">
+    <div class="filter-drawer-head">
+      <h3>Filtrer</h3>
+      <button class="modal-close" id="filterClose" aria-label="Fermer">×</button>
+    </div>
+    <div class="filter-drawer-body">
+
+      <div class="filter-group">
+        <h4>Catégorie</h4>
+        <div class="filter-options">
+          <label><input type="checkbox" data-fkey="cats" value="homme"> Homme</label>
+          <label><input type="checkbox" data-fkey="cats" value="femme"> Femme</label>
+          <label><input type="checkbox" data-fkey="cats" value="garcon"> Garçon</label>
+          <label><input type="checkbox" data-fkey="cats" value="fille"> Fille</label>
+          <label><input type="checkbox" data-fkey="cats" value="mixte"> Mixte / Équipement</label>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <h4>Prix</h4>
+        <div class="filter-options">
+          <label><input type="checkbox" data-fkey="prices" value="0-30"> Moins de 30 €</label>
+          <label><input type="checkbox" data-fkey="prices" value="30-60"> 30 € – 60 €</label>
+          <label><input type="checkbox" data-fkey="prices" value="60-100"> 60 € – 100 €</label>
+          <label><input type="checkbox" data-fkey="prices" value="100-9999"> Plus de 100 €</label>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <h4>Disponibilité</h4>
+        <div class="filter-options">
+          <label><input type="checkbox" data-fkey="inStock" value="1"> En stock seulement</label>
+          <label><input type="checkbox" data-fkey="promo"   value="1"> En promo seulement</label>
+          <label><input type="checkbox" data-fkey="news"    value="1"> Nouveautés (moins de 14j)</label>
+        </div>
+      </div>
+
+    </div>
+    <div class="filter-drawer-foot">
+      <button class="btn btn-outline" id="filterReset">Effacer</button>
+      <button class="btn" id="filterApply">Voir <span id="filterApplyCount">0</span> articles</button>
+    </div>
+  </aside>
+
+  <!-- ============ SHARE POPOVER ============ -->
+  <div class="share-popover" id="sharePopover" hidden role="menu" aria-label="Partager">
+    <div class="share-popover-head">Partager ce produit</div>
+    <button data-share="native" hidden id="shareNative">
+      <span class="ic native">📱</span> Partager…
+    </button>
+    <button data-share="instagram">
+      <span class="ic instagram">📷</span> Instagram
+    </button>
+    <button data-share="messenger">
+      <span class="ic messenger">💬</span> Messenger
+    </button>
+    <button data-share="snapchat">
+      <span class="ic snapchat">👻</span> Snapchat
+    </button>
+    <button data-share="whatsapp">
+      <span class="ic whatsapp">💚</span> WhatsApp
+    </button>
+    <button data-share="sms">
+      <span class="ic sms">✉</span> SMS
+    </button>
+    <button data-share="copy">
+      <span class="ic copy">📋</span> Copier le lien
+    </button>
+  </div>
+
+  <!-- ============ SORT SHEET (popover) ============ -->
+  <div class="sort-sheet" id="sortSheet" hidden>
+    <button data-sort="new">Nouveautés</button>
+    <button data-sort="price-asc">Prix : croissant</button>
+    <button data-sort="price-desc">Prix : décroissant</button>
+    <button data-sort="name">Nom : A → Z</button>
+    <button data-sort="rating">Mieux notés</button>
+  </div>
+
+  <!-- ============ LIGHTBOX ============ -->
+  <div class="lightbox" id="lightbox" hidden onclick="this.hidden=true">
+    <img src="" alt="" id="lightboxImg" />
+  </div>
+
+  <script src="products.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>

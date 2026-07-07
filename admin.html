@@ -1,122 +1,230 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Administration — Casal Sport Kaweni</title>
-  <meta name="robots" content="noindex,nofollow">
-  <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — CASAL SPORT</title>
+  <meta name="robots" content="noindex,nofollow" />
+  <link rel="icon" type="image/svg+xml" href="logo.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
 </head>
-<body>
-  <header class="site-header">
-    <div class="container inner">
-      <a class="logo" href="index.html" aria-label="Casal Sport Kaweni — accueil">
-        <span class="mark" aria-hidden="true">CS</span>
-        <span>Casal Sport<small>ADMINISTRATION</small></span>
-      </a>
-      <nav class="main-nav" style="display:flex">
-        <a href="index.html">← Retour au site</a>
-      </nav>
+<body class="admin-body">
+
+  <!-- ÉCRAN DE LOGIN -->
+  <div class="login-screen" id="loginScreen">
+    <div class="login-box">
+      <span class="brand-mark" aria-hidden="true" style="margin: 0 auto 1rem;">
+        <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+          <rect width="64" height="64" rx="8" fill="#0A0A0A"/>
+          <text x="32" y="46" text-anchor="middle" font-family="Impact,'Arial Narrow Bold','Anton',sans-serif" font-weight="900" font-size="38" fill="#FFFFFF" letter-spacing="-2.5">CS</text>
+          <path d="M 14 56 Q 22 51, 30 56 T 46 56 T 54 53" stroke="#FF4D3D" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+          <circle cx="52" cy="13" r="3.5" fill="#FF4D3D"/>
+        </svg>
+      </span>
+      <div class="logo">CASAL <span>SPORT</span></div>
+      <h2>🔒 Espace Administrateur</h2>
+      <p class="login-sub">Réservé au gestionnaire du site</p>
+      <form id="loginForm">
+        <input type="password" id="loginPwd" placeholder="Mot de passe" required autofocus />
+        <button type="submit" class="btn-primary">Se connecter</button>
+        <p class="login-error" id="loginError"></p>
+      </form>
+      <a href="index.html" class="back-link">← Retour au site public</a>
     </div>
-  </header>
+  </div>
 
-  <main id="main">
-    <div class="container" style="padding-bottom:4rem">
+  <!-- DASHBOARD ADMIN -->
+  <div class="admin-dashboard hidden" id="dashboard">
+    <header class="admin-header">
+      <a href="index.html" class="logo-link" style="color:#fff">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+            <rect width="64" height="64" rx="8" fill="#0A0A0A"/>
+            <text x="32" y="46" text-anchor="middle" font-family="Impact,'Arial Narrow Bold','Anton',sans-serif" font-weight="900" font-size="38" fill="#FFFFFF" letter-spacing="-2.5">CS</text>
+            <path d="M 14 56 Q 22 51, 30 56 T 46 56 T 54 53" stroke="#FF4D3D" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+            <circle cx="52" cy="13" r="3.5" fill="#FF4D3D"/>
+          </svg>
+        </span>
+        <span class="brand-text">CASAL <span class="accent">SPORT</span> · Admin</span>
+      </a>
+      <div class="admin-actions">
+        <a href="index.html" class="btn-ghost">👁️ Voir le site</a>
+        <button class="btn-ghost" id="exportBtn">📊 Export CSV</button>
+        <button class="btn-ghost" id="resetBtn">🔄 Réinitialiser</button>
+        <button class="btn-ghost danger" id="logoutBtn">Déconnexion</button>
+      </div>
+    </header>
 
-      <!-- Connexion -->
-      <section id="login-view" class="page-hero" style="max-width:420px">
-        <span class="badge">Espace magasin</span>
-        <h1>Admin</h1>
-        <form id="login-form">
-          <div class="form-field">
-            <label for="admin-pass">Mot de passe</label>
-            <input type="password" id="admin-pass" required autocomplete="current-password">
-            <p class="form-hint">Défini par la variable d'environnement <code>ADMIN_PASSWORD</code> sur Netlify.</p>
-          </div>
-          <div class="alert alert-error" id="login-error" hidden role="alert"></div>
-          <button class="btn btn-primary" type="submit">Se connecter</button>
-        </form>
+    <main class="admin-main">
+
+      <!-- Stats -->
+      <section class="admin-stats">
+        <div class="admin-stat"><span id="statTotal">0</span><small>Produits totaux</small></div>
+        <div class="admin-stat"><span id="statLive">0</span><small>En ligne</small></div>
+        <div class="admin-stat"><span id="statDraft">0</span><small>Brouillons</small></div>
+        <div class="admin-stat"><span id="statPromo">0</span><small>En promo</small></div>
+        <div class="admin-stat"><span id="statOrders">0</span><small>Commandes reçues</small></div>
       </section>
 
-      <!-- Tableau de bord -->
-      <section id="dash-view" hidden>
-        <div class="page-hero" style="padding-bottom:0">
-          <span class="badge">Espace magasin</span>
-          <h1>Tableau de <span class="accent">bord</span></h1>
-        </div>
+      <!-- Onglets -->
+      <div class="admin-tabs">
+        <button class="admin-tab active" data-pane="paneProducts">📦 Produits</button>
+        <button class="admin-tab" data-pane="paneOrders">📨 Commandes <span id="ordersBadge"></span></button>
+      </div>
 
-        <div class="admin-tabs" role="tablist">
-          <button class="admin-tab" role="tab" aria-selected="true" data-tab="orders">📦 Commandes</button>
-          <button class="admin-tab" role="tab" aria-selected="false" data-tab="products">🏷️ Produits</button>
-        </div>
+      <!-- ============ PANE PRODUITS ============ -->
+      <div id="paneProducts">
 
-        <!-- Commandes -->
-        <div id="tab-orders" role="tabpanel">
-          <div class="shop-toolbar">
-            <input type="search" id="order-search" placeholder="Code de retrait, nom, e-mail…" aria-label="Rechercher une commande">
-            <button class="btn btn-ghost btn-sm" id="orders-refresh" type="button">↻ Actualiser</button>
-          </div>
-          <div style="overflow-x:auto">
-            <table class="admin-table">
-              <thead>
-                <tr><th>Date</th><th>Code retrait</th><th>Client</th><th>Articles</th><th>Total</th><th>Paiement</th><th>Retrait</th><th></th></tr>
-              </thead>
-              <tbody id="orders-body"></tbody>
-            </table>
-          </div>
-          <p class="empty-state" id="orders-empty" hidden>Aucune commande pour l'instant.</p>
-        </div>
-
-        <!-- Produits -->
-        <div id="tab-products" role="tabpanel" hidden>
-          <p style="color:var(--text-dim);font-size:.9rem">
-            Les modifications sont enregistrées en base (Netlify Blobs) et visibles immédiatement sur le site.
-            <button class="btn btn-ghost btn-sm" id="products-reset" type="button">Repartir de products.json</button>
-          </p>
-          <div style="overflow-x:auto">
-            <table class="admin-table">
-              <thead><tr><th>Produit</th><th>Prix</th><th>Stock</th><th>Catégorie</th><th></th></tr></thead>
-              <tbody id="products-body"></tbody>
-            </table>
-          </div>
-          <h2 style="font-size:1.1rem;margin-top:2rem" id="product-form-title">Ajouter un produit</h2>
-          <form id="product-form" class="checkout-layout" style="padding:0;gap:1rem;grid-template-columns:1fr 1fr">
-            <div>
-              <div class="form-field"><label for="pf-id">Identifiant (unique, sans espace) *</label><input id="pf-id" required pattern="[a-z0-9\-]+"></div>
-              <div class="form-field"><label for="pf-name">Nom *</label><input id="pf-name" required></div>
-              <div class="form-field"><label for="pf-price">Prix (€) *</label><input id="pf-price" type="number" min="0" step="0.1" required></div>
-              <div class="form-field"><label for="pf-stock">Stock *</label><input id="pf-stock" type="number" min="0" required></div>
-              <div class="form-field"><label for="pf-image">Image (chemin ou URL)</label><input id="pf-image" placeholder="img/p-default.svg"></div>
-              <div class="form-field"><label><input type="checkbox" id="pf-featured"> Produit en vedette (accueil)</label></div>
+        <!-- Formulaire ajout / modif -->
+        <section class="admin-panel">
+          <h3 id="formTitle">➕ Ajouter un produit</h3>
+          <form id="productForm" class="admin-form">
+            <input type="hidden" id="pid" />
+            <div class="form-grid">
+              <label>Nom du produit *
+                <input type="text" id="pname" required />
+              </label>
+              <label>Type *
+                <select id="ptype" required>
+                  <option value="vetement">Vêtement</option>
+                  <option value="basket">Basket / Chaussure</option>
+                </select>
+              </label>
+              <label>Catégorie *
+                <select id="pcat" required>
+                  <option value="homme">Homme</option>
+                  <option value="femme">Femme</option>
+                  <option value="garcon">Garçon</option>
+                  <option value="fille">Fille</option>
+                  <option value="mixte">Mixte / Équipement</option>
+                </select>
+              </label>
+              <label>Prix (€) *
+                <input type="number" id="pprice" step="0.01" min="0" required />
+              </label>
+              <label>Ancien prix (€) <small>optionnel — pour les promos</small>
+                <input type="number" id="poldprice" step="0.01" min="0" />
+              </label>
+              <label>Badge <small>(Nouveau, Top vente, -20%...)</small>
+                <input type="text" id="pbadge" placeholder="Laisser vide si aucun" />
+              </label>
+              <label>Stock *
+                <select id="pstock" required>
+                  <option value="in">✓ En stock</option>
+                  <option value="low">⚠️ Plus que quelques pièces</option>
+                  <option value="out">✗ Rupture de stock</option>
+                </select>
+              </label>
+              <label>Statut *
+                <select id="pstatus" required>
+                  <option value="live">🟢 En ligne</option>
+                  <option value="draft">📝 Brouillon</option>
+                </select>
+              </label>
+              <label>Icône emoji <small>(fallback si pas de photo)</small>
+                <input type="text" id="picon" placeholder="👕 👟 👗 ..." maxlength="4" required />
+              </label>
+              <label>Tailles disponibles *
+                <input type="text" id="psizes" placeholder="S — M — L — XL" required />
+              </label>
+              <label class="full">📸 URL de la photo produit <small>(recommandé : Unsplash, Pexels, ou héberger sur Imgur)</small>
+                <input type="url" id="pimage" placeholder="https://exemple.com/photo.jpg" />
+              </label>
+              <label class="full">📁 OU Uploader une image <small>(stockée localement en base64, max 500 Ko recommandé)</small>
+                <input type="file" id="pfile" accept="image/*" />
+              </label>
+              <label class="full preview-label" id="imagePreviewWrap" style="display:none">
+                Aperçu :
+                <img id="imagePreview" alt="aperçu" />
+              </label>
+              <label class="full">Matière / Qualité *
+                <input type="text" id="pmaterial" placeholder="Ex: 100% Coton bio" required />
+              </label>
+              <label class="full">Description *
+                <textarea id="pdesc" rows="3" required></textarea>
+              </label>
+              <label>Couleur début <small>(fallback)</small>
+                <input type="color" id="pcolor1" value="#06B6A8" />
+              </label>
+              <label>Couleur fin <small>(fallback)</small>
+                <input type="color" id="pcolor2" value="#FF6B5C" />
+              </label>
             </div>
-            <div>
-              <div class="form-field"><label for="pf-category">Catégorie</label>
-                <select id="pf-category"><option value="chaussures">Chaussures</option><option value="textile">Textile</option><option value="equipement">Équipement</option></select></div>
-              <div class="form-field"><label for="pf-sport">Sport</label>
-                <select id="pf-sport"><option>running</option><option>football</option><option>basket</option><option>fitness</option><option>musculation</option></select></div>
-              <div class="form-field"><label for="pf-genre">Genre</label>
-                <select id="pf-genre"><option value="homme">Homme</option><option value="femme">Femme</option><option value="enfant">Enfant</option><option value="mixte">Mixte</option></select></div>
-              <div class="form-field"><label for="pf-sizes">Tailles (séparées par des virgules)</label><input id="pf-sizes" placeholder="S, M, L, XL"></div>
-              <div class="form-field"><label for="pf-colors">Couleurs (séparées par des virgules)</label><input id="pf-colors" placeholder="Noir, Rouge"></div>
-              <div class="form-field"><label for="pf-matiere">Matière / composition</label><input id="pf-matiere"></div>
-              <div class="form-field"><label for="pf-desc">Description</label><textarea id="pf-desc" rows="3"></textarea></div>
-            </div>
-            <div style="grid-column:1/-1;display:flex;gap:.8rem">
-              <button class="btn btn-primary" type="submit">Enregistrer le produit</button>
-              <button class="btn btn-ghost" type="reset" id="pf-cancel">Vider le formulaire</button>
+            <div class="form-actions">
+              <button type="submit" class="btn-primary" id="submitBtn">Ajouter le produit</button>
+              <button type="button" class="btn-ghost" id="cancelBtn" hidden>Annuler</button>
             </div>
           </form>
-        </div>
+        </section>
 
-        <div class="alert alert-error" id="dash-error" hidden role="alert"></div>
-      </section>
-    </div>
-  </main>
+        <!-- Liste produits -->
+        <section class="admin-panel">
+          <div class="panel-head">
+            <h3>📦 Mes produits</h3>
+            <div class="admin-filters">
+              <input type="search" id="searchBox" placeholder="🔍 Rechercher..." />
+              <select id="filterType">
+                <option value="all">Tous les types</option>
+                <option value="vetement">Vêtements</option>
+                <option value="basket">Baskets</option>
+              </select>
+              <select id="filterCat">
+                <option value="all">Toutes catégories</option>
+                <option value="homme">Homme</option>
+                <option value="femme">Femme</option>
+                <option value="garcon">Garçon</option>
+                <option value="fille">Fille</option>
+                  <option value="mixte">Mixte / Équipement</option>
+              </select>
+              <select id="filterStatus">
+                <option value="all">Tous statuts</option>
+                <option value="live">🟢 En ligne</option>
+                <option value="draft">📝 Brouillon</option>
+              </select>
+            </div>
+          </div>
+          <div class="admin-table-wrap">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Aperçu</th>
+                  <th>Nom</th>
+                  <th>Type · Cat</th>
+                  <th>Prix</th>
+                  <th>Stock</th>
+                  <th>Statut</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="productsTbody"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
 
-  <script type="module" src="js/admin.js"></script>
+      <!-- ============ PANE COMMANDES ============ -->
+      <div id="paneOrders" hidden>
+        <section class="admin-panel">
+          <div class="panel-head">
+            <h3>📨 Commandes reçues</h3>
+            <button class="btn-ghost danger" id="clearOrdersBtn">🗑️ Tout effacer</button>
+          </div>
+          <p style="color:rgba(255,255,255,0.6);font-size:0.85rem;margin-bottom:1rem">
+            ℹ️ Les commandes sont sauvegardées dans le navigateur (localStorage) au moment où le client clique sur Envoyer.
+            Les vrais messages WhatsApp/Email arrivent directement chez vous.
+          </p>
+          <div id="ordersList"></div>
+        </section>
+      </div>
+
+    </main>
+
+    <div class="toast" id="toast">✅</div>
+  </div>
+
+  <script src="products.js"></script>
+  <script src="admin.js"></script>
 </body>
 </html>

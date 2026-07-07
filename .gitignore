@@ -1,7 +1,16 @@
-node_modules/
-.netlify/
-.env
-.env.*
-*.log
+# OS
 .DS_Store
 Thumbs.db
+desktop.ini
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Logs
+*.log
+npm-debug.log*
+
+# Netlify
+.netlify/

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#000000" />
+  <title>Mon compte — CASAL SPORT</title>
+  <meta name="description" content="Espace client CASAL SPORT : profil, commandes, sécurité, cartes cadeaux." />
+  <meta name="robots" content="noindex,nofollow" />
+  <link rel="icon" type="image/svg+xml" href="logo.svg" />
+  <link rel="apple-touch-icon" href="logo.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ============ HEADER (simplifié) ============ -->
+  <header class="header" id="top">
+    <div class="header-row">
+      <div class="header-left">
+        <a href="index.html" class="header-icon" aria-label="Retour boutique" title="Retour boutique">←</a>
+      </div>
+      <a href="index.html" class="logo-link">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+            <rect width="64" height="64" rx="8" fill="#0A0A0A"/>
+            <text x="32" y="46" text-anchor="middle" font-family="Impact,'Arial Narrow Bold','Anton',sans-serif" font-weight="900" font-size="38" fill="#FFFFFF" letter-spacing="-2.5">CS</text>
+            <path d="M 14 56 Q 22 51, 30 56 T 46 56 T 54 53" stroke="#FF4D3D" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+            <circle cx="52" cy="13" r="3.5" fill="#FF4D3D"/>
+          </svg>
+        </span>
+        <span class="brand-text">
+          CASAL <span class="accent">SPORT</span>
+          <span class="logo-tag">Mon compte</span>
+        </span>
+      </a>
+      <div class="header-right">
+        <a href="index.html#favoris" class="header-icon" aria-label="Favoris">♡</a>
+        <a href="index.html" class="header-icon" aria-label="Boutique">⌂</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============ ÉCRAN LOGIN / SIGNUP (visible si pas connecté) ============ -->
+  <section class="account-auth" id="authScreen">
+    <div class="account-auth-inner">
+      <div class="auth-tabs">
+        <button class="auth-tab active" data-tab="login">Connexion</button>
+        <button class="auth-tab" data-tab="signup">Créer un compte</button>
+      </div>
+
+      <!-- LOGIN -->
+      <form class="auth-form" id="loginForm">
+        <h2>Bon retour 👋</h2>
+        <p class="auth-sub">Connecte-toi pour retrouver tes commandes et tes infos.</p>
+        <label>Email
+          <input type="email" id="loginEmail" autocomplete="email" required />
+        </label>
+        <label>Mot de passe
+          <input type="password" id="loginPwd" autocomplete="current-password" required />
+        </label>
+        <button type="submit" class="btn btn-block">Se connecter</button>
+        <p class="auth-error" id="loginError"></p>
+        <p class="auth-switch">Pas encore de compte ? <a href="#" data-go="signup">Crée-en un</a></p>
+      </form>
+
+      <!-- SIGNUP -->
+      <form class="auth-form" id="signupForm" hidden>
+        <h2>Bienvenue chez CASAL SPORT 🌴</h2>
+        <p class="auth-sub">Crée ton compte en 30 secondes. Tu pourras suivre tes commandes et profiter d'offres dédiées.</p>
+        <label>Prénom &amp; nom
+          <input type="text" id="signupName" autocomplete="name" required />
+        </label>
+        <label>Email
+          <input type="email" id="signupEmail" autocomplete="email" required />
+        </label>
+        <label>Téléphone <small>(facultatif)</small>
+          <input type="tel" id="signupPhone" autocomplete="tel" />
+        </label>
+        <label>Mot de passe <small>(6 caractères minimum)</small>
+          <input type="password" id="signupPwd" autocomplete="new-password" minlength="6" required />
+        </label>
+        <button type="submit" class="btn btn-block">Créer mon compte</button>
+        <p class="auth-error" id="signupError"></p>
+        <p class="auth-switch">Déjà inscrit ? <a href="#" data-go="login">Connecte-toi</a></p>
+      </form>
+
+      <p class="auth-disclaimer">
+        🔒 Tes données restent sur ton appareil (stockage local navigateur).
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ DASHBOARD (visible si connecté) ============ -->
+  <section class="account-dashboard hidden" id="dashboard">
+    <div class="account-inner">
+
+      <!-- Sidebar -->
+      <aside class="account-sidebar">
+        <div class="account-user">
+          <div class="account-avatar" id="userAvatar">C</div>
+          <div>
+            <strong id="userName">—</strong>
+            <small id="userEmail">—</small>
+          </div>
+        </div>
+        <nav class="account-nav">
+          <button class="account-nav-item active" data-pane="paneProfile">👤 Mon profil</button>
+          <button class="account-nav-item" data-pane="paneOrders">📦 Mes commandes <span class="badge-mini" id="ordersBadgeMini"></span></button>
+          <button class="account-nav-item" data-pane="paneInfo">ℹ️ Mes informations</button>
+          <button class="account-nav-item" data-pane="paneSecurity">🔐 Sécurité</button>
+          <button class="account-nav-item" data-pane="paneGifts">🎁 Cartes cadeaux <span class="badge-mini" id="giftsBadgeMini"></span></button>
+          <button class="account-nav-item" data-pane="paneRating">⭐ Noter le site</button>
+          <button class="account-nav-item logout" id="logoutBtn">🚪 Déconnexion</button>
+        </nav>
+      </aside>
+
+      <!-- Contenu -->
+      <main class="account-content">
+
+        <!-- ============ PROFIL ============ -->
+        <section class="account-pane active" id="paneProfile">
+          <header class="pane-head">
+            <span class="section-eyebrow">Aperçu</span>
+            <h2 class="section-title">Mon profil</h2>
+          </header>
+          <div class="profile-cards">
+            <div class="profile-card">
+              <span class="profile-card-label">Membre depuis</span>
+              <strong id="profileSince">—</strong>
+            </div>
+            <div class="profile-card">
+              <span class="profile-card-label">Commandes passées</span>
+              <strong id="profileOrders">0</strong>
+            </div>
+            <div class="profile-card">
+              <span class="profile-card-label">Favoris</span>
+              <strong id="profileFavs">0</strong>
+            </div>
+            <div class="profile-card">
+              <span class="profile-card-label">Cartes cadeaux</span>
+              <strong id="profileGifts">0,00 €</strong>
+            </div>
+          </div>
+          <div class="profile-info-box">
+            <strong>📍 Boutique de retrait</strong>
+            <p>Kawéni · Mayotte — Prends RDV par WhatsApp</p>
+            <a href="https://wa.me/262639070035" class="btn btn-sm" target="_blank">💬 Prendre RDV</a>
+          </div>
+        </section>
+
+        <!-- ============ COMMANDES ============ -->
+        <section class="account-pane" id="paneOrders">
+          <header class="pane-head">
+            <span class="section-eyebrow">Historique</span>
+            <h2 class="section-title">Mes commandes</h2>
+          </header>
+          <div id="ordersList"></div>
+        </section>
+
+        <!-- ============ INFOS ============ -->
+        <section class="account-pane" id="paneInfo">
+          <header class="pane-head">
+            <span class="section-eyebrow">Coordonnées</span>
+            <h2 class="section-title">Mes informations</h2>
+          </header>
+          <form id="infoForm" class="account-form">
+            <label>Prénom &amp; nom
+              <input type="text" id="infoName" required />
+            </label>
+            <label>Email
+              <input type="email" id="infoEmail" required />
+            </label>
+            <label>Téléphone
+              <input type="tel" id="infoPhone" placeholder="+262 …" />
+            </label>
+            <label>Adresse <small>(facultatif)</small>
+              <textarea id="infoAddress" rows="3" placeholder="Adresse, ville, code postal..."></textarea>
+            </label>
+            <button type="submit" class="btn">Enregistrer</button>
+          </form>
+        </section>
+
+        <!-- ============ SÉCURITÉ ============ -->
+        <section class="account-pane" id="paneSecurity">
+          <header class="pane-head">
+            <span class="section-eyebrow">Compte</span>
+            <h2 class="section-title">Sécurité</h2>
+          </header>
+          <form id="pwdForm" class="account-form">
+            <label>Ancien mot de passe
+              <input type="password" id="oldPwd" autocomplete="current-password" required />
+            </label>
+            <label>Nouveau mot de passe <small>(6 caractères min)</small>
+              <input type="password" id="newPwd" autocomplete="new-password" minlength="6" required />
+            </label>
+            <label>Confirmer le nouveau mot de passe
+              <input type="password" id="newPwdConfirm" autocomplete="new-password" minlength="6" required />
+            </label>
+            <button type="submit" class="btn">Changer le mot de passe</button>
+            <p class="pane-msg" id="pwdMsg"></p>
+          </form>
+
+          <div class="danger-zone">
+            <h3>⚠️ Zone sensible</h3>
+            <p>Supprimer ton compte effacera définitivement tes informations stockées sur ce navigateur.</p>
+            <button class="btn-ghost danger" id="deleteAccountBtn">Supprimer mon compte</button>
+          </div>
+        </section>
+
+        <!-- ============ CARTES CADEAUX ============ -->
+        <section class="account-pane" id="paneGifts">
+          <header class="pane-head">
+            <span class="section-eyebrow">Cadeaux</span>
+            <h2 class="section-title">Cartes cadeaux</h2>
+          </header>
+          <div class="gifts-summary">
+            <div>
+              <span class="profile-card-label">Solde total disponible</span>
+              <strong id="giftsTotalAmount" class="big-amount">0,00 €</strong>
+            </div>
+          </div>
+          <form id="giftForm" class="account-form inline-form">
+            <label>Ajouter une carte cadeau
+              <input type="text" id="giftCode" placeholder="Saisis ton code (ex: CASAL25)" />
+            </label>
+            <button type="submit" class="btn">Activer</button>
+          </form>
+          <p class="pane-msg" id="giftMsg"></p>
+          <div id="giftsList"></div>
+        </section>
+
+        <!-- ============ NOTER LE SITE ============ -->
+        <section class="account-pane" id="paneRating">
+          <header class="pane-head">
+            <span class="section-eyebrow">Ton avis nous importe</span>
+            <h2 class="section-title">Noter le site</h2>
+          </header>
+          <p class="pane-sub">Ton retour nous aide à améliorer ton expérience.</p>
+          <div class="rating-stars" id="ratingStars">
+            <button data-star="1" aria-label="1 étoile">★</button>
+            <button data-star="2" aria-label="2 étoiles">★</button>
+            <button data-star="3" aria-label="3 étoiles">★</button>
+            <button data-star="4" aria-label="4 étoiles">★</button>
+            <button data-star="5" aria-label="5 étoiles">★</button>
+          </div>
+          <p class="rating-label" id="ratingLabel">Glisse sur les étoiles puis clique pour valider</p>
+          <form id="ratingForm" class="account-form">
+            <label>Commentaire <small>(facultatif)</small>
+              <textarea id="ratingComment" rows="3" placeholder="Qu'est-ce qu'on peut améliorer ?"></textarea>
+            </label>
+            <button type="submit" class="btn" id="ratingSubmit" disabled>Envoyer mon avis</button>
+          </form>
+          <p class="pane-msg" id="ratingMsg"></p>
+        </section>
+
+      </main>
+    </div>
+  </section>
+
+  <div class="toast" id="toast">✅</div>
+
+  <script src="products.js"></script>
+  <script src="compte.js"></script>
+</body>
+</html>
