@@ -175,7 +175,7 @@
         </div>
         <div class="mega-col">
           <h5>Aide</h5>
-          <a href="javascript:openSizeGuide()">Guide des tailles</a>
+          <a href="#" data-size-guide>Guide des tailles</a>
           <a href="cgv.html">Retrait &amp; retours</a>
           <a href="#contact">Nous contacter</a>
         </div>
@@ -206,7 +206,7 @@
         </div>
         <div class="mega-col">
           <h5>Aide</h5>
-          <a href="javascript:openSizeGuide()">Guide des tailles</a>
+          <a href="#" data-size-guide>Guide des tailles</a>
           <a href="cgv.html">Retrait &amp; retours</a>
           <a href="#contact">Nous contacter</a>
         </div>
@@ -243,7 +243,7 @@
         </div>
         <div class="mega-col">
           <h5>Aide</h5>
-          <a href="javascript:openSizeGuide()">Guide des tailles</a>
+          <a href="#" data-size-guide>Guide des tailles</a>
           <a href="cgv.html">Retrait &amp; retours</a>
         </div>
         <a href="#vetements" class="mega-promo" data-fcat="garcon">
@@ -274,7 +274,7 @@
         </div>
         <div class="mega-col">
           <h5>Aide</h5>
-          <a href="javascript:openSizeGuide()">Pointures</a>
+          <a href="#" data-size-guide>Pointures</a>
           <a href="cgv.html">Retours</a>
         </div>
         <a href="#baskets" class="mega-promo" data-fsub="basket">
@@ -443,7 +443,7 @@
       <div class="search-box">
         <input type="search" id="searchVet" placeholder="Rechercher..." aria-label="Rechercher" />
       </div>
-      <button class="size-guide-link" onclick="openSizeGuide()">📏 Guide des tailles</button>
+      <button class="size-guide-link" data-size-guide>📏 Guide des tailles</button>
     </div>
 
     <div class="products-grid" id="grid-vet"></div>
@@ -507,7 +507,7 @@
       <div class="search-box">
         <input type="search" id="searchBas" placeholder="Rechercher..." aria-label="Rechercher" />
       </div>
-      <button class="size-guide-link" onclick="openSizeGuide()">📏 Guide des pointures</button>
+      <button class="size-guide-link" data-size-guide>📏 Guide des pointures</button>
     </div>
 
     <div class="products-grid" id="grid-bas"></div>
@@ -551,7 +551,7 @@
   <section class="newsletter-bar">
     <h2 class="section-title">Reste dans la boucle</h2>
     <p>Inscris-toi : ton code <strong>-10%</strong> s'affiche immédiatement, à utiliser sur ta première commande</p>
-    <form class="newsletter-form-inline" onsubmit="handleNewsletter(event)">
+    <form class="newsletter-form-inline" id="newsletterInline">
       <input type="email" placeholder="TON.EMAIL@EXEMPLE.COM" required />
       <button type="submit" class="btn btn-coral">M'inscrire</button>
     </form>
@@ -605,7 +605,7 @@
         <ul>
           <li><a href="cgv.html">CGV</a></li>
           <li><a href="mentions.html">Mentions légales</a></li>
-          <li><a href="javascript:openSizeGuide()">Guide des tailles</a></li>
+          <li><a href="#" data-size-guide>Guide des tailles</a></li>
           <li><a href="https://wa.me/33628782826">Contact</a></li>
         </ul>
       </div>
@@ -661,7 +661,7 @@
       <a href="#favoris"    class="menu-link">Favoris</a>
       <a href="compte.html" class="menu-link">👤 Mon compte</a>
       <a href="#pourquoi"   class="menu-link">Le magasin</a>
-      <a href="javascript:openSizeGuide()" class="menu-link">Guide des tailles</a>
+      <a href="#" class="menu-link" data-size-guide>Guide des tailles</a>
       <a href="cgv.html"    class="menu-link">CGV</a>
       <a href="admin.html"  class="menu-link">⚙ Admin</a>
     </nav>
@@ -792,7 +792,7 @@
   <!-- ============ MODAL GUIDE TAILLES ============ -->
   <div class="modal-overlay" id="sizeModal" hidden>
     <div class="modal-box modal-wide">
-      <button class="modal-close" onclick="closeSizeGuide()" aria-label="Fermer">×</button>
+      <button class="modal-close" id="sizeModalClose" aria-label="Fermer">×</button>
       <h2>Guide des tailles</h2>
       <p class="modal-sub">Trouve ta taille idéale. En cas de doute, choisis la taille au-dessus.</p>
 
@@ -995,7 +995,7 @@
   </div>
 
   <!-- ============ LIGHTBOX ============ -->
-  <div class="lightbox" id="lightbox" hidden onclick="this.hidden=true">
+  <div class="lightbox" id="lightbox" hidden>
     <img src="" alt="" id="lightboxImg" />
   </div>
 

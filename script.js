@@ -547,8 +547,12 @@ function renderCart() {
         <div class="big">🛒</div>
         <p><strong>Ton panier est vide</strong></p>
         <p>Découvre nos articles et ajoute tes coups de cœur.</p>
-        <button class="btn" onclick="closeCartDrawer();document.getElementById('vetements').scrollIntoView({behavior:'smooth'})">Voir le catalogue</button>
+        <button class="btn" data-go-catalog>Voir le catalogue</button>
       </div>`;
+    cartItemsEl.querySelector('[data-go-catalog]')?.addEventListener('click', () => {
+      closeCartDrawer();
+      document.getElementById('vetements').scrollIntoView({ behavior: 'smooth' });
+    });
     if (checkout) checkout.disabled = true;
     return;
   }
@@ -1027,6 +1031,12 @@ function closeSizeGuide() { sizeModal.hidden = true;  document.body.style.overfl
 window.openSizeGuide  = openSizeGuide;
 window.closeSizeGuide = closeSizeGuide;
 sizeModal?.addEventListener('click', e => { if (e.target === sizeModal) closeSizeGuide(); });
+/* Ouvertures du guide des tailles : liens/boutons data-size-guide
+   (remplace les handlers inline, incompatibles avec la CSP) */
+document.querySelectorAll('[data-size-guide]').forEach(el =>
+  el.addEventListener('click', e => { e.preventDefault(); openSizeGuide(); })
+);
+document.getElementById('sizeModalClose')?.addEventListener('click', closeSizeGuide);
 document.querySelectorAll('.size-tab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('.size-tab').forEach(t => t.classList.remove('active'));
@@ -1041,6 +1051,7 @@ const lightbox = document.getElementById('lightbox');
 const lightboxImg = document.getElementById('lightboxImg');
 function openLightbox(src) { lightboxImg.src = src; lightbox.hidden = false; }
 window.openLightbox = openLightbox;
+lightbox?.addEventListener('click', () => { lightbox.hidden = true; });
 
 /* ============ NEWSLETTER ============ */
 const NEWS_KEY = 'casal_newsletter_seen_v2';
@@ -1062,7 +1073,8 @@ document.getElementById('newsletterForm')?.addEventListener('submit', e => {
 });
 setTimeout(showNewsletter, 9000);
 
-window.handleNewsletter = function(e) {
+/* Formulaire newsletter de la barre (listener au lieu d'onsubmit inline) */
+document.getElementById('newsletterInline')?.addEventListener('submit', e => {
   e.preventDefault();
   const email = e.target.querySelector('input').value;
   const list = JSON.parse(localStorage.getItem('casal_newsletter') || '[]');
@@ -1070,7 +1082,7 @@ window.handleNewsletter = function(e) {
   localStorage.setItem('casal_newsletter', JSON.stringify(list));
   e.target.reset();
   showToast('🎁 Inscription validée · Code BIENVENUE10');
-};
+});
 
 /* ============================================================
    SHARE POPOVER (partage produit : Instagram, Messenger,

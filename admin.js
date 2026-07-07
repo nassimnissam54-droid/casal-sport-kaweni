@@ -298,15 +298,23 @@ function renderTable() {
       <td><small>${stockMap[p.stock || 'in']}</small></td>
       <td><span class="row-status ${status}">${status === 'live' ? 'En ligne' : 'Brouillon'}</span></td>
       <td>
-        <button class="btn-icon edit"   onclick="editProduct(${p.id})"   title="Modifier">✏️</button>
-        <button class="btn-icon dup"    onclick="duplicateProduct(${p.id})" title="Dupliquer">📋</button>
-        <button class="btn-icon toggle" onclick="toggleStatus(${p.id})"  title="Basculer en ligne/brouillon">${status === 'live' ? '👁️' : '🚀'}</button>
-        <button class="btn-icon del"    onclick="deleteProduct(${p.id})" title="Supprimer">🗑️</button>
+        <button class="btn-icon edit"   data-act="edit"   data-id="${p.id}" title="Modifier">✏️</button>
+        <button class="btn-icon dup"    data-act="dup"    data-id="${p.id}" title="Dupliquer">📋</button>
+        <button class="btn-icon toggle" data-act="toggle" data-id="${p.id}" title="Basculer en ligne/brouillon">${status === 'live' ? '👁️' : '🚀'}</button>
+        <button class="btn-icon del"    data-act="del"    data-id="${p.id}" title="Supprimer">🗑️</button>
       </td>
     </tr>
   `;
   }).join('');
 }
+
+/* Délégation des actions produits (compatible CSP : pas de onclick inline) */
+document.getElementById('productsTbody').addEventListener('click', e => {
+  const btn = e.target.closest('[data-act]');
+  if (!btn) return;
+  const id = parseInt(btn.dataset.id, 10);
+  ({ edit: editProduct, dup: duplicateProduct, toggle: toggleStatus, del: deleteProduct })[btn.dataset.act]?.(id);
+});
 
 function refreshStats() {
   const all = ProductDB.getAll();
@@ -366,7 +374,7 @@ function renderOrders() {
           <br><small style="color:rgba(255,255,255,0.6)">📞 ${esc(o.phone || '—')} · 💵 ${esc(o.total || '')}${o.pickupCode ? ` · <strong style="color:#ffd166">🎫 ${esc(o.pickupCode)}</strong>` : ''}</small>
         </div>
         <div class="order-date">${new Date(o.date).toLocaleString('fr-FR')}
-          <button class="btn-icon del" onclick="deleteOrder(${o.id})" style="margin-left:0.5rem" title="Supprimer">🗑️</button>
+          <button class="btn-icon del" data-oact="del" data-id="${o.id}" style="margin-left:0.5rem" title="Supprimer">🗑️</button>
         </div>
       </div>
 
@@ -375,9 +383,9 @@ function renderOrders() {
         Statut actuel : <strong>${cur.icon} ${cur.label}</strong> — clique une étape pour mettre à jour
       </p>
       <div class="track-actions">
-        <button class="btn-ghost notify" onclick="notifyClient(${o.id})">📲 Notifier le client (WhatsApp)</button>
-        <button class="btn-ghost" onclick="copyTrackingLink(${o.id})">🔗 Copier le lien de suivi</button>
-        <button class="btn-ghost" onclick="toggleOrderMsg(${o.id})">📄 Voir le message</button>
+        <button class="btn-ghost notify" data-oact="notify" data-id="${o.id}">📲 Notifier le client (WhatsApp)</button>
+        <button class="btn-ghost" data-oact="track" data-id="${o.id}">🔗 Copier le lien de suivi</button>
+        <button class="btn-ghost" data-oact="msg" data-id="${o.id}">📄 Voir le message</button>
       </div>
       <pre id="orderMsg-${o.id}" hidden>${esc(o.message || '')}</pre>
     </div>
@@ -394,6 +402,14 @@ function renderOrders() {
     });
   });
 }
+
+/* Délégation des actions commandes (compatible CSP) */
+document.getElementById('ordersList').addEventListener('click', e => {
+  const btn = e.target.closest('[data-oact]');
+  if (!btn) return;
+  const id = parseInt(btn.dataset.id, 10);
+  ({ del: deleteOrder, notify: notifyClient, track: copyTrackingLink, msg: toggleOrderMsg })[btn.dataset.oact]?.(id);
+});
 
 /** Normalise un téléphone FR/Mayotte/Réunion vers le format wa.me */
 function waNumberOf(phone) {
