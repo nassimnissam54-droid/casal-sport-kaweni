@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /panier.html
+Disallow: /checkout.html
+Disallow: /confirmation.html
+
+Sitemap: https://casal-sport-kaweni.netlify.app/sitemap.xml

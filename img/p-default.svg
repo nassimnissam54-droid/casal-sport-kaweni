@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-label="Casal Sport">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="38%" r="65%">
+      <stop offset="0%" stop-color="#2a1510"/><stop offset="55%" stop-color="#16110f"/><stop offset="100%" stop-color="#0d0d10"/>
+    </radialGradient>
+    <linearGradient id="acc" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ff4d2e"/><stop offset="100%" stop-color="#ff9a3c"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#glow)"/>
+  <ellipse cx="200" cy="305" rx="120" ry="16" fill="#000" opacity="0.5"/>
+  <ellipse cx="200" cy="303" rx="120" ry="14" fill="url(#acc)" opacity="0.12"/>
+  <g transform="translate(200,195)"><rect x="-70" y="-70" width="140" height="140" rx="20" fill="#1c1c22" stroke="#3a3a44" stroke-width="3"/><text x="0" y="18" text-anchor="middle" fill="url(#acc)" font-family="Arial" font-size="54" font-weight="bold">CS</text></g>
+  <text x="200" y="368" text-anchor="middle" fill="#a3a3ad" font-family="Arial, sans-serif" font-size="17" font-weight="bold" letter-spacing="3">CASAL SPORT</text>
+</svg>

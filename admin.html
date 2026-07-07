@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administration — Casal Sport Kaweni</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container inner">
+      <a class="logo" href="index.html" aria-label="Casal Sport Kaweni — accueil">
+        <span class="mark" aria-hidden="true">CS</span>
+        <span>Casal Sport<small>ADMINISTRATION</small></span>
+      </a>
+      <nav class="main-nav" style="display:flex">
+        <a href="index.html">← Retour au site</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <div class="container" style="padding-bottom:4rem">
+
+      <!-- Connexion -->
+      <section id="login-view" class="page-hero" style="max-width:420px">
+        <span class="badge">Espace magasin</span>
+        <h1>Admin</h1>
+        <form id="login-form">
+          <div class="form-field">
+            <label for="admin-pass">Mot de passe</label>
+            <input type="password" id="admin-pass" required autocomplete="current-password">
+            <p class="form-hint">Défini par la variable d'environnement <code>ADMIN_PASSWORD</code> sur Netlify.</p>
+          </div>
+          <div class="alert alert-error" id="login-error" hidden role="alert"></div>
+          <button class="btn btn-primary" type="submit">Se connecter</button>
+        </form>
+      </section>
+
+      <!-- Tableau de bord -->
+      <section id="dash-view" hidden>
+        <div class="page-hero" style="padding-bottom:0">
+          <span class="badge">Espace magasin</span>
+          <h1>Tableau de <span class="accent">bord</span></h1>
+        </div>
+
+        <div class="admin-tabs" role="tablist">
+          <button class="admin-tab" role="tab" aria-selected="true" data-tab="orders">📦 Commandes</button>
+          <button class="admin-tab" role="tab" aria-selected="false" data-tab="products">🏷️ Produits</button>
+        </div>
+
+        <!-- Commandes -->
+        <div id="tab-orders" role="tabpanel">
+          <div class="shop-toolbar">
+            <input type="search" id="order-search" placeholder="Code de retrait, nom, e-mail…" aria-label="Rechercher une commande">
+            <button class="btn btn-ghost btn-sm" id="orders-refresh" type="button">↻ Actualiser</button>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="admin-table">
+              <thead>
+                <tr><th>Date</th><th>Code retrait</th><th>Client</th><th>Articles</th><th>Total</th><th>Paiement</th><th>Retrait</th><th></th></tr>
+              </thead>
+              <tbody id="orders-body"></tbody>
+            </table>
+          </div>
+          <p class="empty-state" id="orders-empty" hidden>Aucune commande pour l'instant.</p>
+        </div>
+
+        <!-- Produits -->
+        <div id="tab-products" role="tabpanel" hidden>
+          <p style="color:var(--text-dim);font-size:.9rem">
+            Les modifications sont enregistrées en base (Netlify Blobs) et visibles immédiatement sur le site.
+            <button class="btn btn-ghost btn-sm" id="products-reset" type="button">Repartir de products.json</button>
+          </p>
+          <div style="overflow-x:auto">
+            <table class="admin-table">
+              <thead><tr><th>Produit</th><th>Prix</th><th>Stock</th><th>Catégorie</th><th></th></tr></thead>
+              <tbody id="products-body"></tbody>
+            </table>
+          </div>
+          <h2 style="font-size:1.1rem;margin-top:2rem" id="product-form-title">Ajouter un produit</h2>
+          <form id="product-form" class="checkout-layout" style="padding:0;gap:1rem;grid-template-columns:1fr 1fr">
+            <div>
+              <div class="form-field"><label for="pf-id">Identifiant (unique, sans espace) *</label><input id="pf-id" required pattern="[a-z0-9\-]+"></div>
+              <div class="form-field"><label for="pf-name">Nom *</label><input id="pf-name" required></div>
+              <div class="form-field"><label for="pf-price">Prix (€) *</label><input id="pf-price" type="number" min="0" step="0.1" required></div>
+              <div class="form-field"><label for="pf-stock">Stock *</label><input id="pf-stock" type="number" min="0" required></div>
+              <div class="form-field"><label for="pf-image">Image (chemin ou URL)</label><input id="pf-image" placeholder="img/p-default.svg"></div>
+              <div class="form-field"><label><input type="checkbox" id="pf-featured"> Produit en vedette (accueil)</label></div>
+            </div>
+            <div>
+              <div class="form-field"><label for="pf-category">Catégorie</label>
+                <select id="pf-category"><option value="chaussures">Chaussures</option><option value="textile">Textile</option><option value="equipement">Équipement</option></select></div>
+              <div class="form-field"><label for="pf-sport">Sport</label>
+                <select id="pf-sport"><option>running</option><option>football</option><option>basket</option><option>fitness</option><option>musculation</option></select></div>
+              <div class="form-field"><label for="pf-genre">Genre</label>
+                <select id="pf-genre"><option value="homme">Homme</option><option value="femme">Femme</option><option value="enfant">Enfant</option><option value="mixte">Mixte</option></select></div>
+              <div class="form-field"><label for="pf-sizes">Tailles (séparées par des virgules)</label><input id="pf-sizes" placeholder="S, M, L, XL"></div>
+              <div class="form-field"><label for="pf-colors">Couleurs (séparées par des virgules)</label><input id="pf-colors" placeholder="Noir, Rouge"></div>
+              <div class="form-field"><label for="pf-matiere">Matière / composition</label><input id="pf-matiere"></div>
+              <div class="form-field"><label for="pf-desc">Description</label><textarea id="pf-desc" rows="3"></textarea></div>
+            </div>
+            <div style="grid-column:1/-1;display:flex;gap:.8rem">
+              <button class="btn btn-primary" type="submit">Enregistrer le produit</button>
+              <button class="btn btn-ghost" type="reset" id="pf-cancel">Vider le formulaire</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="alert alert-error" id="dash-error" hidden role="alert"></div>
+      </section>
+    </div>
+  </main>
+
+  <script type="module" src="js/admin.js"></script>
+</body>
+</html>

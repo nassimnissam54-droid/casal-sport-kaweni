@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-label="Ballon Match T5">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="38%" r="65%">
+      <stop offset="0%" stop-color="#2a1510"/><stop offset="55%" stop-color="#16110f"/><stop offset="100%" stop-color="#0d0d10"/>
+    </radialGradient>
+    <linearGradient id="acc" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ff4d2e"/><stop offset="100%" stop-color="#ff9a3c"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#glow)"/>
+  <ellipse cx="200" cy="305" rx="120" ry="16" fill="#000" opacity="0.5"/>
+  <ellipse cx="200" cy="303" rx="120" ry="14" fill="url(#acc)" opacity="0.12"/>
+  <g transform="translate(200,195)"><circle cx="0" cy="0" r="85" fill="#f2f2ee"/><polygon points="0,-34 32,-10 20,28 -20,28 -32,-10" fill="#141418"/><path d="M0,-34 L0,-85 M32,-10 L81,-26 M20,28 L50,68 M-20,28 L-50,68 M-32,-10 L-81,-26" stroke="#141418" stroke-width="5"/><circle cx="0" cy="0" r="85" fill="none" stroke="#141418" stroke-width="5"/></g>
+  <text x="200" y="368" text-anchor="middle" fill="#a3a3ad" font-family="Arial, sans-serif" font-size="17" font-weight="bold" letter-spacing="3">BALLON MATCH T5</text>
+</svg>

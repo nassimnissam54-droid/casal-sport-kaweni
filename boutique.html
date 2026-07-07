@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Boutique — Casal Sport Kaweni | Chaussures, textile et équipement de sport à Mayotte</title>
+  <meta name="description" content="Tout le catalogue Casal Sport Kaweni : chaussures, textile et équipement de sport. Filtrez par sport, genre et taille. Retrait en magasin à Kawéni.">
+  <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Aller au contenu</a>
+
+  <header class="site-header">
+    <div class="container inner">
+      <a class="logo" href="index.html" aria-label="Casal Sport Kaweni — accueil">
+        <span class="mark" aria-hidden="true">CS</span>
+        <span>Casal Sport<small>KAWENI · MAYOTTE</small></span>
+      </a>
+      <button class="nav-toggle" aria-expanded="false" aria-label="Ouvrir le menu">☰</button>
+      <nav class="main-nav" aria-label="Navigation principale">
+        <a href="index.html">Accueil</a>
+        <a href="boutique.html" aria-current="page">Boutique</a>
+        <a href="contact.html">Le magasin</a>
+        <a class="cart-link" href="panier.html">Panier <span class="cart-count">0</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <div class="container page-hero">
+      <span class="badge">Catalogue</span>
+      <h1>La <span class="accent">boutique</span></h1>
+      <p style="color:var(--text-dim)">Commande en ligne — retrait au magasin de Kawéni, aucun frais de livraison.</p>
+    </div>
+
+    <div class="container shop-layout" style="padding-bottom:4rem">
+      <aside class="filters" aria-label="Filtres">
+        <fieldset id="f-cat">
+          <legend>Catégorie</legend>
+          <label><input type="checkbox" value="chaussures"> Chaussures</label>
+          <label><input type="checkbox" value="textile"> Textile</label>
+          <label><input type="checkbox" value="equipement"> Équipement</label>
+        </fieldset>
+        <fieldset id="f-sport">
+          <legend>Sport</legend>
+          <label><input type="checkbox" value="running"> Running</label>
+          <label><input type="checkbox" value="football"> Football</label>
+          <label><input type="checkbox" value="basket"> Basket</label>
+          <label><input type="checkbox" value="fitness"> Fitness</label>
+          <label><input type="checkbox" value="musculation"> Musculation</label>
+        </fieldset>
+        <fieldset id="f-genre">
+          <legend>Genre</legend>
+          <label><input type="checkbox" value="homme"> Homme</label>
+          <label><input type="checkbox" value="femme"> Femme</label>
+          <label><input type="checkbox" value="enfant"> Enfant</label>
+          <label><input type="checkbox" value="mixte"> Mixte</label>
+        </fieldset>
+        <fieldset id="f-price">
+          <legend>Prix max : <output id="price-out">100 €</output></legend>
+          <input type="range" id="price-range" min="10" max="100" value="100" step="5"
+                 aria-label="Prix maximum" style="width:100%; accent-color:var(--accent)">
+        </fieldset>
+        <button class="btn btn-ghost btn-sm" id="clear-filters" type="button">Réinitialiser</button>
+      </aside>
+
+      <section aria-label="Produits">
+        <div class="shop-toolbar">
+          <input type="search" id="search" placeholder="Rechercher un produit…" aria-label="Rechercher">
+          <select id="sort" aria-label="Trier les produits">
+            <option value="featured">En vedette</option>
+            <option value="price-asc">Prix croissant</option>
+            <option value="price-desc">Prix décroissant</option>
+            <option value="name">Nom A → Z</option>
+          </select>
+        </div>
+        <p class="results-count" id="results-count" aria-live="polite"></p>
+        <div class="products-grid" id="grid"></div>
+        <div class="empty-state" id="empty" hidden>
+          <h2>Aucun produit</h2>
+          <p>Aucun article ne correspond à ces filtres.</p>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <h3>Casal Sport Kaweni</h3>
+        <ul>
+          <li>Zone commerciale de Kawéni</li>
+          <li>97600 Mamoudzou, Mayotte</li>
+          <li>Lun–Sam : 8h30 – 17h30</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Boutique</h3>
+        <ul>
+          <li><a href="boutique.html?cat=chaussures">Chaussures</a></li>
+          <li><a href="boutique.html?cat=textile">Textile</a></li>
+          <li><a href="boutique.html?cat=equipement">Équipement</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Informations</h3>
+        <ul>
+          <li><a href="contact.html">Le magasin &amp; contact</a></li>
+          <li><a href="cgv.html">Conditions générales de vente</a></li>
+          <li><a href="mentions.html">Mentions légales</a></li>
+          <li><a href="confidentialite.html">Confidentialité</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="container legal">
+      <span>© 2026 Casal Sport Kaweni — Retrait en point de vente uniquement, aucune livraison.</span>
+      <a href="admin.html">Admin</a>
+    </div>
+  </footer>
+
+  <script type="module" src="js/boutique.js"></script>
+</body>
+</html>
