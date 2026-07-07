@@ -4,12 +4,18 @@
 [functions]
   directory = "netlify/functions"
 
+# Sécurité (audit S4) : CSP stricte (plus aucun handler inline dans le
+# code), HSTS et en-têtes classiques. 'unsafe-inline' est limité aux
+# STYLES (attributs style= des templates), jamais aux scripts.
 [[headers]]
   for = "/*"
   [headers.values]
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://images.unsplash.com data:; connect-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"
     X-Frame-Options = "DENY"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
 
 # Cache long pour les assets qui changent rarement
 [[headers]]
