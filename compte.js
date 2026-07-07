@@ -57,11 +57,11 @@ $$('.auth-switch a').forEach(a => {
 });
 
 /* ============ LOGIN ============ */
-$('#loginForm').addEventListener('submit', e => {
+$('#loginForm').addEventListener('submit', async e => {
   e.preventDefault();
   const email = $('#loginEmail').value;
   const pwd   = $('#loginPwd').value;
-  const r = UserDB.login(email, pwd);
+  const r = await UserDB.login(email, pwd);
   const errEl = $('#loginError');
   if (r.ok) {
     errEl.textContent = '';
@@ -73,7 +73,7 @@ $('#loginForm').addEventListener('submit', e => {
 });
 
 /* ============ SIGNUP ============ */
-$('#signupForm').addEventListener('submit', e => {
+$('#signupForm').addEventListener('submit', async e => {
   e.preventDefault();
   const data = {
     name:     $('#signupName').value,
@@ -81,7 +81,7 @@ $('#signupForm').addEventListener('submit', e => {
     phone:    $('#signupPhone').value,
     password: $('#signupPwd').value
   };
-  const r = UserDB.signup(data);
+  const r = await UserDB.signup(data);
   const errEl = $('#signupError');
   if (r.ok) {
     errEl.textContent = '';
@@ -240,14 +240,14 @@ $('#infoForm').addEventListener('submit', e => {
 });
 
 /* ============ SÉCURITÉ ============ */
-$('#pwdForm').addEventListener('submit', e => {
+$('#pwdForm').addEventListener('submit', async e => {
   e.preventDefault();
   const oldP = $('#oldPwd').value;
   const newP = $('#newPwd').value;
   const conf = $('#newPwdConfirm').value;
   const msg  = $('#pwdMsg');
   if (newP !== conf) { msg.textContent = '❌ Les deux nouveaux mots de passe ne correspondent pas.'; msg.className = 'pane-msg bad'; return; }
-  const r = UserDB.changePassword(oldP, newP);
+  const r = await UserDB.changePassword(oldP, newP);
   if (r.ok) {
     msg.textContent = '✅ Mot de passe changé avec succès.';
     msg.className = 'pane-msg ok';

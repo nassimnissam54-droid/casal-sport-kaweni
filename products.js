@@ -531,8 +531,14 @@ const CartDB = {
    ou backend Supabase / Firebase.
    ============================================================ */
 const UserDB = {
-  /** Hash très simple — NON SÉCURISÉ, demo uniquement */
-  _hash(pwd) { return btoa(unescape(encodeURIComponent(pwd + '·casal'))); },
+  /** SHA-256 salé via WebCrypto (asynchrone). L'ancien « hash » base64
+   *  (réversible) est migré automatiquement au premier login réussi. */
+  async _hash(pwd) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pwd + '·casal'));
+    return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+  },
+  /** Ancien encodage base64 — conservé uniquement pour la migration */
+  _legacyHash(pwd) { return btoa(unescape(encodeURIComponent(pwd + '·casal'))); },
 
   get() {
     try { return JSON.parse(localStorage.getItem(USER_KEY) || 'null'); }
@@ -541,7 +547,7 @@ const UserDB = {
   exists() { return !!this.get(); },
   _save(u) { localStorage.setItem(USER_KEY, JSON.stringify(u)); },
 
-  signup({ email, password, name, phone, address }) {
+  async signup({ email, password, name, phone, address }) {
     if (this.exists()) return { ok:false, error:'Un compte existe déjà sur ce navigateur. Connecte-toi ou supprime le compte existant.' };
     if (!email || !password || password.length < 6) return { ok:false, error:'Mot de passe : 6 caractères minimum.' };
     const u = {
@@ -549,7 +555,7 @@ const UserDB = {
       name: (name || '').trim(),
       phone: (phone || '').trim(),
       address: (address || '').trim(),
-      passwordHash: this._hash(password),
+      passwordHash: await this._hash(password),
       createdAt: Date.now(),
       giftCards: [],
       rating: null
@@ -559,11 +565,20 @@ const UserDB = {
     return { ok:true, user:u };
   },
 
-  login(email, password) {
+  async login(email, password) {
     const u = this.get();
     if (!u) return { ok:false, error:'Aucun compte trouvé. Inscris-toi !' };
     if (u.email !== email.trim().toLowerCase()) return { ok:false, error:'Email incorrect.' };
-    if (u.passwordHash !== this._hash(password)) return { ok:false, error:'Mot de passe incorrect.' };
+    const sha = await this._hash(password);
+    if (u.passwordHash !== sha) {
+      // Migration : compte créé avec l'ancien encodage base64
+      if (u.passwordHash === this._legacyHash(password)) {
+        u.passwordHash = sha;
+        this._save(u);
+      } else {
+        return { ok:false, error:'Mot de passe incorrect.' };
+      }
+    }
     this._startSession(u.email);
     return { ok:true, user:u };
   },
@@ -594,12 +609,14 @@ const UserDB = {
     return true;
   },
 
-  changePassword(oldPwd, newPwd) {
+  async changePassword(oldPwd, newPwd) {
     const u = this.get();
     if (!u) return { ok:false, error:'Pas de compte.' };
-    if (u.passwordHash !== this._hash(oldPwd)) return { ok:false, error:'Ancien mot de passe incorrect.' };
+    const oldSha = await this._hash(oldPwd);
+    if (u.passwordHash !== oldSha && u.passwordHash !== this._legacyHash(oldPwd))
+      return { ok:false, error:'Ancien mot de passe incorrect.' };
     if (!newPwd || newPwd.length < 6) return { ok:false, error:'Nouveau mot de passe : 6 caractères min.' };
-    u.passwordHash = this._hash(newPwd);
+    u.passwordHash = await this._hash(newPwd);
     this._save(u);
     return { ok:true };
   },
