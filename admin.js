@@ -507,6 +507,87 @@ function renderOrders() {
 /* Recherche de commande par code de retrait (ou nom / téléphone / email) */
 document.getElementById('orderSearch')?.addEventListener('input', renderOrders);
 
+/* ============================================================
+   SCANNER QR — réservé aux smartphones du magasin.
+   Utilise l'API native BarcodeDetector (Android Chrome) : aucune
+   librairie externe, compatible CSP script-src 'self'. Le bouton
+   n'apparaît que sur mobile ; sinon la recherche manuelle reste.
+   ============================================================ */
+const scanBtn      = document.getElementById('scanOrderBtn');
+const scannerOv    = document.getElementById('scannerOverlay');
+const scannerVideo = document.getElementById('scannerVideo');
+const scannerClose = document.getElementById('scannerClose');
+const scannerMsg   = document.getElementById('scannerMsg');
+let scanStream = null, scanTimer = null, scanDetector = null;
+
+// Affiché seulement sur mobile (écran tactile + caméra disponible)
+const isPhone = matchMedia('(pointer: coarse)').matches && !!navigator.mediaDevices?.getUserMedia;
+if (scanBtn && isPhone) scanBtn.hidden = false;
+
+async function openScanner() {
+  if (!('BarcodeDetector' in window)) {
+    showToast('📷 Scanner non supporté sur ce téléphone — saisis le code à la main');
+    return;
+  }
+  try {
+    const formats = await BarcodeDetector.getSupportedFormats();
+    if (!formats.includes('qr_code')) {
+      showToast('📷 QR non pris en charge ici — saisis le code à la main');
+      return;
+    }
+    scanDetector = new BarcodeDetector({ formats: ['qr_code'] });
+    scanStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment' }
+    });
+    scannerVideo.srcObject = scanStream;
+    await scannerVideo.play();
+    scannerMsg.textContent = "Vise le QR code du ticket ou de l'e-mail du client.";
+    scannerOv.hidden = false;
+    scanTick();
+  } catch (e) {
+    showToast(e.name === 'NotAllowedError' ? '📷 Accès caméra refusé' : '📷 Caméra indisponible');
+    closeScanner();
+  }
+}
+
+async function scanTick() {
+  if (!scanStream) return;
+  try {
+    const codes = await scanDetector.detect(scannerVideo);
+    if (codes.length && codes[0].rawValue) {
+      onScanResult(codes[0].rawValue);
+      return;
+    }
+  } catch { /* image pas prête : on réessaie */ }
+  scanTimer = setTimeout(scanTick, 250);
+}
+
+function onScanResult(raw) {
+  // Extrait un code de retrait CS-XXXX-XXXX si le QR contient plus (URL…)
+  const m = String(raw).match(/CS-[A-Z0-9]{4}-[A-Z0-9]{4}/i);
+  const code = m ? m[0].toUpperCase() : String(raw).trim();
+  closeScanner();
+  // Bascule sur l'onglet Commandes puis lance la recherche
+  document.querySelector('.admin-tab[data-pane="paneOrders"]')?.click();
+  const search = document.getElementById('orderSearch');
+  if (search) { search.value = code; renderOrders(); }
+  showToast('🎫 Code scanné : ' + code);
+}
+
+function closeScanner() {
+  if (scanTimer) { clearTimeout(scanTimer); scanTimer = null; }
+  if (scanStream) { scanStream.getTracks().forEach(t => t.stop()); scanStream = null; }
+  if (scannerVideo) scannerVideo.srcObject = null;
+  if (scannerOv) scannerOv.hidden = true;
+}
+
+scanBtn?.addEventListener('click', openScanner);
+scannerClose?.addEventListener('click', closeScanner);
+// Sécurité : coupe la caméra si l'onglet passe en arrière-plan
+document.addEventListener('visibilitychange', () => { if (document.hidden) closeScanner(); });
+/* Exposé pour les tests automatisés (simulation d'un scan) */
+window.__onScanResult = onScanResult;
+
 /* Délégation des actions commandes (compatible CSP) */
 document.getElementById('ordersList').addEventListener('click', e => {
   const btn = e.target.closest('[data-oact]');

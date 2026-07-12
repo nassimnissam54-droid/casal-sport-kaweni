@@ -229,10 +229,26 @@
             <input type="search" id="orderSearch"
                    placeholder="🎫 Rechercher un code de retrait, un nom, un téléphone…"
                    aria-label="Rechercher une commande par code de retrait" autocomplete="off" />
+            <button type="button" class="btn-scan" id="scanOrderBtn" hidden>📷 Scanner le QR</button>
             <span class="orders-search-count" id="orderSearchCount"></span>
           </div>
           <div id="ordersList"></div>
         </section>
+      </div>
+
+      <!-- ============ SCANNER QR (smartphone du magasin) ============ -->
+      <div class="scanner-overlay" id="scannerOverlay" hidden>
+        <div class="scanner-box">
+          <div class="scanner-head">
+            <strong>📷 Scanne le QR du client</strong>
+            <button type="button" class="scanner-close" id="scannerClose" aria-label="Fermer le scanner">×</button>
+          </div>
+          <div class="scanner-view">
+            <video id="scannerVideo" playsinline muted></video>
+            <div class="scanner-frame"></div>
+          </div>
+          <p class="scanner-msg" id="scannerMsg">Vise le QR code du ticket ou de l'e-mail du client.</p>
+        </div>
       </div>
 
     </main>

@@ -140,6 +140,12 @@ async function sendReceipt(order) {
   if (!key) return false;
   const from = process.env.EMAIL_FROM || 'Casal Sport Kaweni <onboarding@resend.dev>';
 
+  // QR scannable dans le reçu (image de notre propre domaine). Nécessite
+  // process.env.URL (fourni par Netlify) pour une URL absolue dans l'e-mail.
+  const qrUrl = process.env.URL
+    ? `${process.env.URL}/api/qr?data=${encodeURIComponent(order.pickupCode)}`
+    : '';
+
   const rows = order.items.map((l) => `
     <tr>
       <td style="padding:8px 12px;border-bottom:1px solid #eee">${esc(l.productName)}<br>
@@ -160,8 +166,10 @@ async function sendReceipt(order) {
       <div style="border:2px solid #FF4D3D;border-radius:14px;text-align:center;padding:20px;margin:20px 0">
         <p style="margin:0;color:#777;font-size:12px;letter-spacing:2px">CODE DE RETRAIT</p>
         <p style="margin:6px 0 0;font-size:34px;font-weight:900;letter-spacing:3px;color:#FF4D3D">${esc(order.pickupCode)}</p>
+        ${qrUrl ? `<img src="${qrUrl}" alt="QR code de retrait ${esc(order.pickupCode)}" width="150" height="150" style="display:block;margin:14px auto 0;border-radius:8px">
+        <p style="margin:8px 0 0;color:#999;font-size:12px">Le magasin scanne ce QR pour retrouver ta commande</p>` : ''}
       </div>
-      <p style="text-align:center;color:#555">Présente ce code au magasin <strong>Casal Sport de Kawéni</strong> (Mamoudzou) pour retirer ta commande.</p>
+      <p style="text-align:center;color:#555">Présente ce code (ou ce QR) au magasin <strong>Casal Sport de Kawéni</strong> (Mamoudzou) pour retirer ta commande.</p>
       <table style="width:100%;border-collapse:collapse;margin:20px 0">
         <thead><tr>
           <th style="text-align:left;padding:8px 12px;border-bottom:2px solid #18181b;font-size:12px">ARTICLE</th>

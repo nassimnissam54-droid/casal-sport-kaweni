@@ -166,7 +166,8 @@ function renderOrders() {
           <span class="order-status ${cur.id === 'retiree' ? 'envoyée' : ''}">${cur.icon} ${cur.label}</span>
         </header>
         <ul class="order-block-items">${items}</ul>
-        ${o.pickupCode ? `<p class="track-status-line" style="font-weight:700">🎫 Code de retrait : <strong>${esc(o.pickupCode)}</strong> — à présenter au magasin de Kawéni</p>` : ''}
+        ${o.pickupCode ? `<p class="track-status-line" style="font-weight:700">🎫 Code de retrait : <strong>${esc(o.pickupCode)}</strong> — à présenter au magasin de Kawéni</p>
+        <img class="order-qr" alt="QR du code de retrait ${esc(o.pickupCode)}" src="/api/qr?data=${encodeURIComponent(o.pickupCode)}" width="130" height="130">` : ''}
         ${clientTrackStepsHTML(o)}
         <p class="track-status-line">${cur.icon} <strong>${cur.label}</strong> — ${esc(cur.desc)}</p>
 
@@ -176,6 +177,12 @@ function renderOrders() {
         </footer>
       </article>`;
   }).join('');
+
+  // Masque proprement les QR si l'endpoint /api/qr n'est pas dispo
+  // (préview locale, hors-ligne) plutôt que d'afficher une image cassée.
+  wrap.querySelectorAll('.order-qr').forEach(img =>
+    img.addEventListener('error', () => { img.style.display = 'none'; })
+  );
 }
 
 /** Stepper de suivi côté client (non cliquable, thème clair) */
