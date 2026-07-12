@@ -2999,6 +2999,38 @@ h3, .product-title {
 .admin-filters input::placeholder { color: var(--gris-500); }
 .admin-filters select option { background: var(--gris-900); }
 
+/* Recherche de commande par code de retrait (pane Commandes) */
+.orders-search {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.2rem;
+}
+.orders-search input {
+  flex: 1;
+  min-width: 240px;
+  padding: 0.7rem 1rem;
+  background: var(--gris-800);
+  border: 1px solid var(--gris-700);
+  border-radius: 12px;
+  color: var(--blanc);
+  font-family: inherit;
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+  transition: border-color 0.2s;
+}
+.orders-search input::placeholder { color: var(--gris-500); }
+.orders-search input:focus {
+  outline: none;
+  border-color: var(--corail);
+}
+.orders-search-count {
+  color: var(--gris-400);
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
 .admin-form .form-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));

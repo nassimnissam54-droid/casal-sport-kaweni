@@ -425,12 +425,36 @@ function trackStepsHTML(o, clickable) {
 }
 
 function renderOrders() {
-  const list = OrderDB.getAll();
+  const all = OrderDB.getAll();
   const wrap = document.getElementById('ordersList');
-  if (!list.length) {
+  const countEl = document.getElementById('orderSearchCount');
+  if (!all.length) {
     wrap.innerHTML = `<p style="color:rgba(255,255,255,0.6);text-align:center;padding:3rem">📭 Aucune commande sauvegardée pour l'instant.</p>`;
+    if (countEl) countEl.textContent = '';
     return;
   }
+
+  // Filtre par code de retrait, nom, téléphone ou email (recherche souple :
+  // ignore la casse, les espaces et les tirets pour retrouver un code vite)
+  const raw = (document.getElementById('orderSearch')?.value || '').trim().toLowerCase();
+  const q = raw.replace(/[\s-]/g, '');
+  const list = !q ? all : all.filter(o => {
+    const hay = [o.pickupCode, o.name, o.phone, o.email]
+      .join(' ').toLowerCase().replace(/[\s-]/g, '');
+    return hay.includes(q);
+  });
+
+  if (countEl) {
+    countEl.textContent = raw
+      ? `${list.length} résultat${list.length > 1 ? 's' : ''} sur ${all.length}`
+      : `${all.length} commande${all.length > 1 ? 's' : ''}`;
+  }
+
+  if (!list.length) {
+    wrap.innerHTML = `<p style="color:rgba(255,255,255,0.6);text-align:center;padding:3rem">🔍 Aucune commande ne correspond à « ${esc(raw)} ».</p>`;
+    return;
+  }
+
   wrap.innerHTML = list.map(o => {
     const cur = ORDER_STATUS_FLOW[orderStatusIndex(o.status)];
     return `
@@ -479,6 +503,9 @@ function renderOrders() {
     });
   });
 }
+
+/* Recherche de commande par code de retrait (ou nom / téléphone / email) */
+document.getElementById('orderSearch')?.addEventListener('input', renderOrders);
 
 /* Délégation des actions commandes (compatible CSP) */
 document.getElementById('ordersList').addEventListener('click', e => {

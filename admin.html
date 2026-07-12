@@ -225,6 +225,12 @@
             ℹ️ Les commandes sont sauvegardées dans le navigateur (localStorage) au moment où le client clique sur Envoyer.
             Les vrais messages WhatsApp/Email arrivent directement chez vous.
           </p>
+          <div class="orders-search">
+            <input type="search" id="orderSearch"
+                   placeholder="🎫 Rechercher un code de retrait, un nom, un téléphone…"
+                   aria-label="Rechercher une commande par code de retrait" autocomplete="off" />
+            <span class="orders-search-count" id="orderSearchCount"></span>
+          </div>
           <div id="ordersList"></div>
         </section>
       </div>
