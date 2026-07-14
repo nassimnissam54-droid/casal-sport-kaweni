@@ -371,18 +371,29 @@ async function syncOrdersFromServer() {
   if (!key) return;
   try {
     const r = await fetch('/api/orders', { headers: { 'x-admin-key': key } });
+    if (r.status === 401) {
+      // ADMIN_PASSWORD absente sur Netlify OU différente du mdp saisi :
+      // les commandes passées sur d'autres appareils resteront invisibles.
+      showToast('⚠️ Synchro impossible : configure ADMIN_PASSWORD sur Netlify (même mot de passe que cette page)');
+      return;
+    }
     if (!r.ok) return;
     const remote = await r.json();
     const local = OrderDB.getAll();
     let added = 0;
     remote.forEach(ro => {
-      const l = local.find(x => x.id === ro.id);
+      // Même commande = même code de retrait (l'id local du checkout et
+      // l'id serveur diffèrent de quelques ms) — sinon même id
+      const l = local.find(x => x.id === ro.id ||
+        (x.pickupCode && ro.pickupCode && x.pickupCode === ro.pickupCode));
       if (l) {
         // Le serveur fait foi sur le statut (mis à jour depuis n'importe où)
         l.status = ro.status; l.statusHistory = ro.statusHistory;
+        l.serverId = ro.id;
       } else {
         local.push({
           ...ro,
+          serverId: ro.id,
           total: ro.totalDisplayed || (ro.totalComputed.toFixed(2).replace('.', ',') + ' €'),
           mode: 'retrait'
         });
@@ -434,13 +445,13 @@ function renderOrders() {
     return;
   }
 
-  // Filtre par code de retrait, nom, téléphone ou email (recherche souple :
-  // ignore la casse, les espaces et les tirets pour retrouver un code vite)
+  // Filtre par code de retrait, n° de commande, nom, téléphone ou email
+  // (recherche souple : ignore casse, espaces, tirets et le « # » du n°)
   const raw = (document.getElementById('orderSearch')?.value || '').trim().toLowerCase();
-  const q = raw.replace(/[\s-]/g, '');
+  const q = raw.replace(/[\s\-#]/g, '');
   const list = !q ? all : all.filter(o => {
-    const hay = [o.pickupCode, o.name, o.phone, o.email]
-      .join(' ').toLowerCase().replace(/[\s-]/g, '');
+    const hay = [o.pickupCode, o.id, o.name, o.phone, o.email]
+      .join(' ').toLowerCase().replace(/[\s\-#]/g, '');
     return hay.includes(q);
   });
 
@@ -491,13 +502,15 @@ function renderOrders() {
       renderOrders();
       const s = ORDER_STATUS_FLOW.find(x => x.id === btn.dataset.status);
       showToast(`${s.icon} Statut : ${s.label}`);
-      // Répercute le statut côté serveur (visible depuis tout appareil)
+      // Répercute le statut côté serveur (visible depuis tout appareil).
+      // L'id serveur peut différer de l'id local (checkout vs enregistrement).
       const key = sessionStorage.getItem('casal_admin_key');
+      const ord = OrderDB.getAll().find(x => x.id === orderId);
       if (key) {
         fetch('/api/orders', {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json', 'x-admin-key': key },
-          body: JSON.stringify({ id: orderId, status: btn.dataset.status })
+          body: JSON.stringify({ id: (ord && ord.serverId) || orderId, status: btn.dataset.status })
         }).catch(() => {});
       }
     });
