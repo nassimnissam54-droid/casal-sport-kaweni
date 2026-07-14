@@ -673,6 +673,13 @@ function paymentLabelOf(id) {
 }
 
 function openCheckoutModal() {
+  // Réinitialise l'état (l'écran de confirmation a pu remplacer le formulaire)
+  orderForm.hidden = false;
+  orderCartSum.hidden = false;
+  document.getElementById('orderSuccess').hidden = true;
+  orderModal.querySelector('h2').textContent = 'Finaliser ma commande';
+  orderModal.querySelector('.modal-sub').innerHTML =
+    'Vérifie ton panier et remplis tes coordonnées — tu recevras ton <strong>code de retrait</strong> à présenter au magasin de Kawéni.';
   renderCartSummary();
   orderForm.reset();
   appliedPromo = null;
@@ -884,19 +891,20 @@ function sendReceiptEmail(order) {
   } catch { /* silencieux */ }
 }
 
-function onOrderSent() {
-  if (orderPayment.value === 'online-card') {
-    showToast(pendingCheckoutUrl
-      ? '💳 Lien de paiement inclus dans ton message'
-      : '💳 Le lien de paiement du montant exact arrive par WhatsApp');
-  } else {
-    showToast(`🎫 Code de retrait : ${pendingPickupCode} — garde-le précieusement !`);
-  }
-  pendingCheckoutUrl = null;
-  pendingPickupCode = null;
-  CartDB.clear();
-  updateCartCounter();
-  closeOrderModal();
+/** Affiche l'écran de confirmation dans la modale (code + QR de retrait) */
+function showOrderSuccess(code) {
+  orderForm.hidden = true;
+  orderCartSum.hidden = true;
+  orderModal.querySelector('h2').textContent = 'Commande envoyée 🎉';
+  orderModal.querySelector('.modal-sub').textContent =
+    'Ta commande est enregistrée au magasin de Kawéni.';
+  document.getElementById('successCode').textContent = code;
+  const qr = document.getElementById('successQr');
+  qr.hidden = true;
+  qr.onload  = () => { qr.hidden = false; };
+  qr.onerror = () => { qr.hidden = true; }; // préview locale sans functions
+  qr.src = '/api/qr?data=' + encodeURIComponent(code);
+  document.getElementById('orderSuccess').hidden = false;
 }
 
 /* ============ LIEN SUMUP AU MONTANT EXACT (API) ============ */
@@ -939,54 +947,28 @@ async function tryCreateCheckout() {
   } catch { /* repli silencieux : lien envoyé manuellement par le vendeur */ }
 }
 
-/* Boutons WhatsApp dynamiques */
-const waGroup = document.getElementById('waGroup');
-const waNumbers = Array.isArray(CONTACT_INFO.whatsapp)
-  ? CONTACT_INFO.whatsapp
-  : [{ number: CONTACT_INFO.whatsapp, label:'WhatsApp', display:'' }];
-waNumbers.forEach(wa => {
-  const btn = document.createElement('button');
-  btn.type = 'button';
-  btn.className = 'btn-wa';
-  btn.innerHTML = `${wa.label}<span class="wa-num">${wa.display || '+' + wa.number}</span>`;
-  btn.addEventListener('click', async () => {
-    if (!validateOrderForm()) return;
-    btn.disabled = true;
-    await tryCreateCheckout();
-    saveOrderLocal();
-    const msg = encodeURIComponent(buildOrderMessage());
-    window.open(`https://wa.me/${wa.number}?text=${msg}`, '_blank');
-    btn.disabled = false;
-    onOrderSent();
-  });
-  waGroup.appendChild(btn);
+/* ============ CONFIRMATION DE COMMANDE ============
+   Plus d'envoi WhatsApp/e-mail manuel : la commande part directement
+   au serveur (saveOrderLocal → /api/orders) qui la stocke pour l'admin
+   et envoie le reçu e-mail. Le code de retrait s'affiche à l'écran. */
+orderForm.addEventListener('submit', async e => {
+  e.preventDefault();
+  if (!validateOrderForm()) return;
+  const btn = document.getElementById('confirmOrder');
+  btn.disabled = true;
+  btn.textContent = 'Enregistrement…';
+  await tryCreateCheckout();     // dormant tant que la carte en ligne est désactivée
+  saveOrderLocal();              // code de retrait + commande serveur + reçu e-mail
+  showOrderSuccess(pendingPickupCode);
+  pendingCheckoutUrl = null;
+  pendingPickupCode = null;
+  CartDB.clear();
+  updateCartCounter();
+  btn.disabled = false;
+  btn.textContent = '✅ Confirmer ma commande';
 });
 
-document.getElementById('sendEmail').addEventListener('click', async () => {
-  if (!validateOrderForm()) return;
-  await tryCreateCheckout();
-  saveOrderLocal();
-  const subject = encodeURIComponent(`Commande ${CONTACT_INFO.shopName} — ${CartDB.count()} article(s)`);
-  const body    = encodeURIComponent(buildOrderMessage());
-  window.location.href = `mailto:${CONTACT_INFO.email}?subject=${subject}&body=${body}`;
-  onOrderSent();
-});
-
-document.getElementById('copyMessage').addEventListener('click', async () => {
-  if (!validateOrderForm()) return;
-  await tryCreateCheckout();
-  saveOrderLocal();
-  try {
-    await navigator.clipboard.writeText(buildOrderMessage());
-    showToast('📋 Message copié — panier vidé');
-    pendingCheckoutUrl = null;
-    CartDB.clear();
-    updateCartCounter();
-    closeOrderModal();
-  } catch {
-    showToast('❌ Impossible de copier');
-  }
-});
+document.getElementById('successClose')?.addEventListener('click', closeOrderModal);
 
 /* ============ TOAST ============ */
 const toast = document.getElementById('toast');

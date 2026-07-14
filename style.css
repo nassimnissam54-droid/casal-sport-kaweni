@@ -3668,3 +3668,40 @@ body { background: var(--sable-bg); }
 .pay-method-icon .icon { width: 1.4em; height: 1.4em; color: var(--corail-deep); }
 .mobile-nav .icon { width: 1.35em; height: 1.35em; }
 .wa-fab-main .icon { color: #fff; }
+
+/* ===== Écran de confirmation de commande (code + QR de retrait) ===== */
+.order-success-code {
+  text-align: center;
+  border: 2px solid var(--corail);
+  border-radius: var(--r-lg);
+  padding: 1.6rem 1.2rem;
+  margin: 1.2rem 0;
+  background: var(--sable-bg, #FBF5EA);
+}
+.order-success-label {
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gris-600);
+  margin-bottom: 0.4rem;
+}
+.order-success-value {
+  font-family: 'Anton', sans-serif;
+  font-size: clamp(1.6rem, 7vw, 2.4rem);
+  letter-spacing: 0.1em;
+  color: var(--corail-deep);
+}
+.order-success-qr {
+  display: block;
+  margin: 1rem auto 0;
+  border: 1px solid var(--gris-200);
+  border-radius: 8px;
+  background: #fff;
+  padding: 6px;
+}
+.order-success-info {
+  font-size: 0.9rem;
+  color: var(--gris-700);
+  line-height: 1.7;
+  margin-bottom: 1.2rem;
+}
