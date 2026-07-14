@@ -2807,10 +2807,14 @@ h3, .product-title {
 /* ===== Responsive ===== */
 @media (max-width: 900px) {
   .account-inner { grid-template-columns: 1fr; }
+  /* min-width:0 : sans ça, la nav horizontale (≈930px de boutons) impose
+     sa largeur à la colonne de grille et toute la page déborde à droite */
+  .account-sidebar, .account-content { min-width: 0; max-width: 100%; }
   .account-sidebar { position: static; }
   .account-nav {
     flex-direction: row;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
     border-top: 1px solid var(--gris-200);
     padding-top: 0;
   }

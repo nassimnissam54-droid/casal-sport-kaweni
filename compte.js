@@ -30,11 +30,16 @@ function showDashboard() {
   refreshAll();
 }
 
-if (UserDB.isLoggedIn() && UserDB.exists()) {
-  showDashboard();
-} else {
-  showAuth();
-}
+// Session déjà ouverte : ne route qu'une fois TOUT le script initialisé,
+// sinon showDashboard() → initRating() crashe sur `currentStars` (TDZ,
+// déclaré plus bas) et plus aucun bouton du compte ne répond.
+document.addEventListener('DOMContentLoaded', () => {
+  if (UserDB.isLoggedIn() && UserDB.exists()) {
+    showDashboard();
+  } else {
+    showAuth();
+  }
+});
 
 /* ============ AUTH TABS ============ */
 $$('.auth-tab').forEach(tab => {
