@@ -7,11 +7,13 @@
      rate-limit — l'ancien endpoint « relais e-mail ouvert »
      send-receipt est supprimé.
 
-   - POST  (public) : création de commande. Validation stricte des
+   - POST   (public) : création de commande. Validation stricte des
      champs, prix re-vérifiés contre le catalogue publié quand il
      existe, plafonds anti-abus, max 5 commandes/heure/IP.
-   - GET   (admin, x-admin-key) : liste des commandes serveur.
-   - PATCH (admin) : { id, status } — met à jour le suivi.
+   - GET    (admin, x-admin-key) : liste des commandes serveur.
+   - PATCH  (admin) : { id, status } — met à jour le suivi.
+   - DELETE (admin) : { id } — supprime la commande côté serveur
+     (sinon elle réapparaît dans l'admin à chaque synchronisation).
 
    Variables d'environnement Netlify :
    - ADMIN_PASSWORD : auth des opérations admin
@@ -129,6 +131,17 @@ export default async (req, context) => {
     order.statusHistory.push({ status: body.status, date: Date.now() });
     await store.setJSON(key, order);
     return json(order);
+  }
+
+  /* ---------------------------- Admin : suppression ---------------------------- */
+  if (req.method === 'DELETE') {
+    if (!isAdmin()) return json({ error: 'Non autorisé' }, 401);
+    let body;
+    try { body = await req.json(); } catch { return json({ error: 'JSON invalide' }, 400); }
+    const id = Math.floor(Number(body.id));
+    if (!id) return json({ error: 'Id invalide' }, 400);
+    await store.delete(`orders/${id}`);
+    return json({ ok: true });
   }
 
   return json({ error: 'Méthode non autorisée' }, 405);

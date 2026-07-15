@@ -862,43 +862,61 @@ function saveOrderLocal() {
     userEmail,
     status: 'envoyée'
   });
-  sendReceiptEmail(order); // reçu e-mail (silencieux si non configuré)
+  return sendReceiptEmail(order); // → { server, emailSent } pour l'écran de confirmation
 }
 
 /**
  * Enregistre la commande CÔTÉ SERVEUR (/api/orders, Netlify Blobs).
  * Le serveur valide les prix contre le catalogue publié, stocke la
- * commande (visible dans l'admin même sans WhatsApp) et envoie le
- * reçu e-mail avec le code de retrait (Resend).
- * Échec silencieux : le code figure de toute façon dans le message
- * WhatsApp et dans « Mon compte ».
+ * commande (visible dans l'admin) et envoie le reçu e-mail avec le
+ * code de retrait (Resend).
+ * Renvoie une promesse résolue en :
+ *   { server:true,  emailSent:true|false }  → commande enregistrée
+ *   { server:false }                        → serveur injoignable
+ * (jamais rejetée : le code reste affiché à l'écran quoi qu'il arrive)
  */
 function sendReceiptEmail(order) {
-  try {
-    fetch('/api/orders', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: order.name, email: order.email, phone: order.phone,
-        pickupCode: order.pickupCode, total: order.total,
-        payment: order.payment, promo: order.promo,
-        items: order.items.map(i => ({
-          productId: i.productId, productName: i.productName,
-          size: i.size, qty: i.qty, price: i.price
-        }))
-      })
-    }).catch(() => {});
-  } catch { /* silencieux */ }
+  const timeout = new Promise(res => setTimeout(() => res({ server: false }), 6000));
+  const post = fetch('/api/orders', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: order.name, email: order.email, phone: order.phone,
+      pickupCode: order.pickupCode, total: order.total,
+      payment: order.payment, promo: order.promo,
+      items: order.items.map(i => ({
+        productId: i.productId, productName: i.productName,
+        size: i.size, qty: i.qty, price: i.price
+      }))
+    })
+  })
+    .then(r => r.ok ? r.json() : { ok: false })
+    .then(d => ({ server: !!d.ok, emailSent: !!d.emailSent }))
+    .catch(() => ({ server: false }));
+  return Promise.race([post, timeout]);
 }
 
-/** Affiche l'écran de confirmation dans la modale (code + QR de retrait) */
-function showOrderSuccess(code) {
+/** Affiche l'écran de confirmation dans la modale (code + QR de retrait).
+ *  Le message e-mail dit la VÉRITÉ selon le résultat serveur. */
+function showOrderSuccess(code, status, email) {
   orderForm.hidden = true;
   orderCartSum.hidden = true;
   orderModal.querySelector('h2').textContent = 'Commande envoyée 🎉';
   orderModal.querySelector('.modal-sub').textContent =
     'Ta commande est enregistrée au magasin de Kawéni.';
   document.getElementById('successCode').textContent = code;
+
+  const info = document.getElementById('successEmailInfo');
+  if (status && status.server && status.emailSent) {
+    info.innerHTML = `📧 Un reçu avec ce code vient d'être envoyé à <strong>${esc(email)}</strong>.`;
+  } else if (status && status.server) {
+    info.innerHTML = `⚠️ Commande bien enregistrée, mais l'e-mail de reçu n'a pas pu partir —
+      <strong>note ton code ou prends-le en photo</strong>. Il reste visible dans « Mon compte ».`;
+  } else {
+    info.innerHTML = `⚠️ <strong>Note ton code ou prends-le en photo</strong> — il reste aussi
+      visible dans « Mon compte » sur cet appareil.`;
+  }
+
   const qr = document.getElementById('successQr');
   qr.hidden = true;
   qr.onload  = () => { qr.hidden = false; };
@@ -957,9 +975,10 @@ orderForm.addEventListener('submit', async e => {
   const btn = document.getElementById('confirmOrder');
   btn.disabled = true;
   btn.textContent = 'Enregistrement…';
-  await tryCreateCheckout();     // dormant tant que la carte en ligne est désactivée
-  saveOrderLocal();              // code de retrait + commande serveur + reçu e-mail
-  showOrderSuccess(pendingPickupCode);
+  const clientEmail = document.getElementById('orderEmail').value.trim();
+  await tryCreateCheckout();            // dormant tant que la carte en ligne est désactivée
+  const status = await saveOrderLocal(); // commande serveur + reçu e-mail (≤ 6 s)
+  showOrderSuccess(pendingPickupCode, status, clientEmail);
   pendingCheckoutUrl = null;
   pendingPickupCode = null;
   CartDB.clear();

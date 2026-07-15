@@ -667,6 +667,16 @@ function toggleOrderMsg(id) {
 
 function deleteOrder(id) {
   if (!confirm('Supprimer cette commande ?')) return;
+  // Supprime aussi côté serveur, sinon elle réapparaît à la prochaine synchro
+  const ord = OrderDB.getAll().find(x => x.id === id);
+  const key = sessionStorage.getItem('casal_admin_key');
+  if (key) {
+    fetch('/api/orders', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json', 'x-admin-key': key },
+      body: JSON.stringify({ id: (ord && ord.serverId) || id })
+    }).catch(() => {});
+  }
   OrderDB.remove(id);
   renderOrders();
   refreshStats();
