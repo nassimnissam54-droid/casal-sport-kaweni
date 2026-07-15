@@ -3705,3 +3705,10 @@ body { background: var(--sable-bg); }
   line-height: 1.7;
   margin-bottom: 1.2rem;
 }
+
+/* E-mail verrouillé sur l'adresse du compte (client connecté) */
+.order-form input.locked {
+  background: var(--gris-100);
+  color: var(--gris-600);
+  cursor: not-allowed;
+}

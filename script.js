@@ -689,13 +689,25 @@ function openCheckoutModal() {
   orderPayment.value = '';
   payMethodsWrap?.querySelectorAll('.pay-method').forEach(l => l.classList.remove('selected'));
   updateOrderTotal();
-  // Pre-remplir si l'utilisateur est connecte
+  // Pre-remplir si l'utilisateur est connecte.
+  // L'e-mail est VERROUILLÉ sur l'adresse du compte : le reçu de commande
+  // part toujours vers l'e-mail fourni à la création du compte.
+  const emailField = document.getElementById('orderEmail');
+  const emailHint  = document.getElementById('orderEmailHint');
+  emailField.readOnly = false;
+  emailField.classList.remove('locked');
+  if (emailHint) emailHint.textContent = '(pour recevoir ton reçu et ton code de retrait)';
   if (typeof UserDB !== 'undefined' && UserDB.isLoggedIn()) {
     const u = UserDB.get();
     if (u) {
       const n = document.getElementById('orderName');   if (n && !n.value) n.value = u.name || '';
       const p = document.getElementById('orderPhone');  if (p && !p.value) p.value = u.phone || '';
-      const e = document.getElementById('orderEmail');  if (e && !e.value) e.value = u.email || '';
+      if (u.email) {
+        emailField.value = u.email;
+        emailField.readOnly = true;
+        emailField.classList.add('locked');
+        if (emailHint) emailHint.textContent = '(adresse de ton compte — modifiable dans « Mon compte »)';
+      }
       const d = document.getElementById('orderDetails');if (d && !d.value && u.address) d.value = u.address;
     }
   }
