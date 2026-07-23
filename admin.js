@@ -430,6 +430,39 @@ function orderItemsSummary(o) {
   return o.productName ? `${o.productName} (${o.size} × ${o.qty})` : 'Commande';
 }
 
+/** Tableau détaillé des articles commandés (pour préparer le retrait) */
+function orderItemsDetailHTML(o) {
+  const items = o.items && o.items.length
+    ? o.items
+    : (o.productName ? [{ productName: o.productName, size: o.size, qty: o.qty, price: o.price }] : []);
+  if (!items.length) return '';
+
+  const nbArticles = items.reduce((s, it) => s + (Number(it.qty) || 1), 0);
+  const rows = items.map(it => {
+    const qty = Number(it.qty) || 1;
+    const price = Number(it.price) || 0;
+    const line = price ? (price * qty).toFixed(2) + ' €' : '—';
+    const unit = price ? price.toFixed(2) + ' €' : '';
+    return `
+      <tr>
+        <td class="oi-name">${esc(it.productName || 'Article')}</td>
+        <td class="oi-size">${esc(it.size || '—')}</td>
+        <td class="oi-qty">×${qty}</td>
+        <td class="oi-price">${unit}</td>
+        <td class="oi-line">${line}</td>
+      </tr>`;
+  }).join('');
+
+  return `
+    <table class="order-items-table">
+      <thead>
+        <tr><th>Article</th><th>Taille</th><th>Qté</th><th>Prix</th><th>Total</th></tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <p class="order-items-recap">📦 ${nbArticles} article${nbArticles > 1 ? 's' : ''} à préparer${o.total ? ` · <strong>Total ${esc(o.total)}</strong>` : ''}</p>`;
+}
+
 function trackStepsHTML(o, clickable) {
   const idx = orderStatusIndex(o.status);
   const hist = {};
@@ -486,13 +519,15 @@ function renderOrders() {
     <div class="order-card">
       <div class="order-card-head">
         <div>
-          <strong>${esc(o.name || 'Client')}</strong> · ${esc(orderItemsSummary(o))}
-          <br><small style="color:rgba(255,255,255,0.6)">📞 ${esc(o.phone || '—')} · 💵 ${esc(o.total || '')}${o.pickupCode ? ` · <strong style="color:#ffd166">🎫 ${esc(o.pickupCode)}</strong>` : ''}</small>
+          <strong>${esc(o.name || 'Client')}</strong>
+          <br><small style="color:rgba(255,255,255,0.6)">📞 ${esc(o.phone || '—')}${o.email ? ` · ✉️ ${esc(o.email)}` : ''}${o.pickupCode ? ` · <strong style="color:#ffd166">🎫 ${esc(o.pickupCode)}</strong>` : ''}</small>
         </div>
         <div class="order-date">${new Date(o.date).toLocaleString('fr-FR')}
           <button class="btn-icon del" data-oact="del" data-id="${o.id}" style="margin-left:0.5rem" title="Supprimer">🗑️</button>
         </div>
       </div>
+
+      ${orderItemsDetailHTML(o)}
 
       ${trackStepsHTML(o, true)}
       <p class="track-status-line" style="color:rgba(255,255,255,0.75)">
