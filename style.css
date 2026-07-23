@@ -3810,13 +3810,15 @@ body { background: var(--sable-bg); }
 body:not(.admin-body) {
   font-size: 15px;
   line-height: 1.55;
-  color: var(--ink);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
-body:not(.admin-body) h1,
-body:not(.admin-body) h2,
-body:not(.admin-body) h3 { color: var(--ink); }
+/* Noir chaud pour le texte, mais en FAIBLE spécificité (sélecteur d'élément) :
+   les sections sombres (hero, bande retrait, Chaussures, footer, newsletter)
+   qui posent leur propre couleur claire sur leur conteneur gardent la priorité.
+   Les titres NE sont pas forcés ici → ils héritent (ink sur fond clair, blanc
+   sur fond sombre). */
+body { color: var(--ink); }
 
 /* ---- En-tête : profondeur discrète + flou verre ---- */
 .header {
