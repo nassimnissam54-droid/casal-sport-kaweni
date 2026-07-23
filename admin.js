@@ -30,9 +30,20 @@ const dashboard   = document.getElementById('dashboard');
 const loginForm   = document.getElementById('loginForm');
 const loginError  = document.getElementById('loginError');
 
+// Clé (= mot de passe) envoyée en x-admin-key aux Netlify Functions.
+// Persistée en localStorage AVEC la session (4 h) : sans elle, l'admin
+// ne peut pas lire les commandes ni publier le catalogue au rechargement
+// de la page. La vraie protection reste la vérification serveur
+// d'ADMIN_PASSWORD ; ici c'est juste la clé du poste du magasin, effacée
+// à la déconnexion.
+const ADMIN_KEY = 'casal_admin_key';
+function adminKey() {
+  return localStorage.getItem(ADMIN_KEY) || sessionStorage.getItem(ADMIN_KEY) || '';
+}
 function isLogged() {
   const t = parseInt(localStorage.getItem(ADMIN_SESSION_KEY) || '0', 10);
-  return Date.now() - t < ADMIN_SESSION_DURATION;
+  // Session valide ET clé présente (sinon les fonctions serveur sont muettes)
+  return (Date.now() - t < ADMIN_SESSION_DURATION) && !!adminKey();
 }
 function login() {
   localStorage.setItem(ADMIN_SESSION_KEY, Date.now().toString());
@@ -40,6 +51,8 @@ function login() {
 }
 function logout() {
   localStorage.removeItem(ADMIN_SESSION_KEY);
+  localStorage.removeItem(ADMIN_KEY);
+  sessionStorage.removeItem(ADMIN_KEY);
   loginScreen.classList.remove('hidden');
   dashboard.classList.add('hidden');
   document.getElementById('loginPwd').value = '';
@@ -59,9 +72,9 @@ loginForm.addEventListener('submit', async e => {
   const hash = await sha256Hex(pwd + '·casal-admin');
   if (hash === ADMIN_PASSWORD_SHA256) {
     loginError.textContent = '';
-    // Conservé en session pour authentifier les appels aux Netlify
-    // Functions (x-admin-key) — jamais écrit dans le code ni le repo.
-    sessionStorage.setItem('casal_admin_key', pwd);
+    // Persistée avec la session pour authentifier les appels aux Netlify
+    // Functions (x-admin-key) — jamais écrite dans le code ni le repo.
+    localStorage.setItem(ADMIN_KEY, pwd);
     login();
   } else {
     loginError.textContent = '❌ Mot de passe incorrect';
@@ -349,7 +362,7 @@ let pushTimer = null;
 function pushCatalog() {
   clearTimeout(pushTimer);
   pushTimer = setTimeout(async () => {
-    const key = sessionStorage.getItem('casal_admin_key');
+    const key = adminKey();
     if (!key) { showToast('🔑 Reconnecte-toi (mot de passe) pour publier en ligne'); return; }
     try {
       const r = await fetch('/api/catalog', {
@@ -366,8 +379,8 @@ function pushCatalog() {
 
 /* Récupère les commandes passées côté serveur (audit V2) et les
    fusionne avec les commandes locales de ce navigateur. */
-async function syncOrdersFromServer() {
-  const key = sessionStorage.getItem('casal_admin_key');
+async function syncOrdersFromServer(manual) {
+  const key = adminKey();
   if (!key) return;
   try {
     const r = await fetch('/api/orders', { headers: { 'x-admin-key': key } });
@@ -403,9 +416,10 @@ async function syncOrdersFromServer() {
     local.sort((a, b) => b.id - a.id);
     OrderDB._save(local);
     if (added) showToast(`☁️ ${added} commande(s) récupérée(s) du serveur`);
+    else if (manual) showToast('✅ Commandes à jour');
     renderOrders();
     refreshStats();
-  } catch { /* hors-ligne : commandes locales uniquement */ }
+  } catch { if (manual) showToast('⚠️ Serveur injoignable'); }
 }
 
 /* ============ COMMANDES REÇUES ============ */
@@ -504,7 +518,7 @@ function renderOrders() {
       showToast(`${s.icon} Statut : ${s.label}`);
       // Répercute le statut côté serveur (visible depuis tout appareil).
       // L'id serveur peut différer de l'id local (checkout vs enregistrement).
-      const key = sessionStorage.getItem('casal_admin_key');
+      const key = adminKey();
       const ord = OrderDB.getAll().find(x => x.id === orderId);
       if (key) {
         fetch('/api/orders', {
@@ -669,7 +683,7 @@ function deleteOrder(id) {
   if (!confirm('Supprimer cette commande ?')) return;
   // Supprime aussi côté serveur, sinon elle réapparaît à la prochaine synchro
   const ord = OrderDB.getAll().find(x => x.id === id);
-  const key = sessionStorage.getItem('casal_admin_key');
+  const key = adminKey();
   if (key) {
     fetch('/api/orders', {
       method: 'DELETE',
@@ -687,6 +701,8 @@ document.getElementById('clearOrdersBtn').addEventListener('click', () => {
   renderOrders();
   refreshStats();
 });
+
+document.getElementById('refreshOrdersBtn')?.addEventListener('click', () => syncOrdersFromServer(true));
 
 /* ============ Helpers ============ */
 function labelOf(c) { return { homme:'Homme', femme:'Femme', garcon:'Garçon', fille:'Fille' }[c] || c; }

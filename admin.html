@@ -219,11 +219,14 @@
         <section class="admin-panel">
           <div class="panel-head">
             <h3>📨 Commandes reçues</h3>
-            <button class="btn-ghost danger" id="clearOrdersBtn">🗑️ Tout effacer</button>
+            <div style="display:flex;gap:.5rem">
+              <button class="btn-ghost" id="refreshOrdersBtn">🔄 Actualiser</button>
+              <button class="btn-ghost danger" id="clearOrdersBtn">🗑️ Tout effacer</button>
+            </div>
           </div>
           <p style="color:rgba(255,255,255,0.6);font-size:0.85rem;margin-bottom:1rem">
-            ℹ️ Les commandes sont sauvegardées dans le navigateur (localStorage) au moment où le client clique sur Envoyer.
-            Les vrais messages WhatsApp/Email arrivent directement chez vous.
+            ☁️ Les commandes arrivent automatiquement depuis le serveur, quel que soit l'appareil du client.
+            Chaque client reçoit son reçu et son code de retrait par e-mail à la confirmation.
           </p>
           <div class="orders-search">
             <input type="search" id="orderSearch"
