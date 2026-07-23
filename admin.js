@@ -430,27 +430,59 @@ function orderItemsSummary(o) {
   return o.productName ? `${o.productName} (${o.size} × ${o.qty})` : 'Commande';
 }
 
-/** Tableau détaillé des articles commandés (pour préparer le retrait) */
+/** Vignette produit : photo si dispo, sinon dégradé + emoji (comme la boutique) */
+function productThumbHTML(p, big) {
+  const cls = big ? 'oi-thumb oi-thumb-big' : 'oi-thumb';
+  if (p && p.imageUrl) {
+    return `<span class="${cls}"><img src="${esc(p.imageUrl)}" alt="${esc(p.name)}" loading="lazy"></span>`;
+  }
+  const grad = p ? `linear-gradient(135deg, ${esc(p.color1 || '#333')}, ${esc(p.color2 || '#555')})` : '#333';
+  return `<span class="${cls}" style="background:${grad}">${p ? esc(p.icon || '🛍️') : '🛍️'}</span>`;
+}
+
+/** Tableau détaillé des articles commandés (pour préparer le retrait).
+ *  Clic sur le nom d'un article → déplie sa fiche avec la photo. */
 function orderItemsDetailHTML(o) {
   const items = o.items && o.items.length
     ? o.items
     : (o.productName ? [{ productName: o.productName, size: o.size, qty: o.qty, price: o.price }] : []);
   if (!items.length) return '';
 
+  const catalog = ProductDB.getAll();
   const nbArticles = items.reduce((s, it) => s + (Number(it.qty) || 1), 0);
-  const rows = items.map(it => {
+
+  const rows = items.map((it, i) => {
     const qty = Number(it.qty) || 1;
     const price = Number(it.price) || 0;
     const line = price ? (price * qty).toFixed(2) + ' €' : '—';
     const unit = price ? price.toFixed(2) + ' €' : '';
+    const p = catalog.find(x => x.id === Number(it.productId))
+           || catalog.find(x => x.name === it.productName);
+    const uid = `${o.id}-${i}`;
+    const detail = p
+      ? `<div class="oi-detail-box">
+           ${productThumbHTML(p, true)}
+           <div class="oi-detail-info">
+             <strong>${esc(p.name)}</strong>
+             <span>${SUB_LABELS[p.sub] || ''}${p.cat ? ' · ' + labelOf(p.cat) : ''}</span>
+             ${p.material ? `<span>🧵 ${esc(p.material)}</span>` : ''}
+             <span>📏 Taille commandée : <strong>${esc(it.size || '—')}</strong> · Quantité : <strong>×${qty}</strong></span>
+           </div>
+         </div>`
+      : `<div class="oi-detail-box"><div class="oi-detail-info">
+           <strong>${esc(it.productName || 'Article')}</strong>
+           <span>Fiche produit indisponible (article retiré du catalogue). Taille : <strong>${esc(it.size || '—')}</strong> · ×${qty}</span>
+         </div></div>`;
+
     return `
-      <tr>
-        <td class="oi-name">${esc(it.productName || 'Article')}</td>
+      <tr class="oi-row" data-oidetail="${uid}" title="Cliquer pour voir la photo">
+        <td class="oi-name"><span class="oi-caret">▸</span> ${productThumbHTML(p)} ${esc(it.productName || 'Article')}</td>
         <td class="oi-size">${esc(it.size || '—')}</td>
         <td class="oi-qty">×${qty}</td>
         <td class="oi-price">${unit}</td>
         <td class="oi-line">${line}</td>
-      </tr>`;
+      </tr>
+      <tr class="oi-detail-row" id="oidet-${uid}" hidden><td colspan="5">${detail}</td></tr>`;
   }).join('');
 
   return `
@@ -652,6 +684,16 @@ window.__onScanResult = onScanResult;
 
 /* Délégation des actions commandes (compatible CSP) */
 document.getElementById('ordersList').addEventListener('click', e => {
+  // Déplier / replier la fiche photo d'un article
+  const row = e.target.closest('[data-oidetail]');
+  if (row) {
+    const det = document.getElementById('oidet-' + row.dataset.oidetail);
+    if (det) {
+      det.hidden = !det.hidden;
+      row.classList.toggle('open', !det.hidden);
+    }
+    return;
+  }
   const btn = e.target.closest('[data-oact]');
   if (!btn) return;
   const id = parseInt(btn.dataset.id, 10);
