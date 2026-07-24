@@ -31,8 +31,8 @@ allMegas.forEach(m => m.addEventListener('mouseleave', () => m.classList.remove(
 
 /* ============ ETAT FILTRES (multi-dimensionnel) ============ */
 const filterState = {
-  'grid-vet': { type:'vetement', cats:[], subs:[], prices:[], inStock:false, promo:false, news:false, q:'', sort:'new' },
-  'grid-bas': { type:'basket',   cats:[], subs:[], prices:[], inStock:false, promo:false, news:false, q:'', sort:'new' }
+  'grid-vet': { type:'vetement', cats:[], subs:[], sports:[], prices:[], inStock:false, promo:false, news:false, q:'', sort:'new' },
+  'grid-bas': { type:'basket',   cats:[], subs:[], sports:[], prices:[], inStock:false, promo:false, news:false, q:'', sort:'new' }
 };
 
 const SORT_LABELS = {
@@ -47,6 +47,7 @@ function filterList(state) {
   let list = ProductDB.getLive().filter(p => p.type === state.type);
   if (state.cats.length)   list = list.filter(p => state.cats.includes(p.cat));
   if (state.subs && state.subs.length) list = list.filter(p => state.subs.includes(p.sub));
+  if (state.sports && state.sports.length) list = list.filter(p => state.sports.includes(p.sport));
   if (state.prices.length) {
     list = list.filter(p => state.prices.some(r => {
       const [min, max] = r.split('-').map(Number);
@@ -92,6 +93,8 @@ const FILTER_LABELS = {
   homme:'Homme', femme:'Femme', garcon:'Garçon', fille:'Fille', mixte:'Mixte / Équipement',
   tshirt:'Tee-shirt', ensemble:'Ensemble', casquette:'Casquette',
   short:'Short', chaussettes:'Chaussettes', basket:'Basket', equipement:'Équipement',
+  football:'Football', rugby:'Rugby', tennis:'Tennis', natation:'Natation',
+  fitness:'Fitness', musculation:'Musculation', multisport:'Accessoires',
   '0-30':'< 30 €', '30-60':'30–60 €', '60-100':'60–100 €', '100-9999':'> 100 €',
   inStock:'En stock', promo:'En promo', news:'Nouveautés'
 };
@@ -100,6 +103,7 @@ function activeFiltersOf(state) {
   const out = [];
   state.cats.forEach(c => out.push({ key:'cats', val:c, label:FILTER_LABELS[c] || c }));
   (state.subs || []).forEach(s => out.push({ key:'subs', val:s, label:FILTER_LABELS[s] || s }));
+  (state.sports || []).forEach(s => out.push({ key:'sports', val:s, label:FILTER_LABELS[s] || s }));
   state.prices.forEach(p => out.push({ key:'prices', val:p, label:FILTER_LABELS[p] || p }));
   if (state.inStock) out.push({ key:'inStock', val:true, label:FILTER_LABELS.inStock });
   if (state.promo)   out.push({ key:'promo',   val:true, label:FILTER_LABELS.promo });
@@ -135,7 +139,7 @@ function renderActiveFilters(id) {
 }
 
 function countActiveFilters(state) {
-  return state.cats.length + (state.subs || []).length + state.prices.length
+  return state.cats.length + (state.subs || []).length + (state.sports || []).length + state.prices.length
     + (state.inStock ? 1 : 0) + (state.promo ? 1 : 0) + (state.news ? 1 : 0);
 }
 
@@ -156,7 +160,7 @@ function updateSortLabel(id) {
 
 function resetFilters(id) {
   const s = filterState[id];
-  s.cats = []; s.subs = []; s.prices = []; s.inStock = false; s.promo = false; s.news = false;
+  s.cats = []; s.subs = []; s.sports = []; s.prices = []; s.inStock = false; s.promo = false; s.news = false;
   applyFilter(id);
 }
 
@@ -1327,24 +1331,26 @@ document.querySelectorAll('.collection-tile[data-cat]').forEach(tile => {
     e.preventDefault();
     const cat = tile.dataset.cat;
     const s = filterState['grid-vet'];
-    s.cats = [cat]; s.subs = []; s.prices = []; s.inStock = false; s.promo = false; s.news = false;
+    s.cats = [cat]; s.subs = []; s.sports = []; s.prices = []; s.inStock = false; s.promo = false; s.news = false;
     applyFilter('grid-vet');
     document.getElementById('vetements')?.scrollIntoView({ behavior: 'smooth' });
   });
 });
 
-/* ===== Liens des méga-menus → filtre catégorie + type d'article ===== */
-document.querySelectorAll('[data-fcat], [data-fsub]').forEach(link => {
+/* ===== Liens des méga-menus → filtre catégorie / type d'article / sport ===== */
+document.querySelectorAll('[data-fcat], [data-fsub], [data-fsport]').forEach(link => {
   link.addEventListener('click', e => {
     e.preventDefault();
     closeAllMegas();
-    const sub = link.dataset.fsub || '';
-    const cat = link.dataset.fcat || '';
-    // Les baskets vivent dans la section Chaussures, le reste dans Textile
+    const sub   = link.dataset.fsub || '';
+    const cat   = link.dataset.fcat || '';
+    const sport = link.dataset.fsport || '';
+    // Les baskets vivent dans la section Chaussures, le reste dans Textile/Équipement
     const gridId = sub === 'basket' ? 'grid-bas' : 'grid-vet';
     const s = filterState[gridId];
     s.cats = cat ? [cat] : [];
     s.subs = (sub && sub !== 'basket') ? [sub] : [];
+    s.sports = sport ? [sport] : [];
     s.prices = []; s.inStock = false; s.promo = false; s.news = false;
     applyFilter(gridId);
     const sectionId = gridId === 'grid-bas' ? 'baskets' : 'vetements';

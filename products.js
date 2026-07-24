@@ -2,7 +2,7 @@
    CASAL SPORT - Donnees & API
    ============================================================ */
 
-const STORAGE_KEY  = 'casal_products_v3';
+const STORAGE_KEY  = 'casal_products_v4';
 const WISHLIST_KEY = 'casal_wishlist_v1';
 const REVIEWS_KEY  = 'casal_reviews_v1';
 const ORDERS_KEY   = 'casal_orders_v1';
@@ -329,8 +329,9 @@ const DEFAULT_PRODUCTS = [
     imageUrl:'https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=600&q=80',
     color1:'#fd79a8', color2:'#ffeaa7', createdAt: D(14), rating:4.7 },
 
-  /* ============ ÉQUIPEMENT (mixte — hors onglets genre) ============ */
-  { id:27, type:'vetement', sub:'equipement', cat:'mixte', name:'Ballon Match Taille 5',
+  /* ============ ÉQUIPEMENT (mixte — regroupé par SPORT) ============ */
+  // ----- Football -----
+  { id:27, type:'vetement', sub:'equipement', sport:'football', cat:'mixte', name:'Ballon Match Taille 5',
     price:22.99, oldPrice:null, badge:'',
     desc:"Cousu machine, homologué compétition. Excellente tenue en l'air, résistance à l'abrasion — prêt pour les terrains de toute l'île.",
     material:'Enveloppe PU · Vessie butyle haute rétention',
@@ -339,7 +340,102 @@ const DEFAULT_PRODUCTS = [
     imageUrl:'https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=600&q=80',
     color1:'#2d3436', color2:'#00b894', createdAt: D(4), rating:4.7 },
 
-  { id:28, type:'vetement', sub:'equipement', cat:'mixte', name:'Haltères Hexa 2 × 10 kg',
+  { id:31, type:'vetement', sub:'equipement', sport:'football', cat:'mixte', name:'Lot de 20 Plots d\'Entraînement',
+    price:16.99, oldPrice:null, badge:'',
+    desc:"Le kit d'entraînement indispensable. 20 plots souples anti-choc + sac de transport — parcours, slaloms et délimitations en un clin d'œil.",
+    material:'PVC souple · Sac filet inclus',
+    sizes:'Set de 20',
+    icon:'🔺', stock:'in', status:'live', imageUrl:'',
+    color1:'#e17055', color2:'#fdcb6e', createdAt: D(8), rating:4.6 },
+
+  { id:32, type:'vetement', sub:'equipement', sport:'football', cat:'mixte', name:'Lot de 10 Chasubles',
+    price:24.99, oldPrice:null, badge:'',
+    desc:"Deux équipes, zéro confusion. 10 chasubles légères et respirantes, taille adulte, dans un sac de rangement.",
+    material:'100% Polyester mesh',
+    sizes:'Adulte — set de 10',
+    icon:'🦺', stock:'in', status:'live', imageUrl:'',
+    color1:'#0984e3', color2:'#00b894', createdAt: D(16), rating:4.5 },
+
+  // ----- Basket -----
+  { id:33, type:'vetement', sub:'equipement', sport:'basket', cat:'mixte', name:'Ballon de Basket Taille 7',
+    price:26.99, oldPrice:null, badge:'',
+    desc:"Grip et rebond constants, intérieur comme extérieur. Surface agrippante, canaux profonds — pour dribbler et shooter sans compromis.",
+    material:'Caoutchouc composite · Vessie butyle',
+    sizes:'Taille 7',
+    icon:'🏀', stock:'in', status:'live', imageUrl:'',
+    color1:'#e17055', color2:'#d63031', createdAt: D(3), rating:4.8 },
+
+  // ----- Rugby -----
+  { id:34, type:'vetement', sub:'equipement', sport:'rugby', cat:'mixte', name:'Ballon de Rugby Taille 5',
+    price:27.99, oldPrice:null, badge:'',
+    desc:"Prise en main parfaite pour des passes précises. Grip renforcé, forme homologuée — du lancer à la transformation.",
+    material:'Surface pin-grip · 4 panneaux',
+    sizes:'Taille 5',
+    icon:'🏉', stock:'in', status:'live', imageUrl:'',
+    color1:'#6c5ce7', color2:'#2d3436', createdAt: D(11), rating:4.6 },
+
+  // ----- Tennis -----
+  { id:35, type:'vetement', sub:'equipement', sport:'tennis', cat:'mixte', name:'Raquette de Tennis Alu',
+    price:34.99, oldPrice:39.99, badge:'-12%',
+    desc:"Légère et tolérante, idéale pour débuter et progresser. Cadre alu, tamis équilibré, housse incluse.",
+    material:'Cadre aluminium · Manche L2 · Housse',
+    sizes:'Adulte',
+    icon:'🎾', stock:'in', status:'live', imageUrl:'',
+    color1:'#00b894', color2:'#0984e3', createdAt: D(9), rating:4.4 },
+
+  { id:36, type:'vetement', sub:'equipement', sport:'tennis', cat:'mixte', name:'Balles de Tennis (tube ×3)',
+    price:6.99, oldPrice:null, badge:'',
+    desc:"Rebond régulier et durable, terre battue comme dur. Tube pressurisé de 3 balles feutrées.",
+    material:'Feutre · Noyau caoutchouc pressurisé',
+    sizes:'Tube de 3',
+    icon:'🎾', stock:'in', status:'live', imageUrl:'',
+    color1:'#fdcb6e', color2:'#00b894', createdAt: D(14), rating:4.5 },
+
+  // ----- Natation -----
+  { id:37, type:'vetement', sub:'equipement', sport:'natation', cat:'mixte', name:'Lunettes de Natation',
+    price:11.99, oldPrice:null, badge:'',
+    desc:"Vision claire, zéro infiltration. Traitement anti-buée, joints souples, pont de nez réglable.",
+    material:'Polycarbonate anti-buée · Silicone',
+    sizes:'Réglable',
+    icon:'🥽', stock:'in', status:'live', imageUrl:'',
+    color1:'#0984e3', color2:'#6c5ce7', createdAt: D(6), rating:4.6 },
+
+  { id:38, type:'vetement', sub:'equipement', sport:'natation', cat:'mixte', name:'Bonnet de Bain Silicone',
+    price:6.99, oldPrice:null, badge:'',
+    desc:"Confort et hydrodynamisme. Silicone souple qui ne tire pas les cheveux, étanche et durable.",
+    material:'100% Silicone',
+    sizes:'Taille unique',
+    icon:'🏊', stock:'in', status:'live', imageUrl:'',
+    color1:'#00cec9', color2:'#0984e3', createdAt: D(19), rating:4.4 },
+
+  // ----- Fitness -----
+  { id:30, type:'vetement', sub:'equipement', sport:'fitness', cat:'mixte', name:'Corde à Sauter Speed',
+    price:12.99, oldPrice:null, badge:'',
+    desc:"Cardio express, n'importe où. Câble acier gainé, roulements à billes, longueur réglable — l'accessoire le plus rentable de ton sac.",
+    material:'Câble acier gainé PVC · Poignées alu',
+    sizes:'Réglable 3 m',
+    icon:'⏱️', stock:'in', status:'live',
+    imageUrl:'https://images.unsplash.com/photo-1434682881908-b43d0467b798?w=600&q=80',
+    color1:'#00b894', color2:'#0984e3', createdAt: D(25), rating:4.5 },
+
+  { id:39, type:'vetement', sub:'equipement', sport:'fitness', cat:'mixte', name:'Tapis de Sol 10 mm',
+    price:18.99, oldPrice:null, badge:'',
+    desc:"Confort articulaire garanti, yoga, gainage ou étirements. Épais, antidérapant, avec sangle de transport.",
+    material:'Mousse NBR 10 mm · Sangle incluse',
+    sizes:'183 × 61 cm',
+    icon:'🧘', stock:'in', status:'live', imageUrl:'',
+    color1:'#6c5ce7', color2:'#a29bfe', createdAt: D(13), rating:4.7 },
+
+  { id:40, type:'vetement', sub:'equipement', sport:'fitness', cat:'mixte', name:'Bandes Élastiques (set ×5)',
+    price:14.99, oldPrice:null, badge:'',
+    desc:"5 niveaux de résistance pour muscler, tonifier et rééduquer. Compactes, elles suivent partout.",
+    material:'Latex naturel · Pochette incluse',
+    sizes:'5 résistances',
+    icon:'➿', stock:'in', status:'live', imageUrl:'',
+    color1:'#e84393', color2:'#fd79a8', createdAt: D(21), rating:4.6 },
+
+  // ----- Musculation -----
+  { id:28, type:'vetement', sub:'equipement', sport:'musculation', cat:'mixte', name:'Haltères Hexa 2 × 10 kg',
     price:59.99, oldPrice:null, badge:'',
     desc:"La paire d'haltères qui ne roule pas. Revêtement caoutchouc anti-choc, poignée moletée chromée — muscu à la maison ou en salle.",
     material:'Fonte · Revêtement caoutchouc · Poignée acier',
@@ -348,7 +444,24 @@ const DEFAULT_PRODUCTS = [
     imageUrl:'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=600&q=80',
     color1:'#2d3436', color2:'#e17055', createdAt: D(6), rating:4.9 },
 
-  { id:29, type:'vetement', sub:'equipement', cat:'mixte', name:'Sac de Sport 45 L',
+  { id:41, type:'vetement', sub:'equipement', sport:'musculation', cat:'mixte', name:'Kettlebell 12 kg',
+    price:32.99, oldPrice:null, badge:'',
+    desc:"Un seul outil, tout le corps. Fonte revêtue, base plate stable, anse large — swings, squats et pressing.",
+    material:'Fonte revêtue · Base plate',
+    sizes:'12 kg',
+    icon:'🟠', stock:'in', status:'live', imageUrl:'',
+    color1:'#2d3436', color2:'#636e72', createdAt: D(17), rating:4.7 },
+
+  { id:42, type:'vetement', sub:'equipement', sport:'musculation', cat:'mixte', name:'Gants de Musculation',
+    price:13.99, oldPrice:null, badge:'',
+    desc:"Fini les ampoules. Paume renforcée antidérapante, dos aéré, serrage poignet — meilleure prise à la barre.",
+    material:'Microfibre · Mousse paume · Scratch',
+    sizes:'S — M — L — XL',
+    icon:'🧤', stock:'in', status:'live', imageUrl:'',
+    color1:'#2d3436', color2:'#0984e3', createdAt: D(22), rating:4.4 },
+
+  // ----- Multisport / accessoires -----
+  { id:29, type:'vetement', sub:'equipement', sport:'multisport', cat:'mixte', name:'Sac de Sport 45 L',
     price:39.99, oldPrice:null, badge:'',
     desc:"De la salle au terrain sans rien oublier. Compartiment chaussures ventilé, poche humide, bandoulière rembourrée.",
     material:'Polyester 600D déperlant · Zips renforcés',
@@ -357,14 +470,13 @@ const DEFAULT_PRODUCTS = [
     imageUrl:'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&q=80',
     color1:'#e17055', color2:'#fdcb6e', createdAt: D(12), rating:4.6 },
 
-  { id:30, type:'vetement', sub:'equipement', cat:'mixte', name:'Corde à Sauter Speed',
-    price:12.99, oldPrice:null, badge:'',
-    desc:"Cardio express, n'importe où. Câble acier gainé, roulements à billes, longueur réglable — l'accessoire le plus rentable de ton sac.",
-    material:'Câble acier gainé PVC · Poignées alu',
-    sizes:'Réglable 3 m',
-    icon:'⏱️', stock:'in', status:'live',
-    imageUrl:'https://images.unsplash.com/photo-1434682881908-b43d0467b798?w=600&q=80',
-    color1:'#00b894', color2:'#0984e3', createdAt: D(25), rating:4.5 }
+  { id:43, type:'vetement', sub:'equipement', sport:'multisport', cat:'mixte', name:'Gourde Inox 750 ml',
+    price:15.99, oldPrice:null, badge:'',
+    desc:"Frais 12 h, chaud 6 h. Inox double paroi, bouchon anti-fuite — l'hydratation qui suit l'effort sous le soleil de Mayotte.",
+    material:'Inox double paroi · Sans BPA',
+    sizes:'750 ml',
+    icon:'🧴', stock:'in', status:'live', imageUrl:'',
+    color1:'#00cec9', color2:'#0984e3', createdAt: D(7), rating:4.8 }
 ];
 
 /* ============================================================
