@@ -2702,6 +2702,71 @@ h3, .product-title {
   color: var(--noir);
 }
 .order-status.envoyée { background: rgba(26,135,84,0.15); color: var(--success); }
+.order-status.cancelled { background: rgba(220,53,69,0.14); color: var(--danger); }
+
+/* ===== Fenêtre de modification / annulation (compte client) ===== */
+.order-actions {
+  margin: 0.9rem 0 0.2rem;
+  padding: 0.9rem 1rem;
+  background: var(--sable, #F5E6D3);
+  border: 1px solid var(--sable-line, #EBDCC3);
+  border-radius: 12px;
+}
+.cancel-window {
+  margin: 0 0 0.7rem;
+  font-size: 0.85rem;
+  color: var(--ink, #211a12);
+}
+.cancel-window strong { color: var(--corail-deep); }
+.order-actions-btns { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+.btn-cancel {
+  padding: 0.6rem 1.2rem;
+  border-radius: 999px;
+  border: 1.5px solid var(--danger);
+  background: transparent;
+  color: var(--danger);
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.btn-cancel:hover { background: var(--danger); color: #fff; }
+.order-block.is-cancelled { opacity: 0.72; }
+.order-cancelled {
+  margin: 0.6rem 0;
+  padding: 0.6rem 0.9rem;
+  border-radius: 10px;
+  background: rgba(220,53,69,0.1);
+  color: var(--danger);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+/* ===== Commande annulée côté admin (thème sombre) ===== */
+.order-cancelled-card { border-left-color: var(--danger); opacity: 0.85; }
+.order-cancel-tag {
+  display: inline-block;
+  background: rgba(220,53,69,0.2);
+  color: #ff8a8a;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 2px 8px;
+  border-radius: 999px;
+  margin-left: 0.4rem;
+  vertical-align: middle;
+}
+.order-cancel-note {
+  margin: 0.5rem 0;
+  padding: 0.6rem 0.9rem;
+  border-radius: 8px;
+  background: rgba(220,53,69,0.14);
+  color: #ff9d9d;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
 .order-block-items {
   list-style: none;
   padding: 0;

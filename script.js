@@ -1352,6 +1352,14 @@ document.querySelectorAll('[data-fcat], [data-fsub]').forEach(link => {
   });
 });
 
+/* ===== Retour du flux « Modifier ma commande » : ouvre le panier ===== */
+(function initReopenCart() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('panier') !== '1') return;
+  history.replaceState(null, '', location.pathname); // nettoie l'URL
+  setTimeout(() => { renderCart(); openCartDrawer(); showToast('🛒 Modifie ton panier puis reconfirme ta commande'); }, 400);
+})();
+
 /* ===== Deep-link ?p=ID (liens partagés) ===== */
 (function initDeepLink() {
   const params = new URLSearchParams(window.location.search);

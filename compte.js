@@ -160,22 +160,44 @@ function renderOrders() {
     const items = o.items
       ? o.items.map(it => `<li>${esc(it.productName)} — taille ${esc(it.size)} × ${it.qty}</li>`).join('')
       : (o.productName ? `<li>${esc(o.productName)} — taille ${esc(o.size)} × ${o.qty}</li>` : '');
+    const cancelled = o.status === 'annulee';
     const cur = ORDER_STATUS_FLOW[orderStatusIndex(o.status)];
+    const left = cancelWindowLeftMs(o);
+
+    // Bandeau annulée / bloc modification-annulation / rien
+    let controls = '';
+    if (cancelled) {
+      controls = `<p class="order-cancelled">🚫 Commande annulée</p>`;
+    } else if (left > 0) {
+      controls = `
+        <div class="order-actions" data-cancel-deadline="${orderCreatedAt(o) + ORDER_CANCEL_WINDOW_MS}" data-code="${esc(o.pickupCode || '')}" data-oid="${o.id}">
+          <p class="cancel-window">✏️ Modifiable ou annulable encore <strong class="cw-time">${formatDuration(left)}</strong></p>
+          <div class="order-actions-btns">
+            <button type="button" class="btn btn-outline btn-sm" data-order-act="modify">Modifier</button>
+            <button type="button" class="btn-cancel" data-order-act="cancel">Annuler la commande</button>
+          </div>
+        </div>`;
+    }
+
+    const statusBadge = cancelled
+      ? `<span class="order-status cancelled">🚫 Annulée</span>`
+      : `<span class="order-status ${cur.id === 'retiree' ? 'envoyée' : ''}">${cur.icon} ${cur.label}</span>`;
+
     return `
-      <article class="order-block" id="order-${o.id}">
+      <article class="order-block ${cancelled ? 'is-cancelled' : ''}" id="order-${o.id}">
         <header class="order-block-head">
           <div>
             <strong>Commande #${o.id}</strong>
             <small>${date}</small>
           </div>
-          <span class="order-status ${cur.id === 'retiree' ? 'envoyée' : ''}">${cur.icon} ${cur.label}</span>
+          ${statusBadge}
         </header>
         <ul class="order-block-items">${items}</ul>
-        ${o.pickupCode ? `<p class="track-status-line" style="font-weight:700">🎫 Code de retrait : <strong>${esc(o.pickupCode)}</strong> — à présenter au magasin de Kawéni</p>
+        ${!cancelled && o.pickupCode ? `<p class="track-status-line" style="font-weight:700">🎫 Code de retrait : <strong>${esc(o.pickupCode)}</strong> — à présenter au magasin de Kawéni</p>
         <img class="order-qr" alt="QR du code de retrait ${esc(o.pickupCode)}" src="/api/qr?data=${encodeURIComponent(o.pickupCode)}" width="130" height="130">` : ''}
-        ${clientTrackStepsHTML(o)}
-        <p class="track-status-line">${cur.icon} <strong>${cur.label}</strong> — ${esc(cur.desc)}</p>
-
+        ${cancelled ? '' : clientTrackStepsHTML(o)}
+        ${cancelled ? '' : `<p class="track-status-line">${cur.icon} <strong>${cur.label}</strong> — ${esc(cur.desc)}</p>`}
+        ${controls}
         <footer class="order-block-foot">
           <span>🛍️ Retrait au magasin de Kawéni</span>
           <strong>${esc(o.total || '')}</strong>
@@ -184,10 +206,90 @@ function renderOrders() {
   }).join('');
 
   // Masque proprement les QR si l'endpoint /api/qr n'est pas dispo
-  // (préview locale, hors-ligne) plutôt que d'afficher une image cassée.
   wrap.querySelectorAll('.order-qr').forEach(img =>
     img.addEventListener('error', () => { img.style.display = 'none'; })
   );
+
+  // Actions Modifier / Annuler
+  wrap.querySelectorAll('[data-order-act]').forEach(btn =>
+    btn.addEventListener('click', () => {
+      const box = btn.closest('.order-actions');
+      const o = orders.find(x => String(x.id) === box.dataset.oid);
+      if (!o) return;
+      if (btn.dataset.orderAct === 'cancel') cancelOrder(o);
+      else modifyOrder(o);
+    })
+  );
+
+  startCancelCountdowns();
+}
+
+/* ============ MODIFICATION / ANNULATION (fenêtre 6 h) ============ */
+/** Annule la commande côté serveur (auth = code de retrait) */
+async function serverCancel(pickupCode) {
+  try {
+    const r = await fetch('/api/orders', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ clientCancel: true, pickupCode })
+    });
+    const d = await r.json().catch(() => ({}));
+    return { ok: r.ok && d.ok, error: d.error, status: r.status };
+  } catch { return { ok: false, offline: true }; }
+}
+
+/** Marque la commande annulée dans le stockage local */
+function setLocalCancelled(o) {
+  const all = OrderDB.getAll();
+  const l = all.find(x => x.id === o.id || (x.pickupCode && x.pickupCode === o.pickupCode));
+  if (l) {
+    l.status = 'annulee';
+    l.statusHistory = [...(l.statusHistory || []), { status: 'annulee', date: Date.now(), by: 'client' }];
+    OrderDB._save(all);
+  }
+}
+
+/** true si on peut procéder (serveur OK, ou injoignable/absent → best effort local) */
+function canProceedCancel(res) {
+  return res.ok || res.offline || res.status === 404;
+}
+
+async function cancelOrder(o) {
+  if (cancelWindowLeftMs(o) <= 0) { showToast('⏱️ Délai de 6 h dépassé'); renderOrders(); return; }
+  if (!confirm('Annuler définitivement cette commande ?')) return;
+  const res = await serverCancel(o.pickupCode);
+  if (!canProceedCancel(res)) { showToast('❌ ' + (res.error || 'Annulation impossible')); renderOrders(); return; }
+  setLocalCancelled(o);
+  showToast('🚫 Commande annulée');
+  renderOrders();
+  if (typeof refreshAll === 'function') refreshAll();
+}
+
+async function modifyOrder(o) {
+  if (cancelWindowLeftMs(o) <= 0) { showToast('⏱️ Délai de 6 h dépassé'); renderOrders(); return; }
+  if (!confirm("Modifier cette commande ?\n\nElle sera annulée et ses articles remis dans ton panier pour que tu puisses la refaire.")) return;
+  const res = await serverCancel(o.pickupCode);
+  if (!canProceedCancel(res)) { showToast('❌ ' + (res.error || 'Modification impossible')); renderOrders(); return; }
+  setLocalCancelled(o);
+  (o.items || []).forEach(it => { if (it.productId) CartDB.add(it.productId, it.size, it.qty || 1); });
+  showToast('🛒 Articles remis au panier');
+  setTimeout(() => { location.href = 'index.html?panier=1'; }, 600);
+}
+
+/** Rafraîchit les comptes à rebours des fenêtres d'annulation */
+let cancelTimer = null;
+function startCancelCountdowns() {
+  clearInterval(cancelTimer);
+  if (!document.querySelector('[data-cancel-deadline]')) return;
+  cancelTimer = setInterval(() => {
+    let expired = false;
+    document.querySelectorAll('[data-cancel-deadline]').forEach(box => {
+      const left = Number(box.dataset.cancelDeadline) - Date.now();
+      if (left <= 0) expired = true;
+      else { const t = box.querySelector('.cw-time'); if (t) t.textContent = formatDuration(left); }
+    });
+    if (expired) renderOrders();
+  }, 30000);
 }
 
 /** Stepper de suivi côté client (non cliquable, thème clair) */

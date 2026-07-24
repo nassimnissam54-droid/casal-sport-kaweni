@@ -669,6 +669,31 @@ function orderStatusIndex(status) {
   return i < 0 ? 0 : i;
 }
 
+/* ============================================================
+   FENÊTRE DE MODIFICATION / ANNULATION CLIENT (6 h après commande)
+   ============================================================ */
+const ORDER_CANCEL_WINDOW_MS = 6 * 60 * 60 * 1000; // 6 heures
+
+/** Horodatage de création (id = Date.now() à la création, sinon date ISO) */
+function orderCreatedAt(o) {
+  return o.id || (o.date ? Date.parse(o.date) : Date.now());
+}
+
+/** Millisecondes restantes pour annuler/modifier ; 0 si fenêtre fermée
+ *  (délai dépassé, déjà annulée, ou déjà retirée). */
+function cancelWindowLeftMs(o) {
+  if (!o || o.status === 'annulee' || o.status === 'retiree') return 0;
+  return Math.max(0, ORDER_CANCEL_WINDOW_MS - (Date.now() - orderCreatedAt(o)));
+}
+
+/** « 5h 12min » à partir d'une durée en ms */
+function formatDuration(ms) {
+  const totalMin = Math.floor(ms / 60000);
+  const h = Math.floor(totalMin / 60);
+  const m = totalMin % 60;
+  return h > 0 ? `${h}h ${m}min` : `${m}min`;
+}
+
 /** Code de retrait unique CS-XXXX-XXXX (caractères non ambigus) */
 function generatePickupCode() {
   const chars = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';

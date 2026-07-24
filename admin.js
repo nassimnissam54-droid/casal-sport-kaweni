@@ -546,12 +546,13 @@ function renderOrders() {
   }
 
   wrap.innerHTML = list.map(o => {
+    const cancelled = o.status === 'annulee';
     const cur = ORDER_STATUS_FLOW[orderStatusIndex(o.status)];
     return `
-    <div class="order-card">
+    <div class="order-card ${cancelled ? 'order-cancelled-card' : ''}">
       <div class="order-card-head">
         <div>
-          <strong>${esc(o.name || 'Client')}</strong>
+          <strong>${esc(o.name || 'Client')}</strong>${cancelled ? ' <span class="order-cancel-tag">🚫 ANNULÉE PAR LE CLIENT</span>' : ''}
           <br><small style="color:rgba(255,255,255,0.6)">📞 ${esc(o.phone || '—')}${o.email ? ` · ✉️ ${esc(o.email)}` : ''}${o.pickupCode ? ` · <strong style="color:#ffd166">🎫 ${esc(o.pickupCode)}</strong>` : ''}</small>
         </div>
         <div class="order-date">${new Date(o.date).toLocaleString('fr-FR')}
@@ -561,7 +562,7 @@ function renderOrders() {
 
       ${orderItemsDetailHTML(o)}
 
-      ${trackStepsHTML(o, true)}
+      ${cancelled ? '<p class="order-cancel-note">🚫 Le client a annulé cette commande — ne pas préparer.</p>' : trackStepsHTML(o, true) + `
       <p class="track-status-line" style="color:rgba(255,255,255,0.75)">
         Statut actuel : <strong>${cur.icon} ${cur.label}</strong> — clique une étape pour mettre à jour
       </p>
@@ -569,7 +570,7 @@ function renderOrders() {
         <button class="btn-ghost notify" data-oact="notify" data-id="${o.id}">📲 Notifier le client (WhatsApp)</button>
         <button class="btn-ghost" data-oact="track" data-id="${o.id}">🔗 Copier le lien de suivi</button>
         <button class="btn-ghost" data-oact="msg" data-id="${o.id}">📄 Voir le message</button>
-      </div>
+      </div>`}
       <pre id="orderMsg-${o.id}" hidden>${esc(o.message || '')}</pre>
     </div>
   `;

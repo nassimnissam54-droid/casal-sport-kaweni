@@ -117,11 +117,35 @@ export default async (req, context) => {
     return json(orders.slice(0, 300));
   }
 
-  /* ---------------------------- Admin : statut ---------------------------- */
   if (req.method === 'PATCH') {
-    if (!isAdmin()) return json({ error: 'Non autorisé' }, 401);
     let body;
     try { body = await req.json(); } catch { return json({ error: 'JSON invalide' }, 400); }
+
+    /* --- Annulation CLIENT : auth par code de retrait, fenêtre 6 h --- */
+    if (body.clientCancel) {
+      const code = S(body.pickupCode, 20).trim();
+      if (!code) return json({ error: 'Code de retrait manquant' }, 400);
+      const { blobs } = await store.list({ prefix: 'orders/' });
+      for (const b of blobs) {
+        const ord = await store.get(b.key, { type: 'json' });
+        if (!ord || ord.pickupCode !== code) continue;
+        // Le code de retrait fait office de jeton : seul le client (et le
+        // magasin) le connaît. On vérifie l'état et la fenêtre de 6 h.
+        if (ord.status === 'annulee') return json({ ok: true, order: ord }); // idempotent
+        if (ord.status === 'retiree') return json({ error: 'Commande déjà retirée, annulation impossible.' }, 409);
+        if (Date.now() - ord.id > 6 * 3600 * 1000)
+          return json({ error: 'Le délai de 6 h pour annuler est dépassé.' }, 409);
+        ord.status = 'annulee';
+        ord.statusHistory = (ord.statusHistory || []).filter((h) => h.status !== 'annulee');
+        ord.statusHistory.push({ status: 'annulee', date: Date.now(), by: 'client' });
+        await store.setJSON(b.key, ord);
+        return json({ ok: true, order: ord });
+      }
+      return json({ error: 'Commande introuvable.' }, 404);
+    }
+
+    /* --- Mise à jour de statut : ADMIN --- */
+    if (!isAdmin()) return json({ error: 'Non autorisé' }, 401);
     if (!STATUSES.includes(body.status)) return json({ error: 'Statut inconnu' }, 400);
     const key = `orders/${Math.floor(Number(body.id))}`;
     const order = await store.get(key, { type: 'json' });
