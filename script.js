@@ -454,11 +454,16 @@ const sizePickerProduct = document.getElementById('sizePickerProduct');
 const sizePickerOptions = document.getElementById('sizePickerOptions');
 const sizePickerAddBtn  = document.getElementById('sizePickerAdd');
 let selectedSizeProduct = null;
+// Renseigné quand on MODIFIE la taille d'un article déjà au panier :
+// { productId, oldSize, qty } — sinon null (mode « ajout »).
+let editContext = null;
 
-function openSizePicker(productId) {
+function openSizePicker(productId, editSize) {
   const p = ProductDB.getAll().find(x => x.id === productId);
-  if (!p || p.stock === 'out') return;
+  if (!p) return;
+  if (p.stock === 'out' && !editSize) return; // épuisé : pas d'ajout, mais on tolère la modif
   selectedSizeProduct = p;
+  editContext = null;
 
   const imgHTML = p.imageUrl
     ? `<img src="${esc(p.imageUrl)}" alt="${esc(p.name)}">`
@@ -473,9 +478,11 @@ function openSizePicker(productId) {
 
   const sizes = String(p.sizes).split(/[—,/]+/).map(s => s.trim()).filter(Boolean);
   const opts  = sizes.length ? sizes : ['Unique'];
-  sizePickerOptions.innerHTML = opts.map((s, i) =>
-    `<button type="button" class="size-btn ${i === 0 ? 'active' : ''}" data-size="${esc(s)}">${esc(s)}</button>`
-  ).join('');
+  const hasEditSize = editSize && opts.includes(editSize);
+  sizePickerOptions.innerHTML = opts.map((s, i) => {
+    const active = hasEditSize ? (s === editSize) : (i === 0);
+    return `<button type="button" class="size-btn ${active ? 'active' : ''}" data-size="${esc(s)}">${esc(s)}</button>`;
+  }).join('');
   sizePickerOptions.querySelectorAll('.size-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       sizePickerOptions.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
@@ -483,13 +490,31 @@ function openSizePicker(productId) {
     });
   });
 
+  // Mode « modification » vs « ajout »
+  const title = document.getElementById('sizePickerTitle');
+  const sub   = document.getElementById('sizePickerSub');
+  if (editSize) {
+    const cur = CartDB.getAll().find(i => i.productId === productId && i.size === editSize);
+    editContext = { productId, oldSize: editSize, qty: cur ? cur.qty : 1 };
+    if (title) title.textContent = 'Modifier la taille';
+    if (sub)   sub.textContent = `Taille actuelle : ${editSize}. Choisis la nouvelle taille.`;
+    sizePickerAddBtn.textContent = '✅ Enregistrer la taille';
+  } else {
+    if (title) title.textContent = 'Choisis ta taille';
+    if (sub)   sub.textContent = 'Sélectionne ta taille puis ajoute au panier.';
+    sizePickerAddBtn.textContent = '🛒 Ajouter au panier';
+  }
+
   sizePickerModal.hidden = false;
   document.body.style.overflow = 'hidden';
 }
 function closeSizePicker() {
   sizePickerModal.hidden = true;
-  document.body.style.overflow = '';
   selectedSizeProduct = null;
+  editContext = null;
+  // Ne pas rendre le scroll si un tiroir/une autre modale reste ouvert
+  const drawerOpen = cartDrawer.classList.contains('open');
+  document.body.style.overflow = drawerOpen ? 'hidden' : '';
 }
 document.getElementById('sizePickerClose').addEventListener('click', closeSizePicker);
 sizePickerModal.addEventListener('click', e => { if (e.target === sizePickerModal) closeSizePicker(); });
@@ -499,9 +524,24 @@ sizePickerAddBtn.addEventListener('click', () => {
   const activeSize = sizePickerOptions.querySelector('.size-btn.active');
   if (!activeSize) { showToast('⚠ Choisis une taille'); return; }
   const size = activeSize.dataset.size;
+  const productName = selectedSizeProduct.name;
+
+  // ----- Mode MODIFICATION d'un article du panier -----
+  if (editContext) {
+    const { productId, oldSize, qty } = editContext;
+    if (size === oldSize) { closeSizePicker(); return; } // rien à changer
+    CartDB.remove(productId, oldSize);
+    CartDB.add(productId, size, qty); // fusionne si cette taille est déjà au panier
+    updateCartCounter();
+    closeSizePicker();
+    renderCart();
+    showToast(`✅ Taille modifiée : ${oldSize} → ${size}`);
+    return;
+  }
+
+  // ----- Mode AJOUT -----
   CartDB.add(selectedSizeProduct.id, size, 1);
   updateCartCounter();
-  const productName = selectedSizeProduct.name;
   closeSizePicker();
   showToast(`🛒 Ajouté : ${productName} (${size})`);
   // Petite animation du compteur header
@@ -567,8 +607,8 @@ function renderCart() {
       <div class="cart-item" data-pid="${p.id}" data-size="${esc(size)}">
         <div class="cart-item-img">${img}</div>
         <div class="cart-item-info">
-          <div class="name">${esc(p.name)}</div>
-          <div class="meta">${esc(size)} · ${labelOf(p.cat)}</div>
+          <button type="button" class="name" data-action="edit" title="Modifier la taille">${esc(p.name)}</button>
+          <button type="button" class="meta meta-edit" data-action="edit">${esc(size)} · ${labelOf(p.cat)} <span class="edit-hint">✎ modifier</span></button>
           <div class="cart-qty">
             <button data-action="dec" aria-label="Diminuer">−</button>
             <input type="number" value="${qty}" min="1" max="99" data-input>
@@ -606,6 +646,10 @@ function renderCart() {
       refreshAfter();
       showToast('Article retiré du panier');
     });
+    // Clic sur le nom / la taille → modifier la taille de cet article
+    itemEl.querySelectorAll('[data-action="edit"]').forEach(btn =>
+      btn.addEventListener('click', () => openSizePicker(pid, size))
+    );
   });
 }
 

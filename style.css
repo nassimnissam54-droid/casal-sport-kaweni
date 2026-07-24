@@ -1249,6 +1249,33 @@ h3, .product-title {
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
+/* Nom & taille cliquables → modifier la taille */
+.cart-item-info .name,
+.cart-item-info .meta-edit {
+  text-align: left;
+  width: 100%;
+  font-family: inherit;
+  transition: color 0.15s;
+}
+.cart-item-info .name { cursor: pointer; }
+.cart-item-info .name:hover { color: var(--corail-deep); }
+.cart-item-info .meta-edit {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+}
+.cart-item-info .meta-edit .edit-hint {
+  color: var(--corail);
+  letter-spacing: 0.04em;
+  text-transform: none;
+  font-size: 0.66rem;
+  opacity: 0.85;
+  transition: opacity 0.15s;
+}
+.cart-item-info .meta-edit:hover .edit-hint { opacity: 1; text-decoration: underline; }
+.cart-item-info .name:focus-visible,
+.cart-item-info .meta-edit:focus-visible { outline: 2px solid var(--corail); outline-offset: 2px; border-radius: 3px; }
 .cart-qty {
   display: inline-flex;
   align-items: center;
