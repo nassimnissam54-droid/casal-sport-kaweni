@@ -42,24 +42,25 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* ============ AUTH TABS ============ */
+/** Affiche un des formulaires : 'login' | 'signup' | 'forgot' */
+function showAuthForm(target) {
+  $('#loginForm').hidden  = target !== 'login';
+  $('#signupForm').hidden = target !== 'signup';
+  const forgot = $('#forgotForm');
+  if (forgot) forgot.hidden = target !== 'forgot';
+  // Les onglets ne concernent que login/signup (forgot n'a pas d'onglet)
+  $$('.auth-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === target));
+}
 $$('.auth-tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    $$('.auth-tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    const target = tab.dataset.tab;
-    $('#loginForm').hidden  = target !== 'login';
-    $('#signupForm').hidden = target !== 'signup';
-  });
+  tab.addEventListener('click', () => showAuthForm(tab.dataset.tab));
 });
 $$('.auth-switch a').forEach(a => {
   a.addEventListener('click', e => {
     e.preventDefault();
-    const target = a.dataset.go;
-    $$('.auth-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === target));
-    $('#loginForm').hidden  = target !== 'login';
-    $('#signupForm').hidden = target !== 'signup';
+    showAuthForm(a.dataset.go);
   });
 });
+$('#forgotLink')?.addEventListener('click', e => { e.preventDefault(); showAuthForm('forgot'); });
 
 /* ============ LOGIN ============ */
 $('#loginForm').addEventListener('submit', async e => {
@@ -91,6 +92,25 @@ $('#signupForm').addEventListener('submit', async e => {
   if (r.ok) {
     errEl.textContent = '';
     showToast('🎉 Compte créé');
+    showDashboard();
+  } else {
+    errEl.textContent = '❌ ' + r.error;
+  }
+});
+
+/* ============ MOT DE PASSE OUBLIÉ ============ */
+$('#forgotForm')?.addEventListener('submit', async e => {
+  e.preventDefault();
+  const email = $('#forgotEmail').value;
+  const pwd   = $('#forgotPwd').value;
+  const pwd2  = $('#forgotPwd2').value;
+  const errEl = $('#forgotError');
+  if (pwd !== pwd2) { errEl.textContent = '❌ Les deux mots de passe ne correspondent pas.'; return; }
+  const r = await UserDB.resetPassword(email, pwd);
+  if (r.ok) {
+    errEl.textContent = '';
+    $('#forgotForm').reset();
+    showToast('🔑 Mot de passe réinitialisé');
     showDashboard();
   } else {
     errEl.textContent = '❌ ' + r.error;

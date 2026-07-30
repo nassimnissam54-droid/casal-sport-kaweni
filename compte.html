@@ -61,9 +61,32 @@
         <label>Mot de passe
           <input type="password" id="loginPwd" autocomplete="current-password" required />
         </label>
+        <p class="auth-forgot"><a href="#" id="forgotLink">Mot de passe oublié ?</a></p>
         <button type="submit" class="btn btn-block">Se connecter</button>
         <p class="auth-error" id="loginError"></p>
         <p class="auth-switch">Pas encore de compte ? <a href="#" data-go="signup">Crée-en un</a></p>
+      </form>
+
+      <!-- MOT DE PASSE OUBLIÉ -->
+      <form class="auth-form" id="forgotForm" hidden>
+        <h2>Mot de passe oublié 🔑</h2>
+        <p class="auth-sub">Confirme l'e-mail de ton compte, puis choisis un nouveau mot de passe.</p>
+        <label>Email du compte
+          <input type="email" id="forgotEmail" autocomplete="email" required />
+        </label>
+        <label>Nouveau mot de passe <small>(6 caractères minimum)</small>
+          <input type="password" id="forgotPwd" autocomplete="new-password" minlength="6" required />
+        </label>
+        <label>Confirmer le nouveau mot de passe
+          <input type="password" id="forgotPwd2" autocomplete="new-password" minlength="6" required />
+        </label>
+        <button type="submit" class="btn btn-block">Réinitialiser</button>
+        <p class="auth-error" id="forgotError"></p>
+        <p class="auth-switch"><a href="#" data-go="login">← Retour à la connexion</a></p>
+        <p class="auth-disclaimer" style="margin-top:.8rem">
+          ℹ️ Ton compte est enregistré sur cet appareil. La réinitialisation vérifie
+          l'e-mail associé et fonctionne sur l'appareil où le compte a été créé.
+        </p>
       </form>
 
       <!-- SIGNUP -->

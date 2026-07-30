@@ -714,6 +714,20 @@ const UserDB = {
 
   logout() { localStorage.removeItem(SESSION_KEY); },
 
+  /** Mot de passe oublié : vérifie l'e-mail du compte (sur cet appareil)
+   *  puis redéfinit le mot de passe et ouvre la session. */
+  async resetPassword(email, newPwd) {
+    const u = this.get();
+    if (!u) return { ok:false, error:"Aucun compte n'existe sur cet appareil." };
+    if (u.email !== email.trim().toLowerCase())
+      return { ok:false, error:"Cet e-mail ne correspond à aucun compte sur cet appareil." };
+    if (!newPwd || newPwd.length < 6) return { ok:false, error:'Nouveau mot de passe : 6 caractères minimum.' };
+    u.passwordHash = await this._hash(newPwd);
+    this._save(u);
+    this._startSession(u.email);
+    return { ok:true, user:u };
+  },
+
   _startSession(email) {
     localStorage.setItem(SESSION_KEY, JSON.stringify({ email, ts:Date.now() }));
   },
