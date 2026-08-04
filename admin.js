@@ -554,6 +554,9 @@ function renderOrders() {
         <div>
           <strong>${esc(o.name || 'Client')}</strong>${cancelled ? ' <span class="order-cancel-tag">🚫 ANNULÉE PAR LE CLIENT</span>' : ''}
           <br><small style="color:rgba(255,255,255,0.6)">📞 ${esc(o.phone || '—')}${o.email ? ` · ✉️ ${esc(o.email)}` : ''}${o.pickupCode ? ` · <strong style="color:#ffd166">🎫 ${esc(o.pickupCode)}</strong>` : ''}</small>
+          <br><span class="pay-tag ${isPaidOnPickup(o.payment) ? 'pay-onsite' : 'pay-other'}">
+            ${esc(paymentLabel(o.payment))}${isPaidOnPickup(o.payment) ? ' — à encaisser au retrait' : ''}
+          </span>
         </div>
         <div class="order-date">${new Date(o.date).toLocaleString('fr-FR')}
           <button class="btn-icon del" data-oact="del" data-id="${o.id}" style="margin-left:0.5rem" title="Supprimer">🗑️</button>

@@ -217,9 +217,12 @@ function renderOrders() {
         <img class="order-qr" alt="QR du code de retrait ${esc(o.pickupCode)}" src="/api/qr?data=${encodeURIComponent(o.pickupCode)}" width="130" height="130">` : ''}
         ${cancelled ? '' : clientTrackStepsHTML(o)}
         ${cancelled ? '' : `<p class="track-status-line">${cur.icon} <strong>${cur.label}</strong> — ${esc(cur.desc)}</p>`}
+        <p class="order-pay-line">
+          💳 Paiement : <strong>${esc(paymentLabel(o.payment))}</strong>${isPaidOnPickup(o.payment) && !cancelled ? ' <span class="order-pay-hint">— à régler au moment du retrait</span>' : ''}
+        </p>
         ${controls}
         <footer class="order-block-foot">
-          <span>🛍️ Retrait au boutique de Mamoudzou (rue du Commerce)</span>
+          <span>🛍️ Retrait à la boutique, rue du Commerce</span>
           <strong>${esc(o.total || '')}</strong>
         </footer>
       </article>`;

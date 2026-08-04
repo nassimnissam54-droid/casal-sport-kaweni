@@ -62,6 +62,23 @@ const PAYMENT_CONFIG = {
   ]
 };
 
+/** Libellé lisible d'un mode de paiement (icône + intitulé).
+ *  Couvre aussi les modes désactivés/anciens pour que les commandes
+ *  déjà passées restent lisibles dans l'admin et l'espace client. */
+function paymentLabel(id) {
+  const m = PAYMENT_CONFIG.methods.find(x => x.id === id);
+  if (m) return `${m.icon} ${m.label}`;
+  return {
+    'online-card': '💳 Carte en ligne',
+    'card-onsite': '📟 Carte au retrait',
+    'cash':        '💵 Espèces au retrait',
+    'transfer':    '🏦 Virement bancaire'
+  }[id] || '— Non précisé';
+}
+
+/** true si la commande se règle au moment du retrait (à encaisser en boutique) */
+function isPaidOnPickup(id) { return id === 'card-onsite' || id === 'cash'; }
+
 /* ============================================================
    CODES PROMO
    ============================================================ */

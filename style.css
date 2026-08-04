@@ -2778,6 +2778,36 @@ h3, .product-title {
   font-weight: 600;
   font-size: 0.85rem;
 }
+
+/* ===== Mode de paiement — badge admin (thème sombre) ===== */
+.pay-tag {
+  display: inline-block;
+  margin-top: 0.35rem;
+  padding: 0.22rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.pay-tag.pay-onsite {
+  background: rgba(240,160,48,0.18);
+  color: #ffc978;
+  border: 1px solid rgba(240,160,48,0.45);
+}
+.pay-tag.pay-other {
+  background: rgba(96,165,250,0.15);
+  color: #93c5fd;
+  border: 1px solid rgba(96,165,250,0.4);
+}
+
+/* ===== Mode de paiement — ligne espace client (thème clair) ===== */
+.order-pay-line {
+  margin: 0.7rem 0 0.2rem;
+  font-size: 0.88rem;
+  color: var(--gris-700);
+}
+.order-pay-line strong { color: var(--ink, #211a12); }
+.order-pay-hint { color: var(--corail-deep); font-weight: 600; }
 .order-block-items {
   list-style: none;
   padding: 0;
