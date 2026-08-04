@@ -80,6 +80,37 @@ function paymentLabel(id) {
 function isPaidOnPickup(id) { return id === 'card-onsite' || id === 'cash'; }
 
 /* ============================================================
+   FICHE PRODUIT — galerie & couleurs
+   ============================================================ */
+
+/** Toutes les photos d'un produit : `images` (tableau) si renseigné,
+ *  sinon l'image principale seule. Toujours au moins une entrée. */
+function productImages(p) {
+  const list = Array.isArray(p.images) ? p.images.filter(Boolean) : [];
+  if (p.imageUrl && !list.includes(p.imageUrl)) list.unshift(p.imageUrl);
+  return list.length ? list : [];
+}
+
+/** Couleurs disponibles : [{ name, hex }]. Accepte le format admin
+ *  "Écru:#e8dcc8, Noir:#111" ou un simple tableau. */
+function productColors(p) {
+  if (Array.isArray(p.colorOptions)) return p.colorOptions.filter(c => c && c.name);
+  if (typeof p.colorOptions === 'string' && p.colorOptions.trim()) {
+    return p.colorOptions.split(',').map(s => {
+      const [name, hex] = s.split(':').map(x => (x || '').trim());
+      return name ? { name, hex: hex || '#cccccc' } : null;
+    }).filter(Boolean);
+  }
+  return [];
+}
+
+/** Découpe le champ tailles ("S — M — L") en tableau */
+function productSizes(p) {
+  const arr = String(p.sizes || '').split(/[—,/]+/).map(s => s.trim()).filter(Boolean);
+  return arr.length ? arr : ['Unique'];
+}
+
+/* ============================================================
    CODES PROMO
    ============================================================ */
 const PROMO_CODES = {
@@ -118,6 +149,7 @@ const DEFAULT_PRODUCTS = [
     sizes:'S — M — L — XL — XXL',
     icon:'👔', stock:'in', status:'live',
     imageUrl:'img/produits/ig-2.jpg',
+    colorOptions:[{name:'Écru',hex:'#e8dcc8'},{name:'Beige sable',hex:'#cbb894'},{name:'Noir',hex:'#1a1a1a'}],
     color1:'#e8dcc8', color2:'#c9b79a', createdAt: D(1), rating:4.9 },
 
   { id:102, type:'vetement', sub:'ensemble', cat:'homme', name:'Ensemble Denim Délavé Gris',
@@ -127,6 +159,7 @@ const DEFAULT_PRODUCTS = [
     sizes:'S — M — L — XL — XXL',
     icon:'🧥', stock:'in', status:'live',
     imageUrl:'img/produits/ig-4.jpg',
+    colorOptions:[{name:'Gris délavé',hex:'#8e8e93'},{name:'Bleu brut',hex:'#3b5a80'}],
     color1:'#8e8e93', color2:'#5a5a5f', createdAt: D(2), rating:4.8 },
 
   { id:103, type:'vetement', sub:'tshirt', cat:'homme', name:'Tee-shirt Oversize Playa Luquillo',
@@ -136,6 +169,7 @@ const DEFAULT_PRODUCTS = [
     sizes:'S — M — L — XL — XXL',
     icon:'🌴', stock:'in', status:'live',
     imageUrl:'img/produits/ig-5.jpg',
+    colorOptions:[{name:'Écru',hex:'#f4efe4'},{name:'Noir',hex:'#1a1a1a'},{name:'Vert sauge',hex:'#8fa88a'}],
     color1:'#f4efe4', color2:'#2a8c82', createdAt: D(3), rating:4.9 },
 
   { id:104, type:'vetement', sub:'tshirt', cat:'homme', name:'Débardeur Crochet Bohème',
@@ -145,6 +179,7 @@ const DEFAULT_PRODUCTS = [
     sizes:'S — M — L — XL',
     icon:'🧶', stock:'low', status:'live',
     imageUrl:'img/produits/ig-1.jpg',
+    colorOptions:[{name:'Terracotta',hex:'#8b5e34'},{name:'Crème',hex:'#e9dcc3'}],
     color1:'#e9dcc3', color2:'#8b5e34', createdAt: D(0), rating:5.0 },
 
   { id:105, type:'vetement', sub:'tshirt', cat:'homme', name:'Maillot Jersey 91 Vert',
@@ -154,6 +189,7 @@ const DEFAULT_PRODUCTS = [
     sizes:'S — M — L — XL — XXL',
     icon:'🏈', stock:'in', status:'live',
     imageUrl:'img/produits/ig-9.jpg',
+    colorOptions:[{name:'Blanc / Vert',hex:'#7ed321'},{name:'Noir / Rouge',hex:'#c0392b'}],
     color1:'#ffffff', color2:'#7ed321', createdAt: D(4), rating:4.7 },
 
   { id:106, type:'vetement', sub:'ensemble', cat:'homme', name:'Ensemble Project X Paris Bleu Ciel',
@@ -163,6 +199,7 @@ const DEFAULT_PRODUCTS = [
     sizes:'S — M — L — XL — XXL',
     icon:'💧', stock:'in', status:'live',
     imageUrl:'img/produits/ig-6.jpg',
+    colorOptions:[{name:'Bleu ciel',hex:'#a8d8ea'},{name:'Noir',hex:'#1a1a1a'},{name:'Bordeaux',hex:'#7b2d3b'}],
     color1:'#a8d8ea', color2:'#1a1a1a', createdAt: D(5), rating:4.8 },
 
   { id:107, type:'vetement', sub:'veste', cat:'homme', name:'Costume 2 Pièces Camel',
@@ -172,6 +209,7 @@ const DEFAULT_PRODUCTS = [
     sizes:'46 — 48 — 50 — 52 — 54',
     icon:'🤵', stock:'low', status:'live',
     imageUrl:'img/produits/ig-7.jpg',
+    colorOptions:[{name:'Camel',hex:'#c19a6b'},{name:'Bleu nuit',hex:'#1f2a44'},{name:'Anthracite',hex:'#3a3a3a'}],
     color1:'#c19a6b', color2:'#8b6f47', createdAt: D(7), rating:4.9 },
 
   { id:108, type:'vetement', sub:'accessoire', sport:'lunettes', cat:'mixte', name:'Lunettes Monture Dorée Bleu Marbré',
@@ -181,6 +219,7 @@ const DEFAULT_PRODUCTS = [
     sizes:'Taille unique',
     icon:'🕶️', stock:'in', status:'live',
     imageUrl:'img/produits/ig-3.jpg',
+    colorOptions:[{name:'Doré / Bleu',hex:'#2b6cb0'},{name:'Doré / Écaille',hex:'#7a4a21'}],
     color1:'#d4af37', color2:'#2b6cb0', createdAt: D(6), rating:4.8 },
 
   { id:109, type:'vetement', sub:'accessoire', sport:'bijou', cat:'mixte', name:'Chevalière Dorée Soleil',
@@ -190,6 +229,7 @@ const DEFAULT_PRODUCTS = [
     sizes:'56 — 58 — 60 — 62 — 64',
     icon:'💍', stock:'in', status:'live',
     imageUrl:'img/produits/ig-8.jpg',
+    colorOptions:[{name:'Doré',hex:'#d4af37'},{name:'Argenté',hex:'#c0c0c0'}],
     color1:'#d4af37', color2:'#9a7b2f', createdAt: D(8), rating:4.9 },
 
   { id:110, type:'vetement', sub:'accessoire', sport:'bijou', cat:'mixte', name:'Montre Acier Bicolore Cadran Turquoise',
@@ -199,6 +239,7 @@ const DEFAULT_PRODUCTS = [
     sizes:'Bracelet ajustable',
     icon:'⌚', stock:'low', status:'live',
     imageUrl:'img/produits/ig-10.jpg',
+    colorOptions:[{name:'Turquoise / Or',hex:'#40c4c4'},{name:'Noir / Acier',hex:'#2f3640'}],
     color1:'#40c4c4', color2:'#d4af37', createdAt: D(9), rating:5.0 },
 
   /* ===================== FEMME ===================== */

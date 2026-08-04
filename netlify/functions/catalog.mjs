@@ -42,6 +42,14 @@ function sanitizeProduct(p) {
     stock: ['in', 'low', 'out'].includes(p.stock) ? p.stock : 'in',
     status: p.status === 'draft' ? 'draft' : 'live',
     imageUrl: S(p.imageUrl, 600000), // autorise les data-URI (≤ 400 Ko côté admin)
+    // Galerie : photos supplémentaires de la fiche produit
+    images: Array.isArray(p.images) ? p.images.slice(0, 8).map((u) => S(u, 600000)).filter(Boolean) : [],
+    // Couleurs sélectionnables : [{ name, hex }]
+    colorOptions: Array.isArray(p.colorOptions)
+      ? p.colorOptions.slice(0, 12)
+          .map((c) => (c && c.name ? { name: S(c.name, 30), hex: S(c.hex, 9) || '#cccccc' } : null))
+          .filter(Boolean)
+      : [],
     color1: S(p.color1, 9),
     color2: S(p.color2, 9),
     createdAt: Number(p.createdAt) || Date.now(),

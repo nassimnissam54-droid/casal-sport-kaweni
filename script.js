@@ -265,12 +265,13 @@ function bindCardActions(scope) {
     });
   });
 
-  // Click photo → lightbox
-  scope.querySelectorAll('.card-photo').forEach(img => {
-    img.style.cursor = 'zoom-in';
-    img.addEventListener('click', e => {
-      e.stopPropagation();
-      openLightbox(img.src);
+  // Clic n'importe où sur la carte (photo, nom, prix) → fiche produit
+  scope.querySelectorAll('.card').forEach(card => {
+    card.style.cursor = 'pointer';
+    card.addEventListener('click', e => {
+      // Les boutons de la carte gardent leur action propre
+      if (e.target.closest('.quick-add, .fav-icon, .share-icon')) return;
+      openProductModal(parseInt(card.dataset.id, 10));
     });
   });
 
@@ -448,6 +449,287 @@ function renderFavorites() {
   grid.innerHTML = list.map(cardHTML).join('');
   bindCardActions(grid);
 }
+
+/* ============================================================
+   FICHE PRODUIT — modale complète (galerie, couleurs, tailles,
+   quantité, favori, partage, matière, avis, suggestions)
+   ============================================================ */
+const productModal = document.getElementById('productModal');
+const pgImage   = document.getElementById('pgImage');
+const pgThumbs  = document.getElementById('pgThumbs');
+const pgCounter = document.getElementById('pgCounter');
+
+let pdProduct = null;   // produit affiché
+let pdImages  = [];     // photos de la galerie
+let pdIndex   = 0;      // photo courante
+let pdSize    = null;   // taille choisie
+let pdColor   = null;   // couleur choisie
+let pdQty     = 1;
+
+function openProductModal(productId) {
+  const p = ProductDB.getAll().find(x => x.id === productId);
+  if (!p) return;
+  pdProduct = p;
+  pdImages  = productImages(p);
+  pdIndex   = 0;
+  pdQty     = 1;
+  pdSize    = null;
+  const colors = productColors(p);
+  pdColor = colors.length ? colors[0].name : null;
+
+  // --- En-tête ---
+  document.getElementById('piCat').textContent =
+    `${labelOf(p.cat)} · ${SUB_LABELS[p.sub] || (p.type === 'basket' ? 'Chaussures' : 'Vêtement')}`;
+  document.getElementById('piName').textContent = p.name;
+  document.getElementById('piDesc').textContent = p.desc || '';
+  document.getElementById('piMaterial').textContent = p.material || 'Composition non précisée.';
+
+  // --- Prix ---
+  document.getElementById('piPrice').textContent = p.price.toFixed(2).replace('.', ',') + ' €';
+  const oldEl = document.getElementById('piOld');
+  const saveEl = document.getElementById('piSave');
+  if (p.oldPrice) {
+    oldEl.textContent = p.oldPrice.toFixed(2).replace('.', ',') + ' €';
+    oldEl.hidden = false;
+    saveEl.textContent = `Tu économises ${(p.oldPrice - p.price).toFixed(2).replace('.', ',')} €`;
+    saveEl.hidden = false;
+  } else { oldEl.hidden = true; saveEl.hidden = true; }
+
+  // --- Note ---
+  const avg = ReviewDB.averageRating(p.id, p.rating);
+  const cnt = ReviewDB.forProduct(p.id).length;
+  document.getElementById('piRating').innerHTML = avg
+    ? `<span class="stars">${'★'.repeat(Math.round(avg))}${'☆'.repeat(5 - Math.round(avg))}</span>
+       <span class="pi-rating-num">${avg.toFixed(1)}</span>${cnt ? ` · ${cnt} avis` : ''}`
+    : '';
+
+  // --- Stock ---
+  const stockEl = document.getElementById('piStock');
+  const stockMap = {
+    in:  { t: '✓ En stock à la boutique', c: 'ok' },
+    low: { t: '⚡ Plus que quelques pièces — ne tarde pas', c: 'low' },
+    out: { t: '✗ Rupture de stock', c: 'out' }
+  };
+  const st = stockMap[p.stock || 'in'];
+  stockEl.textContent = st.t;
+  stockEl.className = 'pi-stock ' + st.c;
+
+  renderGallery();
+  renderColors(colors);
+  renderSizes();
+  updateQty(1);
+  updateFavButton();
+
+  // --- Avis ---
+  const reviews = ReviewDB.forProduct(p.id);
+  document.getElementById('piReviewCount').textContent = reviews.length ? `(${reviews.length})` : '';
+  document.getElementById('piReviews').innerHTML = reviews.length
+    ? reviews.map(r => `
+        <div class="pi-review">
+          <span class="stars">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</span>
+          <strong>${esc(r.name || 'Client')}</strong>
+          <p>${esc(r.comment || '')}</p>
+        </div>`).join('')
+    : '<p class="pi-no-review">Aucun avis pour l\'instant — sois le premier à donner le tien en boutique !</p>';
+
+  // --- Bouton d'ajout ---
+  const addBtn = document.getElementById('piAdd');
+  addBtn.disabled = p.stock === 'out';
+  addBtn.textContent = p.stock === 'out' ? 'Épuisé' : '🛒 Ajouter au panier';
+
+  renderSimilar();
+
+  productModal.hidden = false;
+  document.body.style.overflow = 'hidden';
+  productModal.querySelector('.modal-box').scrollTop = 0;
+}
+
+function closeProductModal() {
+  productModal.hidden = true;
+  pdProduct = null;
+  const drawerOpen = cartDrawer.classList.contains('open');
+  document.body.style.overflow = drawerOpen ? 'hidden' : '';
+}
+
+/* ---------- Galerie ---------- */
+function renderGallery() {
+  const p = pdProduct;
+  const has = pdImages.length > 0;
+  pgImage.src = has ? pdImages[pdIndex] : '';
+  pgImage.alt = p.name;
+  pgImage.hidden = !has;
+
+  // Repli élégant si le produit n'a pas de photo
+  const main = document.querySelector('.pg-main');
+  main.style.background = has ? '' : `linear-gradient(135deg, ${p.color1 || '#ddd'}, ${p.color2 || '#bbb'})`;
+  main.dataset.fallback = has ? '' : (p.icon || '🛍️');
+
+  // Flèches et compteur seulement si plusieurs photos
+  const multi = pdImages.length > 1;
+  document.getElementById('pgPrev').hidden = !multi;
+  document.getElementById('pgNext').hidden = !multi;
+  pgCounter.hidden = !multi;
+  pgCounter.textContent = `${pdIndex + 1} / ${pdImages.length}`;
+
+  pgThumbs.hidden = !multi;
+  pgThumbs.innerHTML = multi
+    ? pdImages.map((src, i) =>
+        `<button type="button" class="pg-thumb ${i === pdIndex ? 'active' : ''}" data-idx="${i}">
+           <img src="${esc(src)}" alt="Vue ${i + 1}"></button>`).join('')
+    : '';
+  pgThumbs.querySelectorAll('.pg-thumb').forEach(b =>
+    b.addEventListener('click', () => { pdIndex = +b.dataset.idx; renderGallery(); })
+  );
+
+  // Badges (promo / nouveau / épuisé)
+  const badges = [];
+  if (p.badge && p.badge.startsWith('-')) badges.push(`<span class="card-badge sale">${esc(p.badge)}</span>`);
+  else if (p.badge) badges.push(`<span class="card-badge">${esc(p.badge)}</span>`);
+  if (ProductDB.isNew(p) && !p.badge) badges.push('<span class="card-badge new">Nouveau</span>');
+  if (p.stock === 'out') badges.push('<span class="card-badge out">Épuisé</span>');
+  document.getElementById('pgBadges').innerHTML = badges.join('');
+}
+
+function slideGallery(dir) {
+  if (pdImages.length < 2) return;
+  pdIndex = (pdIndex + dir + pdImages.length) % pdImages.length;
+  renderGallery();
+}
+document.getElementById('pgPrev')?.addEventListener('click', () => slideGallery(-1));
+document.getElementById('pgNext')?.addEventListener('click', () => slideGallery(1));
+pgImage?.addEventListener('click', () => { if (pdImages.length) openLightbox(pdImages[pdIndex]); });
+
+// Défilement au doigt (mobile)
+let pdTouchX = null;
+document.querySelector('.pg-main')?.addEventListener('touchstart', e => { pdTouchX = e.touches[0].clientX; }, { passive: true });
+document.querySelector('.pg-main')?.addEventListener('touchend', e => {
+  if (pdTouchX === null) return;
+  const dx = e.changedTouches[0].clientX - pdTouchX;
+  if (Math.abs(dx) > 45) slideGallery(dx < 0 ? 1 : -1);
+  pdTouchX = null;
+}, { passive: true });
+
+/* ---------- Couleurs ---------- */
+function renderColors(colors) {
+  const block = document.getElementById('piColorBlock');
+  if (!colors.length) { block.hidden = true; return; }
+  block.hidden = false;
+  document.getElementById('piColorChosen').textContent = pdColor || '';
+  const wrap = document.getElementById('piColors');
+  wrap.innerHTML = colors.map(c => `
+    <button type="button" class="pi-color ${c.name === pdColor ? 'active' : ''}"
+            data-color="${esc(c.name)}" title="${esc(c.name)}" aria-label="${esc(c.name)}">
+      <span style="background:${esc(c.hex || '#ccc')}"></span>
+    </button>`).join('');
+  wrap.querySelectorAll('.pi-color').forEach(b =>
+    b.addEventListener('click', () => {
+      pdColor = b.dataset.color;
+      wrap.querySelectorAll('.pi-color').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      document.getElementById('piColorChosen').textContent = pdColor;
+    })
+  );
+}
+
+/* ---------- Tailles ---------- */
+function renderSizes() {
+  const sizes = productSizes(pdProduct);
+  const wrap = document.getElementById('piSizes');
+  // Taille unique : présélectionnée
+  if (sizes.length === 1) pdSize = sizes[0];
+  wrap.innerHTML = sizes.map(s =>
+    `<button type="button" class="pi-size ${s === pdSize ? 'active' : ''}" data-size="${esc(s)}">${esc(s)}</button>`
+  ).join('');
+  wrap.querySelectorAll('.pi-size').forEach(b =>
+    b.addEventListener('click', () => {
+      pdSize = b.dataset.size;
+      wrap.querySelectorAll('.pi-size').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+    })
+  );
+}
+
+/* ---------- Quantité ---------- */
+function updateQty(v) {
+  pdQty = Math.max(1, Math.min(20, v));
+  document.getElementById('piQty').textContent = pdQty;
+}
+document.getElementById('piQtyMinus')?.addEventListener('click', () => updateQty(pdQty - 1));
+document.getElementById('piQtyPlus')?.addEventListener('click', () => updateQty(pdQty + 1));
+
+/* ---------- Favori ---------- */
+function updateFavButton() {
+  const isFav = WishlistDB.has(pdProduct.id);
+  const btn = document.getElementById('piFav');
+  btn.classList.toggle('active', isFav);
+  btn.querySelector('.pi-heart').textContent = isFav ? '♥' : '♡';
+  document.getElementById('piFavLabel').textContent = isFav ? 'Dans tes favoris' : 'Ajouter aux favoris';
+}
+document.getElementById('piFav')?.addEventListener('click', () => {
+  if (!pdProduct) return;
+  const nowFav = WishlistDB.toggle(pdProduct.id);
+  updateFavButton();
+  updateFavCounter();
+  renderFavorites();
+  document.querySelectorAll(`.fav-icon[data-fav="${pdProduct.id}"]`).forEach(b => b.classList.toggle('active', nowFav));
+  showToast(nowFav ? '♥ Ajouté à tes favoris' : '♡ Retiré des favoris');
+});
+
+/* ---------- Partage ---------- */
+document.getElementById('piShare')?.addEventListener('click', e => {
+  if (!pdProduct) return;
+  openSharePopover(e.currentTarget, pdProduct.id);
+});
+
+/* ---------- Ajout au panier ---------- */
+document.getElementById('piAdd')?.addEventListener('click', () => {
+  if (!pdProduct) return;
+  if (!pdSize) { showToast('⚠ Choisis une taille'); document.getElementById('piSizes').scrollIntoView({ behavior:'smooth', block:'center' }); return; }
+  // La couleur choisie est mémorisée avec la taille (ex. « M · Écru »)
+  const label = pdColor ? `${pdSize} · ${pdColor}` : pdSize;
+  CartDB.add(pdProduct.id, label, pdQty);
+  updateCartCounter();
+  showToast(`🛒 ${pdProduct.name} (${label}) ×${pdQty}`);
+  closeProductModal();
+  renderCart();
+  openCartDrawer();
+});
+
+/* ---------- Suggestions ---------- */
+function renderSimilar() {
+  const p = pdProduct;
+  const similar = ProductDB.getLive()
+    .filter(x => x.id !== p.id && (x.sub === p.sub || x.cat === p.cat))
+    .slice(0, 4);
+  const box = document.getElementById('piSimilar');
+  if (!similar.length) { box.hidden = true; return; }
+  box.hidden = false;
+  document.getElementById('piSimilarGrid').innerHTML = similar.map(s => {
+    const img = productImages(s)[0];
+    const visual = img
+      ? `<img src="${esc(img)}" alt="${esc(s.name)}" loading="lazy">`
+      : `<span class="ps-fb" style="background:linear-gradient(135deg,${s.color1},${s.color2})">${s.icon}</span>`;
+    return `<button type="button" class="pi-similar-card" data-goto="${s.id}">
+              ${visual}
+              <span class="ps-name">${esc(s.name)}</span>
+              <span class="ps-price">${s.price.toFixed(2).replace('.', ',')} €</span>
+            </button>`;
+  }).join('');
+  document.getElementById('piSimilarGrid').querySelectorAll('[data-goto]').forEach(b =>
+    b.addEventListener('click', () => openProductModal(parseInt(b.dataset.goto, 10)))
+  );
+}
+
+/* ---------- Fermeture ---------- */
+document.getElementById('productClose')?.addEventListener('click', closeProductModal);
+productModal?.addEventListener('click', e => { if (e.target === productModal) closeProductModal(); });
+document.addEventListener('keydown', e => {
+  if (productModal.hidden) return;
+  if (e.key === 'Escape') closeProductModal();
+  if (e.key === 'ArrowLeft')  slideGallery(-1);
+  if (e.key === 'ArrowRight') slideGallery(1);
+});
+window.openProductModal = openProductModal;
 
 /* ============================================================
    SIZE PICKER MODAL (étape 1 : choisir taille avant ajout panier)

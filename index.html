@@ -739,6 +739,117 @@
     </div>
   </aside>
 
+  <!-- ============ MODAL FICHE PRODUIT (galerie, couleurs, tailles) ============ -->
+  <div class="modal-overlay product-modal" id="productModal" hidden>
+    <div class="modal-box product-box">
+      <button class="modal-close" id="productClose" aria-label="Fermer">×</button>
+
+      <div class="product-layout">
+        <!-- Galerie -->
+        <div class="product-gallery">
+          <div class="pg-main">
+            <button class="pg-arrow prev" id="pgPrev" aria-label="Photo précédente">‹</button>
+            <img id="pgImage" src="" alt="" />
+            <button class="pg-arrow next" id="pgNext" aria-label="Photo suivante">›</button>
+            <span class="pg-counter" id="pgCounter"></span>
+            <div class="pg-badges" id="pgBadges"></div>
+          </div>
+          <div class="pg-thumbs" id="pgThumbs"></div>
+        </div>
+
+        <!-- Informations -->
+        <div class="product-info">
+          <span class="pi-cat" id="piCat"></span>
+          <h2 class="pi-name" id="piName"></h2>
+          <div class="pi-rating" id="piRating"></div>
+
+          <div class="pi-prices">
+            <span class="pi-price" id="piPrice"></span>
+            <span class="pi-old" id="piOld"></span>
+            <span class="pi-save" id="piSave"></span>
+          </div>
+
+          <p class="pi-stock" id="piStock"></p>
+
+          <!-- Couleurs -->
+          <div class="pi-block" id="piColorBlock" hidden>
+            <div class="pi-block-head">
+              <span class="pi-label">Couleur</span>
+              <strong class="pi-chosen" id="piColorChosen"></strong>
+            </div>
+            <div class="pi-colors" id="piColors" role="group" aria-label="Couleurs"></div>
+          </div>
+
+          <!-- Tailles -->
+          <div class="pi-block">
+            <div class="pi-block-head">
+              <span class="pi-label">Taille</span>
+              <button type="button" class="pi-guide" data-size-guide>📏 Guide des tailles</button>
+            </div>
+            <div class="pi-sizes" id="piSizes" role="group" aria-label="Tailles"></div>
+          </div>
+
+          <!-- Quantité -->
+          <div class="pi-block">
+            <span class="pi-label">Quantité</span>
+            <div class="pi-qty">
+              <button type="button" id="piQtyMinus" aria-label="Diminuer">−</button>
+              <span id="piQty">1</span>
+              <button type="button" id="piQtyPlus" aria-label="Augmenter">+</button>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="pi-actions">
+            <button type="button" class="btn btn-block" id="piAdd">🛒 Ajouter au panier</button>
+            <div class="pi-actions-row">
+              <button type="button" class="pi-icon-btn" id="piFav">
+                <span class="pi-heart">♡</span> <span id="piFavLabel">Favori</span>
+              </button>
+              <button type="button" class="pi-icon-btn" id="piShare">↗ Partager</button>
+            </div>
+          </div>
+
+          <!-- Réassurance -->
+          <ul class="pi-trust">
+            <li>🛍️ Retrait gratuit à la boutique, rue du Commerce</li>
+            <li>🎫 Code de retrait envoyé dès la commande</li>
+            <li>↩️ Retour sous 14 jours en boutique</li>
+          </ul>
+
+          <!-- Accordéons -->
+          <div class="pi-accordion">
+            <details open>
+              <summary>Description</summary>
+              <p id="piDesc"></p>
+            </details>
+            <details>
+              <summary>Matière &amp; entretien</summary>
+              <p id="piMaterial"></p>
+              <p class="pi-care">🧺 Lavage à 30° · Pas de sèche-linge · Repassage doux</p>
+            </details>
+            <details>
+              <summary>Retrait &amp; retours</summary>
+              <p>Commande en ligne, retrait gratuit à la boutique de Mamoudzou (rue du Commerce)
+                 sur présentation de ton code de retrait. Retour ou échange sous 14 jours,
+                 article non porté avec son étiquette.</p>
+            </details>
+            <details id="piReviewsBlock">
+              <summary>Avis clients <span id="piReviewCount"></span></summary>
+              <div id="piReviews"></div>
+            </details>
+          </div>
+        </div>
+      </div>
+
+      <!-- Suggestions -->
+      <div class="pi-similar" id="piSimilar" hidden>
+        <h3>Tu aimeras aussi</h3>
+        <div class="pi-similar-grid" id="piSimilarGrid"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- ============ MODAL SIZE PICKER (ajout panier) ============ -->
   <div class="modal-overlay" id="sizePickerModal" hidden>
     <div class="modal-box">

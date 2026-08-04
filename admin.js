@@ -175,6 +175,13 @@ form.addEventListener('submit', e => {
     status:   document.getElementById('pstatus').value,
     icon:     document.getElementById('picon').value.trim() || '🛍️',
     imageUrl: document.getElementById('pimage').value.trim(),
+    // Photos supplémentaires : une URL par ligne → galerie défilante
+    images:   document.getElementById('pimages').value.split('\n').map(s => s.trim()).filter(Boolean),
+    // Couleurs "Nom:#hex, Nom:#hex" → pastilles sélectionnables sur la fiche
+    colorOptions: document.getElementById('pcolors').value.split(',').map(s => {
+      const [name, hex] = s.split(':').map(x => (x || '').trim());
+      return name ? { name, hex: hex || '#cccccc' } : null;
+    }).filter(Boolean),
     sizes:    document.getElementById('psizes').value.trim(),
     material: document.getElementById('pmaterial').value.trim(),
     desc:     document.getElementById('pdesc').value.trim(),
@@ -208,6 +215,11 @@ function editProduct(id) {
   document.getElementById('picon').value     = p.icon;
   document.getElementById('pimage').value    = p.imageUrl ?? '';
   updateImagePreview(p.imageUrl);
+  // Photos supplémentaires (hors image principale) et couleurs
+  document.getElementById('pimages').value = (Array.isArray(p.images) ? p.images : [])
+    .filter(u => u && u !== p.imageUrl).join('\n');
+  document.getElementById('pcolors').value = (Array.isArray(p.colorOptions) ? p.colorOptions : [])
+    .map(c => `${c.name}:${c.hex || ''}`).join(', ');
   document.getElementById('psizes').value    = p.sizes;
   document.getElementById('pmaterial').value = p.material;
   document.getElementById('pdesc').value     = p.desc;
