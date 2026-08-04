@@ -1,5 +1,5 @@
 /* ============================================================
-   ADMIN — CASAL SPORT
+   ADMIN — ZAK BOUTIK
    Le mot de passe n'apparaît JAMAIS en clair dans le code :
    seule son empreinte SHA-256 (salée) est stockée ci-dessous.
    Pour changer le mot de passe :
@@ -198,7 +198,7 @@ function editProduct(id) {
   if (!p) return;
   document.getElementById('pid').value       = p.id;
   document.getElementById('pname').value     = p.name;
-  document.getElementById('psub').value      = p.sub || (p.type === 'basket' ? 'basket' : 'equipement');
+  document.getElementById('psub').value      = p.sub || (p.type === 'basket' ? 'basket' : 'accessoire');
   document.getElementById('pcat').value      = p.cat;
   document.getElementById('pprice').value    = p.price;
   document.getElementById('poldprice').value = p.oldPrice ?? '';
@@ -283,7 +283,7 @@ function renderTable() {
   const fc = filterCat.value;
   const fs = filterStatusEl.value;
   const list = ProductDB.getAll().filter(p =>
-    (ft === 'all' || (p.sub || (p.type === 'basket' ? 'basket' : 'equipement')) === ft) &&
+    (ft === 'all' || (p.sub || (p.type === 'basket' ? 'basket' : 'accessoire')) === ft) &&
     (fc === 'all' || p.cat === fc)  &&
     (fs === 'all' || (p.status || 'live') === fs) &&
     (!q || p.name.toLowerCase().includes(q) || (p.desc||'').toLowerCase().includes(q))
@@ -724,11 +724,11 @@ function notifyClient(id) {
   const cur = ORDER_STATUS_FLOW[orderStatusIndex(o.status)];
   const url = trackingUrlOf(id);
   const codeLine = (o.pickupCode && (o.status === 'prete' || o.status === 'confirmee' || o.status === 'preparation'))
-    ? `\n🎫 Ton code de retrait : *${o.pickupCode}*\n📍 À présenter au magasin de Kawéni.\n`
+    ? `\n🎫 Ton code de retrait : *${o.pickupCode}*\n📍 À présenter au boutique de Mamoudzou (rue du Commerce).\n`
     : '\n';
   const msg = `Bonjour ${o.name || ''} 👋
 
-🛍️ Mise à jour de ta commande CASAL SPORT :
+🛍️ Mise à jour de ta commande ZAK BOUTIK :
 ${cur.icon} *${cur.label}* — ${cur.desc}
 ${codeLine}
 🔎 Suis ta commande en direct ici :

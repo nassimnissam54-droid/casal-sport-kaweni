@@ -1,5 +1,5 @@
 /* ============================================================
-   CASAL SPORT — Script public (avec panier multi-articles)
+   ZAK BOUTIK — Script public (avec panier multi-articles)
    ============================================================ */
 
 /* ============ MENU MOBILE OVERLAY ============ */
@@ -90,11 +90,10 @@ function applyFilter(id) {
 
 /* ============ ACTIVE FILTERS PILLS ============ */
 const FILTER_LABELS = {
-  homme:'Homme', femme:'Femme', garcon:'Garçon', fille:'Fille', mixte:'Mixte / Équipement',
-  tshirt:'Tee-shirt', ensemble:'Ensemble', casquette:'Casquette',
-  short:'Short', chaussettes:'Chaussettes', basket:'Basket', equipement:'Équipement',
-  football:'Football', rugby:'Rugby', tennis:'Tennis', natation:'Natation',
-  fitness:'Fitness', musculation:'Musculation', multisport:'Accessoires',
+  homme:'Homme', femme:'Femme', garcon:'Garçon', fille:'Fille', mixte:'Accessoires',
+  tshirt:'Tee-shirt', chemise:'Chemise', robe:'Robe', pantalon:'Pantalon & Jean',
+  veste:'Veste', ensemble:'Ensemble', short:'Short', basket:'Chaussures', accessoire:'Accessoire',
+  sac:'Sacs', casquette:'Casquettes', ceinture:'Ceintures', bijou:'Bijoux', lunettes:'Lunettes',
   '0-30':'< 30 €', '30-60':'30–60 €', '60-100':'60–100 €', '100-9999':'> 100 €',
   inStock:'En stock', promo:'En promo', news:'Nouveautés'
 };
@@ -228,7 +227,7 @@ function cardHTML(p) {
       <button class="quick-add" data-id="${p.id}" ${orderDisabled}>${orderLabel}</button>
     </div>
     <div class="card-body">
-      <span class="card-cat">${labelOf(p.cat)} · ${SUB_LABELS[p.sub] || (p.type === 'basket' ? 'Basket' : 'Textile &amp; Équip.')}</span>
+      <span class="card-cat">${labelOf(p.cat)} · ${SUB_LABELS[p.sub] || (p.type === 'basket' ? 'Chaussures' : 'Vêtement')}</span>
       <h3 class="card-name">${esc(p.name)}</h3>
       ${ratingHTML}
       <div class="card-prices">
@@ -727,7 +726,7 @@ function openCheckoutModal() {
   document.getElementById('orderSuccess').hidden = true;
   orderModal.querySelector('h2').textContent = 'Finaliser ma commande';
   orderModal.querySelector('.modal-sub').innerHTML =
-    'Vérifie ton panier et remplis tes coordonnées — tu recevras ton <strong>code de retrait</strong> à présenter au magasin de Kawéni.';
+    'Vérifie ton panier et remplis tes coordonnées — tu recevras ton <strong>code de retrait</strong> à présenter au boutique de Mamoudzou (rue du Commerce).';
   renderCartSummary();
   orderForm.reset();
   appliedPromo = null;
@@ -829,7 +828,7 @@ function buildOrderMessage() {
   const name  = document.getElementById('orderName').value.trim();
   const phone = document.getElementById('orderPhone').value.trim();
   const email = document.getElementById('orderEmail').value.trim();
-  const modeT = '🛍️ Retrait au magasin de Kawéni (gratuit)';
+  const modeT = '🛍️ Retrait au boutique de Mamoudzou (rue du Commerce) (gratuit)';
   const det   = document.getElementById('orderDetails').value.trim() || '—';
   const promoLine = appliedPromo
     ? `\n🎁 Code promo : ${orderPromo.value.trim().toUpperCase()} (${appliedPromo.label})`
@@ -851,7 +850,7 @@ function buildOrderMessage() {
   return `🛍️ NOUVELLE COMMANDE — ${CONTACT_INFO.shopName}
 
 🎫 CODE DE RETRAIT : ${pendingPickupCode || '(généré à l\'envoi)'}
-📍 À présenter au magasin de Kawéni pour récupérer la commande.
+📍 À présenter au boutique de Mamoudzou (rue du Commerce) pour récupérer la commande.
 
 📦 Articles (${CartDB.count()}) :
 
@@ -963,7 +962,7 @@ function showOrderSuccess(code, status, email) {
   orderCartSum.hidden = true;
   orderModal.querySelector('h2').textContent = 'Commande envoyée 🎉';
   orderModal.querySelector('.modal-sub').textContent =
-    'Ta commande est enregistrée au magasin de Kawéni.';
+    'Ta commande est enregistrée au boutique de Mamoudzou (rue du Commerce).';
   document.getElementById('successCode').textContent = code;
 
   const info = document.getElementById('successEmailInfo');
@@ -1013,8 +1012,8 @@ async function tryCreateCheckout() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         amount,
-        reference: 'CS-' + Date.now(),
-        description: `Commande CASAL SPORT — ${CartDB.count()} article(s)`
+        reference: 'ZB-' + Date.now(),
+        description: `Commande ZAK BOUTIK — ${CartDB.count()} article(s)`
       }),
       signal: ctrl.signal
     });
@@ -1083,7 +1082,7 @@ document.querySelectorAll('.wa-fab-item').forEach(a => {
   a.addEventListener('click', e => {
     e.preventDefault();
     const num = a.dataset.num;
-    const msg = encodeURIComponent(`Bonjour CASAL SPORT 👋\nJe vous contacte depuis votre site.`);
+    const msg = encodeURIComponent(`Bonjour ZAK BOUTIK 👋\nJe vous contacte depuis votre site.`);
     window.open(`https://wa.me/${num}?text=${msg}`, '_blank');
     waFabMenu.hidden = true;
     waFab.classList.remove('open');
@@ -1166,7 +1165,7 @@ function shareUrlOf(product) {
   return `https://casal-sport-kaweni.netlify.app/?p=${product.id}`;
 }
 function shareTextOf(product) {
-  return `🌴 ${product.name} — ${product.price.toFixed(2)} € · CASAL SPORT (Mayotte)`;
+  return `🌴 ${product.name} — ${product.price.toFixed(2)} € · ZAK BOUTIK (Mayotte)`;
 }
 
 function openSharePopover(button, productId) {

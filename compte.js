@@ -1,5 +1,5 @@
 /* ============================================================
-   CASAL SPORT — Compte client (script)
+   ZAK BOUTIK — Compte client (script)
    ============================================================ */
 
 const $ = sel => document.querySelector(sel);
@@ -213,13 +213,13 @@ function renderOrders() {
           ${statusBadge}
         </header>
         <ul class="order-block-items">${items}</ul>
-        ${!cancelled && o.pickupCode ? `<p class="track-status-line" style="font-weight:700">🎫 Code de retrait : <strong>${esc(o.pickupCode)}</strong> — à présenter au magasin de Kawéni</p>
+        ${!cancelled && o.pickupCode ? `<p class="track-status-line" style="font-weight:700">🎫 Code de retrait : <strong>${esc(o.pickupCode)}</strong> — à présenter au boutique de Mamoudzou (rue du Commerce)</p>
         <img class="order-qr" alt="QR du code de retrait ${esc(o.pickupCode)}" src="/api/qr?data=${encodeURIComponent(o.pickupCode)}" width="130" height="130">` : ''}
         ${cancelled ? '' : clientTrackStepsHTML(o)}
         ${cancelled ? '' : `<p class="track-status-line">${cur.icon} <strong>${cur.label}</strong> — ${esc(cur.desc)}</p>`}
         ${controls}
         <footer class="order-block-foot">
-          <span>🛍️ Retrait au magasin de Kawéni</span>
+          <span>🛍️ Retrait au boutique de Mamoudzou (rue du Commerce)</span>
           <strong>${esc(o.total || '')}</strong>
         </footer>
       </article>`;

@@ -1,5 +1,5 @@
 /* ============================================================
-   CASAL SPORT — Création d'un lien de paiement SumUp
+   ZAK BOUTIK — Création d'un lien de paiement SumUp
    au MONTANT EXACT (le client ne peut pas le modifier).
 
    API officielle : POST https://api.sumup.com/v0.1/checkouts
@@ -57,8 +57,8 @@ exports.handler = async function (event) {
   if (!amount || amount <= 0 || amount > 5000) {
     return { statusCode: 400, headers, body: JSON.stringify({ error: 'Montant invalide' }) };
   }
-  const reference   = String(payload.reference || 'CS-' + Date.now()).slice(0, 90);
-  const description = String(payload.description || 'Commande CASAL SPORT').slice(0, 250);
+  const reference   = String(payload.reference || 'ZB-' + Date.now()).slice(0, 90);
+  const description = String(payload.description || 'Commande ZAK BOUTIK').slice(0, 250);
 
   try {
     const res = await fetch('https://api.sumup.com/v0.1/checkouts', {

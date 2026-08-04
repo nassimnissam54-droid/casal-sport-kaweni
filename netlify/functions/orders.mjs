@@ -175,7 +175,7 @@ export default async (req, context) => {
 async function sendReceipt(order) {
   const key = process.env.RESEND_API_KEY;
   if (!key) return false;
-  const from = process.env.EMAIL_FROM || 'Casal Sport Kaweni <onboarding@resend.dev>';
+  const from = process.env.EMAIL_FROM || 'Zak Boutik Mamoudzou <onboarding@resend.dev>';
 
   // QR scannable dans le reçu (image de notre propre domaine). Nécessite
   // process.env.URL (fourni par Netlify) pour une URL absolue dans l'e-mail.
@@ -194,8 +194,8 @@ async function sendReceipt(order) {
   const html = `<!DOCTYPE html><html lang="fr"><body style="margin:0;background:#FBF5EA;font-family:Arial,Helvetica,sans-serif;color:#18181b">
   <div style="max-width:600px;margin:0 auto;padding:24px 16px">
     <div style="background:#0A0A0A;border-radius:14px 14px 0 0;padding:20px 24px">
-      <span style="color:#fff;font-size:20px;font-weight:900">CASAL <span style="color:#FF4D3D">SPORT</span></span>
-      <span style="color:#999;font-size:12px;display:block">Kawéni · Mayotte</span>
+      <span style="color:#fff;font-size:20px;font-weight:900">ZAK <span style="color:#FF4D3D">BOUTIK</span></span>
+      <span style="color:#999;font-size:12px;display:block">Mamoudzou · Mayotte</span>
     </div>
     <div style="background:#fff;border-radius:0 0 14px 14px;padding:24px">
       <h1 style="font-size:20px;margin:0 0 6px">Merci ${esc(order.name)} ! 🎉</h1>
@@ -206,7 +206,7 @@ async function sendReceipt(order) {
         ${qrUrl ? `<img src="${qrUrl}" alt="QR code de retrait ${esc(order.pickupCode)}" width="150" height="150" style="display:block;margin:14px auto 0;border-radius:8px">
         <p style="margin:8px 0 0;color:#999;font-size:12px">Le magasin scanne ce QR pour retrouver ta commande</p>` : ''}
       </div>
-      <p style="text-align:center;color:#555">Présente ce code (ou ce QR) au magasin <strong>Casal Sport de Kawéni</strong> (Mamoudzou) pour retirer ta commande.</p>
+      <p style="text-align:center;color:#555">Présente ce code (ou ce QR) au magasin <strong>Zak Boutik de Mamoudzou (rue du Commerce)</strong> (Mamoudzou) pour retirer ta commande.</p>
       <table style="width:100%;border-collapse:collapse;margin:20px 0">
         <thead><tr>
           <th style="text-align:left;padding:8px 12px;border-bottom:2px solid #18181b;font-size:12px">ARTICLE</th>
@@ -221,7 +221,7 @@ async function sendReceipt(order) {
       </table>
       <p style="color:#555;font-size:14px">🛍️ <strong style="color:#18181b">Retrait en magasin uniquement</strong> — aucune livraison.
          Le magasin te confirme par WhatsApp quand la commande est prête.</p>
-      <p style="color:#999;font-size:12px;margin-top:20px">Cet e-mail fait office de reçu de commande — CASAL SPORT, Kawéni, Mamoudzou, Mayotte.</p>
+      <p style="color:#999;font-size:12px;margin-top:20px">Cet e-mail fait office de reçu de commande — ZAK BOUTIK, Rue du Commerce, Mamoudzou, Mayotte.</p>
     </div>
   </div>
 </body></html>`;
@@ -233,7 +233,7 @@ async function sendReceipt(order) {
       body: JSON.stringify({ from, to: [to], subject, html }),
     });
 
-  const r = await send(order.email, `🎫 Ton code de retrait ${order.pickupCode} — commande Casal Sport`);
+  const r = await send(order.email, `🎫 Ton code de retrait ${order.pickupCode} — commande Zak Boutik`);
   if (process.env.STORE_EMAIL) {
     await send(process.env.STORE_EMAIL, `🛒 Nouvelle commande de ${order.name} — ${order.pickupCode}`).catch(() => {});
   }

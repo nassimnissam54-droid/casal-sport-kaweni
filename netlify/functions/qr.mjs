@@ -1,5 +1,5 @@
 /* ============================================================
-   /api/qr?data=CS-XXXX-XXXX — génère un QR code PNG.
+   /api/qr?data=ZB-XXXX-XXXX — génère un QR code PNG.
    Sert à la fois le reçu e-mail du client (image scannable) et
    l'affichage « Mon compte ». Le QR encode le code de retrait ;
    scanné au magasin, il remplit la recherche de commande.
