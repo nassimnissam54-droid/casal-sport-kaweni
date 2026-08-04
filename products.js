@@ -2,7 +2,7 @@
    ZAK BOUTIK - Donnees & API
    ============================================================ */
 
-const STORAGE_KEY  = 'casal_products_v5';
+const STORAGE_KEY  = 'casal_products_v6';
 const WISHLIST_KEY = 'casal_wishlist_v1';
 const REVIEWS_KEY  = 'casal_reviews_v1';
 const ORDERS_KEY   = 'casal_orders_v1';
@@ -110,6 +110,97 @@ const NOW = Date.now();
 const D = day => NOW - day * 24 * 3600 * 1000;
 
 const DEFAULT_PRODUCTS = [
+  /* ===== SÉLECTION INSTAGRAM @zakboutik — photos boutique ===== */
+  { id:101, type:'vetement', sub:'ensemble', cat:'homme', name:'Ensemble Lin Écru Manches Courtes',
+    price:69.99, oldPrice:null, badge:'Nouveau',
+    desc:"Le lin qui respire quand Mamoudzou écrase de chaleur. Chemise col ouvert, pantalon fluide assorti : tu l'enfiles le matin, tu le portes jusqu'au bout de la nuit sans jamais avoir chaud. C'est la tenue qui fait dire « il a de l'allure » sans que tu aies eu à essayer.",
+    material:'55% Lin · 45% Coton · Coupe décontractée',
+    sizes:'S — M — L — XL — XXL',
+    icon:'👔', stock:'in', status:'live',
+    imageUrl:'img/produits/ig-2.jpg',
+    color1:'#e8dcc8', color2:'#c9b79a', createdAt: D(1), rating:4.9 },
+
+  { id:102, type:'vetement', sub:'ensemble', cat:'homme', name:'Ensemble Denim Délavé Gris',
+    price:79.99, oldPrice:94.99, badge:'-16%',
+    desc:"Le denim gris qui casse les codes. Chemise boxy manches courtes, pantalon large qui tombe pile : la pièce que personne d'autre n'aura sur la place. Tu descends en ville avec, et tu sens les regards qui suivent.",
+    material:'100% Coton denim délavé acid wash',
+    sizes:'S — M — L — XL — XXL',
+    icon:'🧥', stock:'in', status:'live',
+    imageUrl:'img/produits/ig-4.jpg',
+    color1:'#8e8e93', color2:'#5a5a5f', createdAt: D(2), rating:4.8 },
+
+  { id:103, type:'vetement', sub:'tshirt', cat:'homme', name:'Tee-shirt Oversize Playa Luquillo',
+    price:29.99, oldPrice:null, badge:'',
+    desc:"Un coucher de soleil sur les Caraïbes imprimé dans ton dos. Coton lourd, coupe oversize aux épaules tombantes — celui que tu attrapes en premier quand il fait 32°, et qui raconte l'évasion même quand tu es coincé au bureau.",
+    material:'100% Coton lourd 240 g · Coupe oversize',
+    sizes:'S — M — L — XL — XXL',
+    icon:'🌴', stock:'in', status:'live',
+    imageUrl:'img/produits/ig-5.jpg',
+    color1:'#f4efe4', color2:'#2a8c82', createdAt: D(3), rating:4.9 },
+
+  { id:104, type:'vetement', sub:'tshirt', cat:'homme', name:'Débardeur Crochet Bohème',
+    price:34.99, oldPrice:null, badge:'Édition limitée',
+    desc:"Le crochet fait main qui laisse passer l'air et la lumière. Rayures terracotta, safran et crème : impossible de passer inaperçu sur le front de mer. C'est la pièce qu'on te demandera où tu l'as trouvée, à chaque fois.",
+    material:'Crochet coton tricoté · Fait main',
+    sizes:'S — M — L — XL',
+    icon:'🧶', stock:'low', status:'live',
+    imageUrl:'img/produits/ig-1.jpg',
+    color1:'#e9dcc3', color2:'#8b5e34', createdAt: D(0), rating:5.0 },
+
+  { id:105, type:'vetement', sub:'tshirt', cat:'homme', name:'Maillot Jersey 91 Vert',
+    price:34.99, oldPrice:null, badge:'',
+    desc:"Le maillot football américain qui transforme un jean simple en tenue complète. Mesh respirant, chiffres verts flashy, coupe large aux épaules : l'énergie du terrain, portée en ville. Pour ceux qui aiment qu'on les remarque de loin.",
+    material:'Mesh polyester respirant · Coupe oversize',
+    sizes:'S — M — L — XL — XXL',
+    icon:'🏈', stock:'in', status:'live',
+    imageUrl:'img/produits/ig-9.jpg',
+    color1:'#ffffff', color2:'#7ed321', createdAt: D(4), rating:4.7 },
+
+  { id:106, type:'vetement', sub:'ensemble', cat:'homme', name:'Ensemble Project X Paris Bleu Ciel',
+    price:59.99, oldPrice:null, badge:'Nouveau',
+    desc:"Le bleu du lagon un matin de saison sèche. Maillot et short assortis, tissu léger qui sèche en un rien de temps — de la salle au terrain, du terrain à la terrasse. Project X Paris, la marque qui a compris ce que veut la jeunesse d'ici.",
+    material:'100% Polyester technique · Séchage rapide',
+    sizes:'S — M — L — XL — XXL',
+    icon:'💧', stock:'in', status:'live',
+    imageUrl:'img/produits/ig-6.jpg',
+    color1:'#a8d8ea', color2:'#1a1a1a', createdAt: D(5), rating:4.8 },
+
+  { id:107, type:'vetement', sub:'veste', cat:'homme', name:'Costume 2 Pièces Camel',
+    price:149.99, oldPrice:179.99, badge:'-17%',
+    desc:"Le costume des jours qui comptent. Camel profond, épaules nettes, tombé impeccable — mariage, entretien, grande occasion : tu entres dans la pièce et on te prend au sérieux avant même que tu parles. Un investissement qui te suivra des années.",
+    material:'Laine mélangée · Doublure satinée · Veste + pantalon',
+    sizes:'46 — 48 — 50 — 52 — 54',
+    icon:'🤵', stock:'low', status:'live',
+    imageUrl:'img/produits/ig-7.jpg',
+    color1:'#c19a6b', color2:'#8b6f47', createdAt: D(7), rating:4.9 },
+
+  { id:108, type:'vetement', sub:'accessoire', sport:'lunettes', cat:'mixte', name:'Lunettes Monture Dorée Bleu Marbré',
+    price:49.99, oldPrice:null, badge:'',
+    desc:"Monture dorée fine, branches bleu marbré : le détail qui change un visage. Elles attrapent la lumière quand tu tournes la tête, et donnent à n'importe quelle tenue ce supplément d'élégance qu'on ne peut pas acheter ailleurs à Mamoudzou.",
+    material:'Métal doré · Branches acétate marbré · Verres UV400',
+    sizes:'Taille unique',
+    icon:'🕶️', stock:'in', status:'live',
+    imageUrl:'img/produits/ig-3.jpg',
+    color1:'#d4af37', color2:'#2b6cb0', createdAt: D(6), rating:4.8 },
+
+  { id:109, type:'vetement', sub:'accessoire', sport:'bijou', cat:'mixte', name:'Chevalière Dorée Soleil',
+    price:39.99, oldPrice:null, badge:'',
+    desc:"Une chevalière massive au motif soleil rayonnant, qui accroche la lumière à chaque geste. Elle ne crie pas, elle affirme. Le genre de bijou qu'on ne retire plus, et qui devient une signature — la tienne.",
+    material:'Acier inoxydable doré à l\'or fin · Anti-allergie',
+    sizes:'56 — 58 — 60 — 62 — 64',
+    icon:'💍', stock:'in', status:'live',
+    imageUrl:'img/produits/ig-8.jpg',
+    color1:'#d4af37', color2:'#9a7b2f', createdAt: D(8), rating:4.9 },
+
+  { id:110, type:'vetement', sub:'accessoire', sport:'bijou', cat:'mixte', name:'Montre Acier Bicolore Cadran Turquoise',
+    price:89.99, oldPrice:109.99, badge:'-18%',
+    desc:"Un cadran turquoise comme le lagon à midi, serti dans un bracelet acier et or. Tu la regardes pour l'heure, mais c'est elle qu'on regarde à ton poignet. La pièce qui termine une tenue et qui traverse les saisons sans jamais dater.",
+    material:'Acier inoxydable bicolore · Verre minéral · Étanche 3 ATM',
+    sizes:'Bracelet ajustable',
+    icon:'⌚', stock:'low', status:'live',
+    imageUrl:'img/produits/ig-10.jpg',
+    color1:'#40c4c4', color2:'#d4af37', createdAt: D(9), rating:5.0 },
+
   /* ===================== FEMME ===================== */
   { id:1, type:'vetement', sub:'robe', cat:'femme', name:'Robe Midi Fleurie',
     price:39.99, oldPrice:null, badge:'',
