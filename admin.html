@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Ã¢ÂÂ ZAK BOUTIK</title>
+  <title>Admin — ZAK BOUTIK</title>
   <meta name="robots" content="noindex,nofollow" />
   <link rel="icon" type="image/svg+xml" href="logo.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -12,7 +12,7 @@
 </head>
 <body class="admin-body">
 
-  <!-- ÃÂCRAN DE LOGIN -->
+  <!-- ÉCRAN DE LOGIN -->
   <div class="login-screen" id="loginScreen">
     <div class="login-box">
       <span class="brand-mark" aria-hidden="true" style="margin: 0 auto 1rem;">
@@ -21,14 +21,14 @@
         </svg>
       </span>
       <div class="logo">ZAK <span>BOUTIK</span></div>
-      <h2>Ã°ÂÂÂ Espace Administrateur</h2>
-      <p class="login-sub">RÃÂ©servÃÂ© au gestionnaire du site</p>
+      <h2>🔒 Espace Administrateur</h2>
+      <p class="login-sub">Réservé au gestionnaire du site</p>
       <form id="loginForm">
         <input type="password" id="loginPwd" placeholder="Mot de passe" required autofocus />
         <button type="submit" class="btn-primary">Se connecter</button>
         <p class="login-error" id="loginError"></p>
       </form>
-      <a href="index.html" class="back-link">Ã¢ÂÂ Retour au site public</a>
+      <a href="index.html" class="back-link">← Retour au site public</a>
     </div>
   </div>
 
@@ -41,13 +41,13 @@
             <rect width="64" height="64" rx="13" fill="#0A0A0A"/><g fill="none" stroke="#5FC5E8" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"><path d="M27 41 C20 30 27 19 38 20 C48 21 50 32 42 37 C36 40 30 36 32 30"/><path d="M23 35 C28 26 40 22 49 30"/><path d="M14 47 C28 41 44 42 52 48"/><path d="M13 38 C16 36 19 37 21 40" stroke-width="3.4"/><path d="M16 43 C20 40 25 40 28 43" stroke-width="3.4"/></g>
           </svg>
         </span>
-        <span class="brand-text">ZAK <span class="accent">BOUTIK</span> ÃÂ· Admin</span>
+        <span class="brand-text">ZAK <span class="accent">BOUTIK</span> · Admin</span>
       </a>
       <div class="admin-actions">
-        <a href="index.html" class="btn-ghost">Ã°ÂÂÂÃ¯Â¸Â Voir le site</a>
-        <button class="btn-ghost" id="exportBtn">Ã°ÂÂÂ Export CSV</button>
-        <button class="btn-ghost" id="resetBtn">Ã°ÂÂÂ RÃÂ©initialiser</button>
-        <button class="btn-ghost danger" id="logoutBtn">DÃÂ©connexion</button>
+        <a href="index.html" class="btn-ghost">👁️ Voir le site</a>
+        <button class="btn-ghost" id="exportBtn">📊 Export CSV</button>
+        <button class="btn-ghost" id="resetBtn">🔄 Réinitialiser</button>
+        <button class="btn-ghost danger" id="logoutBtn">Déconnexion</button>
       </div>
     </header>
 
@@ -59,13 +59,13 @@
         <div class="admin-stat"><span id="statLive">0</span><small>En ligne</small></div>
         <div class="admin-stat"><span id="statDraft">0</span><small>Brouillons</small></div>
         <div class="admin-stat"><span id="statPromo">0</span><small>En promo</small></div>
-        <div class="admin-stat"><span id="statOrders">0</span><small>Commandes reÃÂ§ues</small></div>
+        <div class="admin-stat"><span id="statOrders">0</span><small>Commandes reçues</small></div>
       </section>
 
       <!-- Onglets -->
       <div class="admin-tabs">
-        <button class="admin-tab active" data-pane="paneProducts">Ã°ÂÂÂ¦ Produits</button>
-        <button class="admin-tab" data-pane="paneOrders">Ã°ÂÂÂ¨ Commandes <span id="ordersBadge"></span></button>
+        <button class="admin-tab active" data-pane="paneProducts">📦 Produits</button>
+        <button class="admin-tab" data-pane="paneOrders">📨 Commandes <span id="ordersBadge"></span></button>
       </div>
 
       <!-- ============ PANE PRODUITS ============ -->
@@ -73,7 +73,7 @@
 
         <!-- Formulaire ajout / modif -->
         <section class="admin-panel">
-          <h3 id="formTitle">Ã¢ÂÂ Ajouter un produit</h3>
+          <h3 id="formTitle">➕ Ajouter un produit</h3>
           <form id="productForm" class="admin-form">
             <input type="hidden" id="pid" />
             <div class="form-grid">
@@ -82,30 +82,30 @@
               </label>
               <label>Type d'article *
                 <select id="psub" required>
-                  <option value="tshirt">Tee-shirt</option>
-                  <option value="chemise">Chemise</option>
-                  <option value="robe">Robe</option>
-                  <option value="pantalon">Pantalon / Jean</option>
-                  <option value="veste">Veste</option>
-                  <option value="ensemble">Ensemble</option>
-                  <option value="short">Short</option>
-                  <option value="basket">Chaussures</option>
-                  <option value="accessoire">Accessoire (sac, bijou...)</option>
+                  <option value="tshirt">👕 Tee-shirt</option>
+                  <option value="chemise">👔 Chemise</option>
+                  <option value="robe">👗 Robe</option>
+                  <option value="pantalon">👖 Pantalon / Jean</option>
+                  <option value="veste">🧥 Veste</option>
+                  <option value="ensemble">👚 Ensemble</option>
+                  <option value="short">🩳 Short</option>
+                  <option value="basket">👟 Chaussures</option>
+                  <option value="accessoire">👜 Accessoire (sac, bijou...)</option>
                 </select>
               </label>
-              <label>CatÃÂ©gorie *
+              <label>Catégorie *
                 <select id="pcat" required>
                   <option value="homme">Homme</option>
                   <option value="femme">Femme</option>
-                  <option value="garcon">GarÃÂ§on</option>
+                  <option value="garcon">Garçon</option>
                   <option value="fille">Fille</option>
-                  <option value="mixte">Mixte / ÃÂquipement</option>
+                  <option value="mixte">Mixte / Accessoires</option>
                 </select>
               </label>
-              <label>Prix (Ã¢ÂÂ¬) *
+              <label>Prix (€) *
                 <input type="number" id="pprice" step="0.01" min="0" required />
               </label>
-              <label>Ancien prix (Ã¢ÂÂ¬) <small>optionnel Ã¢ÂÂ pour les promos</small>
+              <label>Ancien prix (€) <small>optionnel — pour les promos</small>
                 <input type="number" id="poldprice" step="0.01" min="0" />
               </label>
               <label>Badge <small>(Nouveau, Top vente, -20%...)</small>
@@ -113,40 +113,40 @@
               </label>
               <label>Stock *
                 <select id="pstock" required>
-                  <option value="in">Ã¢ÂÂ En stock</option>
-                  <option value="low">Ã¢ÂÂ Ã¯Â¸Â Plus que quelques piÃÂ¨ces</option>
-                  <option value="out">Ã¢ÂÂ Rupture de stock</option>
+                  <option value="in">✓ En stock</option>
+                  <option value="low">⚠️ Plus que quelques pièces</option>
+                  <option value="out">✗ Rupture de stock</option>
                 </select>
               </label>
               <label>Statut *
                 <select id="pstatus" required>
-                  <option value="live">Ã°ÂÂÂ¢ En ligne</option>
-                  <option value="draft">Ã°ÂÂÂ Brouillon</option>
+                  <option value="live">🟢 En ligne</option>
+                  <option value="draft">📝 Brouillon</option>
                 </select>
               </label>
-              <label>IcÃÂ´ne emoji <small>(fallback si pas de photo)</small>
-                <input type="text" id="picon" placeholder="Ã°ÂÂÂ Ã°ÂÂÂ Ã°ÂÂÂ ..." maxlength="4" required />
+              <label>Icône emoji <small>(fallback si pas de photo)</small>
+                <input type="text" id="picon" placeholder="👕 👟 👗 ..." maxlength="4" required />
               </label>
               <label>Tailles disponibles *
-                <input type="text" id="psizes" placeholder="S Ã¢ÂÂ M Ã¢ÂÂ L Ã¢ÂÂ XL" required />
+                <input type="text" id="psizes" placeholder="S — M — L — XL" required />
               </label>
-              <label class="full">Ã°ÂÂÂ¸ URL de la photo produit <small>(recommandÃÂ© : Unsplash, Pexels, ou hÃÂ©berger sur Imgur)</small>
+              <label class="full">📸 URL de la photo produit <small>(recommandé : Unsplash, Pexels, ou héberger sur Imgur)</small>
                 <input type="url" id="pimage" placeholder="https://exemple.com/photo.jpg" />
               </label>
-              <label class="full">Ã°ÂÂÂ OU Uploader une image <small>(stockÃÂ©e localement en base64, max 500 Ko recommandÃÂ©)</small>
+              <label class="full">📁 OU Uploader une image <small>(stockée localement en base64, max 500 Ko recommandé)</small>
                 <input type="file" id="pfile" accept="image/*" />
               </label>
               <label class="full preview-label" id="imagePreviewWrap" style="display:none">
-                AperÃÂ§u :
-                <img id="imagePreview" alt="aperÃÂ§u" />
+                Aperçu :
+                <img id="imagePreview" alt="aperçu" />
               </label>
-              <label class="full">MatiÃÂ¨re / QualitÃÂ© *
+              <label class="full">Matière / Qualité *
                 <input type="text" id="pmaterial" placeholder="Ex: 100% Coton bio" required />
               </label>
               <label class="full">Description *
                 <textarea id="pdesc" rows="3" required></textarea>
               </label>
-              <label>Couleur dÃÂ©but <small>(fallback)</small>
+              <label>Couleur début <small>(fallback)</small>
                 <input type="color" id="pcolor1" value="#06B6A8" />
               </label>
               <label>Couleur fin <small>(fallback)</small>
@@ -163,33 +163,33 @@
         <!-- Liste produits -->
         <section class="admin-panel">
           <div class="panel-head">
-            <h3>Ã°ÂÂÂ¦ Mes produits</h3>
+            <h3>📦 Mes produits</h3>
             <div class="admin-filters">
-              <input type="search" id="searchBox" placeholder="Ã°ÂÂÂ Rechercher..." />
+              <input type="search" id="searchBox" placeholder="🔍 Rechercher..." />
               <select id="filterType">
                 <option value="all">Tous les types</option>
-                <option value="tshirt">Tee-shirt</option>
-                <option value="chemise">Chemise</option>
-                <option value="robe">Robe</option>
-                <option value="pantalon">Pantalon / Jean</option>
-                <option value="veste">Veste</option>
-                <option value="ensemble">Ensemble</option>
-                <option value="short">Short</option>
-                <option value="basket">Chaussures</option>
-                <option value="accessoire">Accessoire (sac, bijou...)</option>
+                <option value="tshirt">👕 Tee-shirts</option>
+                <option value="chemise">👔 Chemises</option>
+                <option value="robe">👗 Robes</option>
+                <option value="pantalon">👖 Pantalons</option>
+                <option value="veste">🧥 Vestes</option>
+                <option value="ensemble">👚 Ensembles</option>
+                <option value="short">🩳 Shorts</option>
+                <option value="basket">👟 Chaussures</option>
+                <option value="accessoire">👜 Accessoires</option>
               </select>
               <select id="filterCat">
-                <option value="all">Toutes catÃÂ©gories</option>
+                <option value="all">Toutes catégories</option>
                 <option value="homme">Homme</option>
                 <option value="femme">Femme</option>
-                <option value="garcon">GarÃÂ§on</option>
+                <option value="garcon">Garçon</option>
                 <option value="fille">Fille</option>
-                  <option value="mixte">Mixte / ÃÂquipement</option>
+                  <option value="mixte">Mixte / Accessoires</option>
               </select>
               <select id="filterStatus">
                 <option value="all">Tous statuts</option>
-                <option value="live">Ã°ÂÂÂ¢ En ligne</option>
-                <option value="draft">Ã°ÂÂÂ Brouillon</option>
+                <option value="live">🟢 En ligne</option>
+                <option value="draft">📝 Brouillon</option>
               </select>
             </div>
           </div>
@@ -197,9 +197,9 @@
             <table class="admin-table">
               <thead>
                 <tr>
-                  <th>AperÃÂ§u</th>
+                  <th>Aperçu</th>
                   <th>Nom</th>
-                  <th>Type ÃÂ· Cat</th>
+                  <th>Type · Cat</th>
                   <th>Prix</th>
                   <th>Stock</th>
                   <th>Statut</th>
@@ -216,21 +216,21 @@
       <div id="paneOrders" hidden>
         <section class="admin-panel">
           <div class="panel-head">
-            <h3>Ã°ÂÂÂ¨ Commandes reÃÂ§ues</h3>
+            <h3>📨 Commandes reçues</h3>
             <div style="display:flex;gap:.5rem">
-              <button class="btn-ghost" id="refreshOrdersBtn">Ã°ÂÂÂ Actualiser</button>
-              <button class="btn-ghost danger" id="clearOrdersBtn">Ã°ÂÂÂÃ¯Â¸Â Tout effacer</button>
+              <button class="btn-ghost" id="refreshOrdersBtn">🔄 Actualiser</button>
+              <button class="btn-ghost danger" id="clearOrdersBtn">🗑️ Tout effacer</button>
             </div>
           </div>
           <p style="color:rgba(255,255,255,0.6);font-size:0.85rem;margin-bottom:1rem">
-            Ã¢ÂÂÃ¯Â¸Â Les commandes arrivent automatiquement depuis le serveur, quel que soit l'appareil du client.
-            Chaque client reÃÂ§oit son reÃÂ§u et son code de retrait par e-mail ÃÂ  la confirmation.
+            ☁️ Les commandes arrivent automatiquement depuis le serveur, quel que soit l'appareil du client.
+            Chaque client reçoit son reçu et son code de retrait par e-mail à la confirmation.
           </p>
           <div class="orders-search">
             <input type="search" id="orderSearch"
-                   placeholder="Ã°ÂÂÂ« Rechercher un code de retrait, un nom, un tÃÂ©lÃÂ©phoneÃ¢ÂÂ¦"
+                   placeholder="🎫 Rechercher un code de retrait, un nom, un téléphone…"
                    aria-label="Rechercher une commande par code de retrait" autocomplete="off" />
-            <button type="button" class="btn-scan" id="scanOrderBtn" hidden>Ã°ÂÂÂ· Scanner le QR</button>
+            <button type="button" class="btn-scan" id="scanOrderBtn" hidden>📷 Scanner le QR</button>
             <span class="orders-search-count" id="orderSearchCount"></span>
           </div>
           <div id="ordersList"></div>
@@ -241,8 +241,8 @@
       <div class="scanner-overlay" id="scannerOverlay" hidden>
         <div class="scanner-box">
           <div class="scanner-head">
-            <strong>Ã°ÂÂÂ· Scanne le QR du client</strong>
-            <button type="button" class="scanner-close" id="scannerClose" aria-label="Fermer le scanner">ÃÂ</button>
+            <strong>📷 Scanne le QR du client</strong>
+            <button type="button" class="scanner-close" id="scannerClose" aria-label="Fermer le scanner">×</button>
           </div>
           <div class="scanner-view">
             <video id="scannerVideo" playsinline muted></video>
@@ -254,7 +254,7 @@
 
     </main>
 
-    <div class="toast" id="toast">Ã¢ÂÂ</div>
+    <div class="toast" id="toast">✅</div>
   </div>
 
   <script src="products.js"></script>
