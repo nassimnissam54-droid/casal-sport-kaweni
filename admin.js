@@ -91,9 +91,10 @@ document.querySelectorAll('.admin-tab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
-    document.querySelectorAll('#paneProducts, #paneOrders').forEach(p => p.hidden = true);
+    document.querySelectorAll('#paneToday, #paneProducts, #paneOrders').forEach(p => p.hidden = true);
     document.getElementById(tab.dataset.pane).hidden = false;
     if (tab.dataset.pane === 'paneOrders') renderOrders();
+    if (tab.dataset.pane === 'paneToday')  renderToday();
   });
 });
 
@@ -361,7 +362,7 @@ function refreshStats() {
   badge.textContent = n ? ` (${n})` : '';
 }
 
-function refreshAll() { renderTable(); refreshStats(); }
+function refreshAll() { renderTable(); refreshStats(); renderToday(); }
 
 /* ============================================================
    PUBLICATION EN LIGNE (audit V1) — Netlify Blobs
@@ -430,9 +431,154 @@ async function syncOrdersFromServer(manual) {
     if (added) showToast(`☁️ ${added} commande(s) récupérée(s) du serveur`);
     else if (manual) showToast('✅ Commandes à jour');
     renderOrders();
+    renderToday();
     refreshStats();
   } catch { if (manual) showToast('⚠️ Serveur injoignable'); }
 }
+
+/* ============================================================
+   ÉCRAN « AUJOURD'HUI » — vue comptoir, pensée mobile.
+   Deux files : ce qu'il faut préparer, ce qui attend le client.
+   Un seul geste par commande fait avancer le suivi.
+   ============================================================ */
+function isSameDay(ts) {
+  const d = new Date(ts), n = new Date();
+  return d.getDate() === n.getDate() && d.getMonth() === n.getMonth() && d.getFullYear() === n.getFullYear();
+}
+
+/** Dernière date connue pour un statut donné */
+function statusDate(o, status) {
+  const h = (o.statusHistory || []).filter(x => x.status === status);
+  return h.length ? h[h.length - 1].date : null;
+}
+
+/** Carte commande version comptoir */
+function todayCardHTML(o, mode) {
+  const items = (o.items || []).map(it =>
+    `<li class="tdy-item">
+       <span class="tdy-check" aria-hidden="true"></span>
+       <span class="tdy-qty">${it.qty}×</span>
+       <span class="tdy-prod">${esc(it.productName)}</span>
+       <span class="tdy-size">${esc(it.size || '—')}</span>
+     </li>`).join('');
+
+  const encaisser = isPaidOnPickup(o.payment);
+  const heure = new Date(o.date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  const jour = isSameDay(o.id) ? "aujourd'hui" : new Date(o.date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' });
+
+  // Une seule action évidente selon l'étape
+  const action = mode === 'todo'
+    ? `<button class="tdy-action prep" data-tact="ready" data-id="${o.id}">✓ Commande prête</button>`
+    : `<button class="tdy-action give" data-tact="given" data-id="${o.id}">🤝 Client venu — remise</button>`;
+
+  return `
+  <article class="tdy-card ${mode}">
+    <header class="tdy-head">
+      <div class="tdy-code">${esc(o.pickupCode || '—')}</div>
+      <div class="tdy-meta">
+        <strong>${esc(o.name || 'Client')}</strong>
+        <span>${jour} · ${heure}</span>
+      </div>
+    </header>
+
+    <ul class="tdy-items">${items}</ul>
+
+    <div class="tdy-pay ${encaisser ? 'cash' : 'paid'}">
+      ${encaisser
+        ? `💰 <strong>${esc(o.total || '')}</strong> à encaisser — ${esc(paymentLabel(o.payment))}`
+        : `${esc(paymentLabel(o.payment))} · ${esc(o.total || '')}`}
+    </div>
+
+    ${action}
+    <div class="tdy-links">
+      <a href="tel:${esc((o.phone || '').replace(/\s/g, ''))}">📞 Appeler</a>
+      <button type="button" data-tact="notify" data-id="${o.id}">📲 Prévenir</button>
+    </div>
+  </article>`;
+}
+
+function renderToday() {
+  const todoWrap  = document.getElementById('todayTodo');
+  const readyWrap = document.getElementById('todayReady');
+  const doneWrap  = document.getElementById('todayDone');
+  if (!todoWrap) return;
+
+  const q = (document.getElementById('todaySearch')?.value || '')
+    .trim().toLowerCase().replace(/[\s\-#]/g, '');
+
+  const match = o => !q || [o.pickupCode, o.id, o.name, o.phone]
+    .join(' ').toLowerCase().replace(/[\s\-#]/g, '').includes(q);
+
+  const all = OrderDB.getAll().filter(o => o.status !== 'annulee');
+  // À préparer : reçue / confirmée / en préparation — les plus anciennes d'abord
+  const todo  = all.filter(o => ['recue', 'confirmee', 'preparation'].includes(o.status || 'recue') && match(o))
+                   .sort((a, b) => a.id - b.id);
+  const ready = all.filter(o => o.status === 'prete' && match(o)).sort((a, b) => a.id - b.id);
+  const done  = all.filter(o => o.status === 'retiree' && isSameDay(statusDate(o, 'retiree') || 0) && match(o));
+
+  todoWrap.innerHTML = todo.length
+    ? todo.map(o => todayCardHTML(o, 'todo')).join('')
+    : `<p class="tdy-empty">🎉 Rien à préparer${q ? ' pour cette recherche' : ' — tout est à jour !'}</p>`;
+
+  readyWrap.innerHTML = ready.length
+    ? ready.map(o => todayCardHTML(o, 'ready')).join('')
+    : `<p class="tdy-empty">Aucune commande en attente de retrait.</p>`;
+
+  doneWrap.innerHTML = done.length
+    ? done.map(o => `<div class="tdy-done-line">✅ <strong>${esc(o.pickupCode || '')}</strong> · ${esc(o.name || '')} · ${esc(o.total || '')}</div>`).join('')
+    : '<p class="tdy-empty">Aucun retrait pour le moment.</p>';
+
+  // Compteurs
+  document.getElementById('tcTodo').textContent  = todo.length;
+  document.getElementById('tcReady').textContent = ready.length;
+  document.getElementById('tcDone').textContent  = done.length;
+  document.getElementById('tcDone2').textContent = done.length;
+
+  // Pastille sur l'onglet : ce qui reste à faire
+  const badge = document.getElementById('todayBadge');
+  if (badge) {
+    const n = todo.length + ready.length;
+    badge.textContent = n ? ` (${n})` : '';
+  }
+
+  // Cocher les articles pendant la préparation (aide visuelle, non enregistrée)
+  todoWrap.querySelectorAll('.tdy-item').forEach(li =>
+    li.addEventListener('click', () => li.classList.toggle('checked'))
+  );
+}
+
+/** Fait avancer une commande d'un cran depuis l'écran comptoir */
+function todayAdvance(id, next) {
+  const o = OrderDB.getAll().find(x => x.id === id);
+  if (!o) return;
+  OrderDB.setStatus(id, next);
+  const key = adminKey();
+  if (key) {
+    fetch('/api/orders', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'x-admin-key': key },
+      body: JSON.stringify({ id: o.serverId || id, status: next })
+    }).catch(() => {});
+  }
+  showToast(next === 'prete'
+    ? `🛍️ ${o.pickupCode} prête — le client est prévenu`
+    : `✅ ${o.pickupCode} remise au client`);
+  renderToday();
+  renderOrders();
+  refreshStats();
+}
+
+/* Actions de l'écran comptoir (délégation, compatible CSP) */
+document.getElementById('paneToday')?.addEventListener('click', e => {
+  const btn = e.target.closest('[data-tact]');
+  if (!btn) return;
+  const id = parseInt(btn.dataset.id, 10);
+  if (btn.dataset.tact === 'ready')  todayAdvance(id, 'prete');
+  if (btn.dataset.tact === 'given')  todayAdvance(id, 'retiree');
+  if (btn.dataset.tact === 'notify') notifyClient(id);
+});
+document.getElementById('todaySearch')?.addEventListener('input', renderToday);
+document.getElementById('todayRefresh')?.addEventListener('click', () => syncOrdersFromServer(true));
 
 /* ============ COMMANDES REÇUES ============ */
 function orderItemsSummary(o) {

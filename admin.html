@@ -64,12 +64,49 @@
 
       <!-- Onglets -->
       <div class="admin-tabs">
-        <button class="admin-tab active" data-pane="paneProducts">📦 Produits</button>
-        <button class="admin-tab" data-pane="paneOrders">📨 Commandes <span id="ordersBadge"></span></button>
+        <button class="admin-tab active" data-pane="paneToday">☀️ Aujourd'hui <span id="todayBadge"></span></button>
+        <button class="admin-tab" data-pane="paneProducts">📦 Produits</button>
+        <button class="admin-tab" data-pane="paneOrders">📨 Toutes les commandes <span id="ordersBadge"></span></button>
+      </div>
+
+      <!-- ============ PANE AUJOURD'HUI (comptoir) ============ -->
+      <div id="paneToday">
+        <section class="today-wrap">
+
+          <!-- Compteurs -->
+          <div class="today-counters">
+            <div class="tc tc-todo"><span id="tcTodo">0</span><small>à préparer</small></div>
+            <div class="tc tc-ready"><span id="tcReady">0</span><small>prêtes · client à venir</small></div>
+            <div class="tc tc-done"><span id="tcDone">0</span><small>retirées aujourd'hui</small></div>
+          </div>
+
+          <!-- Recherche express : le client arrive avec son code -->
+          <div class="today-search">
+            <input type="search" id="todaySearch" inputmode="latin" autocomplete="off"
+                   placeholder="🎫 Le client arrive ? Tape son code de retrait…"
+                   aria-label="Rechercher un code de retrait" />
+            <button type="button" class="today-refresh" id="todayRefresh" aria-label="Actualiser">🔄</button>
+          </div>
+
+          <!-- À préparer -->
+          <h3 class="today-title todo">📥 À préparer</h3>
+          <div id="todayTodo"></div>
+
+          <!-- Prêtes, en attente du client -->
+          <h3 class="today-title ready">🛍️ Prêtes — le client peut venir</h3>
+          <div id="todayReady"></div>
+
+          <!-- Retirées aujourd'hui -->
+          <details class="today-done-block">
+            <summary>✅ Retirées aujourd'hui (<span id="tcDone2">0</span>)</summary>
+            <div id="todayDone"></div>
+          </details>
+
+        </section>
       </div>
 
       <!-- ============ PANE PRODUITS ============ -->
-      <div id="paneProducts">
+      <div id="paneProducts" hidden>
 
         <!-- Formulaire ajout / modif -->
         <section class="admin-panel">

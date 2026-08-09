@@ -3057,8 +3057,16 @@ h3, .product-title {
   display: flex;
   gap: 0;
   border-bottom: 1px solid var(--gris-800);
+  /* 3 onglets ne tiennent pas sur un téléphone : on fait défiler
+     la barre au lieu de pousser toute la page vers la droite */
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
 }
+.admin-tabs::-webkit-scrollbar { display: none; }
 .admin-tab {
+  flex-shrink: 0;
+  white-space: nowrap;
   padding: 0.7rem 1.4rem;
   background: transparent;
   color: var(--gris-400);
@@ -4330,6 +4338,171 @@ body:not(.admin-body) ::selection { background: rgba(255,77,61,0.22); color: var
   transition: all .15s;
 }
 .sa-close:hover { background: var(--success); border-color: var(--success); color: #fff; }
+
+/* ============================================================
+   ÉCRAN « AUJOURD'HUI » (admin, vue comptoir mobile-first)
+   Grosses cibles tactiles, code de retrait très lisible.
+   ============================================================ */
+.today-wrap { max-width: 760px; margin: 0 auto; }
+
+/* Compteurs */
+.today-counters {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 0.6rem; margin-bottom: 1rem;
+}
+.tc {
+  background: var(--gris-800); border-radius: 14px;
+  padding: 0.9rem 0.5rem; text-align: center;
+  border-top: 3px solid var(--gris-700);
+}
+.tc span { display: block; font-family: 'Anton', sans-serif; font-size: 1.9rem; line-height: 1; }
+.tc small { display: block; margin-top: 0.3rem; font-size: 0.68rem; color: var(--gris-400); letter-spacing: 0.04em; }
+.tc-todo  { border-top-color: #ffc978; }
+.tc-todo span  { color: #ffc978; }
+.tc-ready { border-top-color: #4ade80; }
+.tc-ready span { color: #4ade80; }
+.tc-done  { border-top-color: var(--gris-600); }
+.tc-done span  { color: var(--gris-400); }
+
+/* Recherche express */
+.today-search { display: flex; gap: 0.5rem; margin-bottom: 1.4rem; }
+.today-search input {
+  flex: 1; min-width: 0;
+  padding: 0.95rem 1.1rem;
+  background: var(--gris-800); border: 1px solid var(--gris-700);
+  border-radius: 14px; color: var(--blanc);
+  font-family: inherit; font-size: 1rem;
+}
+.today-search input::placeholder { color: var(--gris-500); }
+.today-search input:focus { outline: none; border-color: var(--corail); }
+.today-refresh {
+  width: 52px; flex-shrink: 0;
+  background: var(--gris-800); border: 1px solid var(--gris-700);
+  border-radius: 14px; color: var(--blanc); font-size: 1.2rem; cursor: pointer;
+}
+.today-refresh:active { transform: scale(0.94); }
+
+/* Titres de file */
+.today-title {
+  font-family: 'Anton', sans-serif; font-size: 1rem;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  margin: 1.4rem 0 0.7rem; padding-bottom: 0.4rem;
+  border-bottom: 2px solid var(--gris-700);
+}
+.today-title.todo  { color: #ffc978; border-color: rgba(255,201,120,0.35); }
+.today-title.ready { color: #4ade80; border-color: rgba(74,222,128,0.35); }
+
+/* Carte commande comptoir */
+.tdy-card {
+  background: var(--gris-800);
+  border-radius: 16px;
+  padding: 1rem;
+  margin-bottom: 0.9rem;
+  border-left: 5px solid var(--gris-600);
+}
+.tdy-card.todo  { border-left-color: #ffc978; }
+.tdy-card.ready { border-left-color: #4ade80; }
+
+.tdy-head { display: flex; align-items: center; gap: 0.9rem; margin-bottom: 0.8rem; }
+.tdy-code {
+  font-family: 'Anton', sans-serif;
+  font-size: clamp(1.3rem, 5vw, 1.7rem);
+  letter-spacing: 0.06em;
+  color: #ffd166;
+  background: rgba(255,209,102,0.1);
+  border: 1px dashed rgba(255,209,102,0.45);
+  border-radius: 10px;
+  padding: 0.35rem 0.7rem;
+  white-space: nowrap;
+}
+.tdy-meta { display: flex; flex-direction: column; min-width: 0; }
+.tdy-meta strong { font-size: 0.95rem; }
+.tdy-meta span { font-size: 0.76rem; color: var(--gris-400); }
+
+/* Liste des articles à préparer */
+.tdy-items { list-style: none; padding: 0; margin: 0 0 0.8rem; }
+.tdy-item {
+  display: flex; align-items: center; gap: 0.6rem;
+  padding: 0.6rem 0.2rem;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  cursor: pointer; user-select: none;
+  transition: opacity .15s;
+}
+.tdy-check {
+  width: 22px; height: 22px; flex-shrink: 0;
+  border: 2px solid var(--gris-600); border-radius: 6px;
+  display: inline-block; position: relative;
+}
+.tdy-item.checked .tdy-check { background: #4ade80; border-color: #4ade80; }
+.tdy-item.checked .tdy-check::after {
+  content: '✓'; position: absolute; inset: 0;
+  display: grid; place-items: center;
+  color: #14311f; font-size: 0.85rem; font-weight: 900;
+}
+.tdy-item.checked { opacity: 0.45; text-decoration: line-through; }
+.tdy-qty  { font-weight: 800; color: #ffc978; min-width: 26px; }
+.tdy-prod { flex: 1; font-size: 0.92rem; }
+.tdy-size {
+  background: var(--gris-700); border-radius: 999px;
+  padding: 2px 10px; font-size: 0.78rem; font-weight: 700; white-space: nowrap;
+}
+
+/* Bandeau paiement */
+.tdy-pay {
+  border-radius: 10px; padding: 0.6rem 0.8rem;
+  font-size: 0.85rem; margin-bottom: 0.9rem;
+}
+.tdy-pay.cash { background: rgba(240,160,48,0.16); color: #ffc978; border: 1px solid rgba(240,160,48,0.4); }
+.tdy-pay.cash strong { font-size: 1.05rem; }
+.tdy-pay.paid { background: rgba(96,165,250,0.12); color: #93c5fd; border: 1px solid rgba(96,165,250,0.32); }
+
+/* Bouton d'action principal — grosse cible tactile */
+.tdy-action {
+  width: 100%;
+  padding: 1rem;
+  border: none; border-radius: 14px;
+  font-family: inherit; font-size: 1rem; font-weight: 800;
+  letter-spacing: 0.03em; cursor: pointer;
+  transition: transform .12s, filter .15s;
+}
+.tdy-action:active { transform: scale(0.98); }
+.tdy-action.prep { background: #ffc978; color: #3a2a08; }
+.tdy-action.give { background: #4ade80; color: #0f2a19; }
+.tdy-action:hover { filter: brightness(1.08); }
+
+/* Liens secondaires */
+.tdy-links { display: flex; gap: 0.6rem; margin-top: 0.6rem; }
+.tdy-links a, .tdy-links button {
+  flex: 1; text-align: center;
+  padding: 0.6rem; border-radius: 10px;
+  background: transparent; border: 1px solid var(--gris-700);
+  color: var(--gris-300); font-family: inherit; font-size: 0.82rem;
+  text-decoration: none; cursor: pointer;
+}
+.tdy-links a:hover, .tdy-links button:hover { border-color: var(--gris-500); color: #fff; }
+
+.tdy-empty {
+  text-align: center; padding: 1.6rem 1rem;
+  color: var(--gris-500); font-size: 0.9rem;
+  background: rgba(255,255,255,0.02); border-radius: 12px;
+}
+
+/* Retirées du jour */
+.today-done-block { margin-top: 1.8rem; }
+.today-done-block summary {
+  cursor: pointer; color: var(--gris-400); font-size: 0.88rem;
+  padding: 0.6rem 0; font-weight: 600;
+}
+.tdy-done-line {
+  padding: 0.5rem 0.2rem; font-size: 0.85rem; color: var(--gris-400);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+@media (max-width: 520px) {
+  .tdy-head { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+  .today-counters { gap: 0.4rem; }
+  .tc span { font-size: 1.6rem; }
+}
 
 /* Badge d'alerte sur l'onglet « Mes commandes » */
 .badge-mini.badge-alert {
