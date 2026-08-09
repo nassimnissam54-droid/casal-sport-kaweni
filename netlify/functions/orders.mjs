@@ -44,6 +44,33 @@ export default async (req, context) => {
 
   /* ---------------------------- Création (public) ---------------------------- */
   if (req.method === 'POST') {
+    let pre;
+    try { pre = await req.clone().json(); } catch { pre = {}; }
+
+    /* --- Suivi CLIENT : statut de SES commandes, auth par code de retrait ---
+       Le client envoie les codes qu'il possède ; on ne renvoie que le suivi
+       (statut + historique), jamais les coordonnées d'autres clients. */
+    if (pre && pre.clientLookup) {
+      const codes = Array.isArray(pre.codes)
+        ? pre.codes.map((c) => S(c, 20).trim().toUpperCase()).filter(Boolean).slice(0, 30)
+        : [];
+      if (!codes.length) return json({ orders: [] });
+      const { blobs } = await store.list({ prefix: 'orders/' });
+      const found = [];
+      for (const b of blobs) {
+        const ord = await store.get(b.key, { type: 'json' });
+        if (!ord || !ord.pickupCode) continue;
+        if (!codes.includes(String(ord.pickupCode).toUpperCase())) continue;
+        found.push({
+          id: ord.id,
+          pickupCode: ord.pickupCode,
+          status: ord.status,
+          statusHistory: ord.statusHistory || [],
+        });
+      }
+      return json({ orders: found });
+    }
+
     // Rate-limit : 5 commandes / heure / IP
     const ip = context.ip || req.headers.get('x-nf-client-connection-ip') || 'unknown';
     const rlKey = `ratelimit/${ip.replace(/[^\w.:]/g, '_')}`;

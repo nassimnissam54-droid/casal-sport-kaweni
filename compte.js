@@ -159,7 +159,139 @@ function refreshAll() {
   renderOrders();
   fillInfoForm();
   initRating();
+  // Récupère l'avancement décidé par la boutique (autre appareil)
+  syncOrderStatusFromServer();
 }
+
+/* ============================================================
+   SUIVI EN TEMPS RÉEL — le pro change le statut dans l'admin,
+   le client en est informé ici (bandeau + badge + toast).
+   Auth : les codes de retrait que le client possède déjà.
+   ============================================================ */
+const SEEN_STATUS_KEY = 'casal_seen_status_v1';
+
+function seenStatuses() {
+  try { return JSON.parse(localStorage.getItem(SEEN_STATUS_KEY) || '{}'); }
+  catch { return {}; }
+}
+function markStatusSeen(code, status) {
+  const s = seenStatuses();
+  s[code] = status;
+  localStorage.setItem(SEEN_STATUS_KEY, JSON.stringify(s));
+}
+
+/** Nouveautés non encore vues par le client */
+let pendingNotifications = [];
+
+async function syncOrderStatusFromServer() {
+  const u = UserDB.get(); if (!u) return;
+  const mine = OrderDB.getAll().filter(o =>
+    (o.userEmail === u.email || !o.userEmail) && o.pickupCode);
+  if (!mine.length) return;
+
+  try {
+    const r = await fetch('/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ clientLookup: true, codes: mine.map(o => o.pickupCode) })
+    });
+    if (!r.ok) return;
+    const { orders: remote } = await r.json();
+    if (!Array.isArray(remote) || !remote.length) return;
+
+    const all = OrderDB.getAll();
+    const seen = seenStatuses();
+    let changed = false;
+    pendingNotifications = [];
+
+    remote.forEach(ro => {
+      const local = all.find(o => o.pickupCode === ro.pickupCode);
+      if (!local) return;
+      // Le serveur fait foi : la boutique a pu avancer le suivi
+      if (local.status !== ro.status) { local.status = ro.status; changed = true; }
+      local.statusHistory = ro.statusHistory;
+      // Statut jamais affiché à ce client → notification
+      if (seen[ro.pickupCode] !== ro.status) {
+        pendingNotifications.push({ code: ro.pickupCode, status: ro.status });
+      }
+    });
+
+    if (changed) OrderDB._save(all);
+    if (pendingNotifications.length) {
+      renderOrders();
+      showStatusNotifications();
+    } else if (changed) {
+      renderOrders();
+    }
+  } catch { /* hors-ligne : on garde le suivi local */ }
+}
+
+/** Bandeau + badge + toast pour les avancements non vus */
+function showStatusNotifications() {
+  const wrap = $('#ordersList');
+  if (!wrap) return;
+
+  // Bandeau en tête de la liste des commandes
+  const banner = document.createElement('div');
+  banner.className = 'status-alerts';
+  banner.innerHTML = pendingNotifications.map(n => {
+    const step = ORDER_STATUS_FLOW[orderStatusIndex(n.status)];
+    const isReady = n.status === 'prete';
+    const isCancel = n.status === 'annulee';
+    return `<div class="status-alert ${isReady ? 'ready' : ''} ${isCancel ? 'cancel' : ''}" data-code="${esc(n.code)}">
+      <span class="sa-icon">${isCancel ? '🚫' : step.icon}</span>
+      <div class="sa-text">
+        <strong>${isCancel ? 'Commande annulée' : step.label}</strong>
+        <span>Commande ${esc(n.code)} — ${isCancel ? 'cette commande a été annulée.' : esc(step.desc)}</span>
+      </div>
+      <button type="button" class="sa-close" aria-label="J'ai vu">✓</button>
+    </div>`;
+  }).join('');
+  wrap.prepend(banner);
+
+  // Badge sur l'onglet « Mes commandes »
+  const badge = $('#ordersBadgeMini');
+  if (badge) {
+    badge.textContent = pendingNotifications.length;
+    badge.hidden = false;
+    badge.classList.add('badge-alert');
+  }
+
+  // Toast : le message le plus important (commande prête en priorité)
+  const ready = pendingNotifications.find(n => n.status === 'prete');
+  const first = ready || pendingNotifications[0];
+  const step = ORDER_STATUS_FLOW[orderStatusIndex(first.status)];
+  showToast(first.status === 'prete'
+    ? `🛍️ Ta commande ${first.code} est prête au retrait !`
+    : `${step.icon} Commande ${first.code} : ${step.label}`);
+
+  // « ✓ J'ai vu » → on ne le renotifie plus
+  banner.querySelectorAll('.sa-close').forEach(btn =>
+    btn.addEventListener('click', () => {
+      const card = btn.closest('.status-alert');
+      const code = card.dataset.code;
+      const n = pendingNotifications.find(x => x.code === code);
+      if (n) markStatusSeen(n.code, n.status);
+      pendingNotifications = pendingNotifications.filter(x => x.code !== code);
+      card.remove();
+      if (!banner.querySelector('.status-alert')) banner.remove();
+      const b = $('#ordersBadgeMini');
+      if (b && !pendingNotifications.length) {
+        b.classList.remove('badge-alert');
+        const u2 = UserDB.get();
+        const cnt = OrderDB.getAll().filter(o => o.userEmail === u2?.email || !o.userEmail).length;
+        b.textContent = cnt; b.hidden = !cnt;
+      } else if (b) { b.textContent = pendingNotifications.length; }
+    })
+  );
+}
+
+// Vérifie l'avancement toutes les 2 minutes tant que l'espace est ouvert
+setInterval(() => {
+  if (UserDB.isLoggedIn() && !$('#dashboard').classList.contains('hidden')) {
+    syncOrderStatusFromServer();
+  }
+}, 120000);
 
 /* ============ COMMANDES ============ */
 function renderOrders() {
