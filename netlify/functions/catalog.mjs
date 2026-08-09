@@ -52,6 +52,8 @@ function sanitizeProduct(p) {
     icon: S(p.icon, 8),
     qty: qtyOf(p),
     qtyUpdatedAt: Number(p.qtyUpdatedAt) || 0,
+    // Drapeau posé par l'admin quand le magasin a saisi une quantité
+    qtyDirty: p.qtyDirty === true,
     stock: stockFromQty(qtyOf(p)),
     status: p.status === 'draft' ? 'draft' : 'live',
     imageUrl: S(p.imageUrl, 600000), // autorise les data-URI (≤ 400 Ko côté admin)
@@ -95,26 +97,35 @@ export default async (req) => {
     const clean = body.catalog.map(sanitizeProduct).filter((p) => p.id > 0 && p.name);
 
     /* Fusion des quantités.
-       L'admin publie le catalogue qu'il a en mémoire ; pendant ce temps
-       /api/orders a pu décrémenter le stock à cause de commandes. Sans
-       précaution, la publication ferait « remonter » le stock vendu.
-       On garde donc, pour chaque produit, la quantité la plus récemment
-       écrite — inventaire saisi en magasin ou décrément automatique. */
+       L'admin republie tout le catalogue à chaque modification, y
+       compris des produits qu'il n'a pas touchés — et pendant ce temps
+       /api/orders décrémente le stock. Sans précaution, la publication
+       ferait « remonter » le stock déjà vendu.
+
+       On n'arbitre PAS par horodatage : l'admin tourne dans le
+       navigateur du magasin et le décrément sur un serveur Netlify, deux
+       horloges qu'on ne peut pas comparer. Un poste en retard de
+       quelques secondes suffirait à rendre tout réassort impossible.
+
+       L'admin marque donc explicitement (`qtyDirty`) les produits dont
+       il vient de saisir la quantité : ceux-là s'imposent, les autres
+       gardent la valeur du serveur. */
     const current = (await store.get('catalog', { type: 'json' })) || [];
-    let preserved = 0;
+    let preserved = 0, applied = 0;
     for (const p of clean) {
       const before = current.find((x) => x.id === p.id);
-      if (!before) continue;
-      if ((Number(before.qtyUpdatedAt) || 0) > (Number(p.qtyUpdatedAt) || 0)) {
+      if (p.qtyDirty) { applied++; }            // saisie du magasin : elle gagne
+      else if (before) {
         p.qty = qtyOf(before);
         p.stock = stockFromQty(p.qty);
         p.qtyUpdatedAt = Number(before.qtyUpdatedAt) || 0;
         preserved++;
       }
+      delete p.qtyDirty;                        // jamais stocké côté serveur
     }
 
     await store.setJSON('catalog', clean);
-    return json({ ok: true, count: clean.length, stockPreserved: preserved });
+    return json({ ok: true, count: clean.length, stockPreserved: preserved, stockApplied: applied });
   }
 
   return json({ error: 'Méthode non autorisée' }, 405);

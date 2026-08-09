@@ -489,7 +489,13 @@ function pushCatalog() {
         headers: { 'Content-Type': 'application/json', 'x-admin-key': key },
         body: JSON.stringify({ action: 'replace', catalog: ProductDB.getAll() })
       });
-      if (r.ok) showToast('☁️ Catalogue publié en ligne');
+      if (r.ok) {
+        // Les quantités saisies sont acquises côté serveur : on retire le
+        // marqueur pour que les prochaines publications ne les réimposent
+        // pas par-dessus les décréments des commandes.
+        ProductDB.clearQtyDirty();
+        showToast('☁️ Catalogue publié en ligne');
+      }
       else if (r.status === 401) showToast('☁️ Publication refusée : configure ADMIN_PASSWORD sur Netlify avec CE mot de passe');
       else if (r.status === 501) showToast('☁️ Publication non configurée (variable ADMIN_PASSWORD absente sur Netlify)');
     } catch { /* préview locale / hors-ligne : les changements restent locaux */ }

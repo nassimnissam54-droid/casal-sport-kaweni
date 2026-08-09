@@ -549,16 +549,30 @@ const ProductDB = {
     p.status = p.status || 'live';
     normalizeStock(p);
     p.qtyUpdatedAt = Date.now();
+    p.qtyDirty = true;                 // stock initial saisi par le magasin
     list.push(p); this.saveAll(list); return p;
+  },
+
+  /** Après publication réussie : les quantités saisies sont acquises. */
+  clearQtyDirty() {
+    const list = this.getAll();
+    let n = 0;
+    list.forEach(p => { if (p.qtyDirty) { delete p.qtyDirty; n++; } });
+    if (n) this.saveAll(list);
+    return n;
   },
   update(id, data) {
     const list = this.getAll();
     const i = list.findIndex(p => p.id === id);
     if (i >= 0) {
-      // Toute écriture manuelle de la quantité est horodatée : c'est ce
-      // qui permet au serveur de savoir si l'inventaire saisi par le
-      // magasin est plus récent que ses propres décréments.
-      if (data.qty !== undefined && qtyOf(data) !== qtyOf(list[i])) data.qtyUpdatedAt = Date.now();
+      // Une quantité saisie par le magasin est marquée `qtyDirty` : à la
+      // prochaine publication, elle s'imposera au serveur. Sans ce
+      // marqueur, le serveur garde sa propre valeur (celle qu'il a
+      // décrémentée au fil des commandes).
+      if (data.qty !== undefined && qtyOf(data) !== qtyOf(list[i])) {
+        data.qtyUpdatedAt = Date.now();
+        data.qtyDirty = true;
+      }
       list[i] = normalizeStock({ ...list[i], ...data, id });
       this.saveAll(list);
     }
