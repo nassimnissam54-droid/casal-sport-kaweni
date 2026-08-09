@@ -96,31 +96,53 @@ async function moveStock(store, lines, sign, { check = false } = {}) {
     }
 
     const now = Date.now();
+    const expected = [];
     for (const l of lines) {
       const p = catalog.find((x) => x.id === Number(l.productId));
       if (!p) continue;
-      p.qty = Math.max(0, qtyOf(p) + sign * l.qty);
+      const before = qtyOf(p);
+      p.qty = Math.max(0, before + sign * l.qty);
       p.stock = stockFromQty(p.qty);
       p.qtyUpdatedAt = now;
+      expected.push({ id: p.id, before, after: p.qty });
     }
+    if (!expected.length) return { ok: true, skipped: 'aucun article du catalogue' };
 
-    // Sans etag exploitable, l'écriture conditionnelle est impossible :
-    // on écrit directement plutôt que de renoncer au décrément.
-    if (!res?.etag) {
-      try { await store.setJSON('catalog', catalog); return { ok: true, mode: 'direct' }; }
-      catch (e) { console.error('Écriture directe du stock impossible :', e); return { ok: true, skipped: 'erreur écriture' }; }
-    }
-
+    /* On n'écrit pas « en aveugle » : le retour de setJSON varie selon
+       les versions et une écriture conditionnelle refusée peut passer
+       pour un succès. On écrit, on relit, et on ne se déclare satisfait
+       que si la quantité a réellement bougé. */
+    let mode = 'direct';
     try {
-      const out = await store.setJSON('catalog', catalog, { onlyIfMatch: res.etag });
-      // Certaines versions ne renvoient rien : pas de nouvelle égale succès.
-      if (!out || out.modified !== false) return { ok: true, mode: 'cas' };
-      // etag périmé : quelqu'un a écrit entre notre lecture et notre écriture
+      if (res?.etag) { mode = 'cas'; await store.setJSON('catalog', catalog, { onlyIfMatch: res.etag }); }
+      else            { await store.setJSON('catalog', catalog); }
     } catch (e) {
-      console.error('Écriture conditionnelle refusée, repli direct :', e);
-      try { await store.setJSON('catalog', catalog); return { ok: true, mode: 'direct-fallback' }; }
-      catch (e2) { console.error('Écriture du stock impossible :', e2); return { ok: true, skipped: 'erreur écriture' }; }
+      console.error('Écriture du stock refusée :', e);
+      mode = 'direct-apres-erreur';
+      try { await store.setJSON('catalog', catalog); }
+      catch (e2) { console.error('Écriture directe impossible :', e2); return { ok: true, skipped: 'erreur écriture' }; }
     }
+
+    const after = await store.get('catalog', { type: 'json' });
+    const applique = Array.isArray(after) && expected.every((e) => {
+      const p = after.find((x) => x.id === e.id);
+      return p && qtyOf(p) === e.after;
+    });
+    if (applique) return { ok: true, mode, expected };
+
+    // L'écriture n'a rien changé : on retente sans condition.
+    if (mode === 'cas') {
+      try {
+        await store.setJSON('catalog', catalog);
+        const after2 = await store.get('catalog', { type: 'json' });
+        const ok2 = Array.isArray(after2) && expected.every((e) => {
+          const p = after2.find((x) => x.id === e.id);
+          return p && qtyOf(p) === e.after;
+        });
+        if (ok2) return { ok: true, mode: 'direct-apres-cas', expected };
+      } catch (e) { console.error('Repli direct impossible :', e); }
+    }
+    // Sinon on repart d'une lecture fraîche (cas d'une écriture concurrente).
   }
   console.error('Stock : 4 tentatives infructueuses, catalogue trop sollicité');
   return { ok: true, skipped: 'conflit persistant' };
@@ -270,15 +292,16 @@ export default async (req, context) => {
         if (Date.now() - ord.id > 6 * 3600 * 1000)
           return json({ error: 'Le délai de 6 h pour annuler est dépassé.' }, 409);
         // Les articles retournent en rayon, une seule fois.
+        let restock = null;
         if (ord.stockApplied) {
-          await moveStock(store, ord.items || [], +1);
+          restock = await moveStock(store, ord.items || [], +1);
           ord.stockApplied = false;
         }
         ord.status = 'annulee';
         ord.statusHistory = (ord.statusHistory || []).filter((h) => h.status !== 'annulee');
         ord.statusHistory.push({ status: 'annulee', date: Date.now(), by: 'client' });
         await store.setJSON(b.key, ord);
-        return json({ ok: true, order: ord });
+        return json({ ok: true, order: ord, stock: restock?.skipped || restock?.mode || 'aucun mouvement' });
       }
       return json({ error: 'Commande introuvable.' }, 404);
     }
