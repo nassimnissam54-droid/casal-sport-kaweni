@@ -113,13 +113,29 @@ const formTitle   = document.getElementById('formTitle');
 const submitBtn   = document.getElementById('submitBtn');
 const cancelBtn   = document.getElementById('cancelBtn');
 
+/* L'indice sous le champ quantité dit tout de suite ce que le client
+   verra : « Épuisé », « Dernière pièce ! », « En stock ». */
+function updateQtyHint() {
+  const el = document.getElementById('pqty');
+  const hint = document.getElementById('pqtyHint');
+  if (!el || !hint) return;
+  const q = Math.max(0, Math.floor(Number(el.value)) || 0);
+  const state = stockFromQty(q);
+  hint.textContent = q === 0
+    ? '✗ Épuisé — le produit reste visible mais ne peut plus être commandé.'
+    : `${state === 'low' ? '⚠️' : '✓'} ${stockText({ qty: q })} · se décrémente tout seul à chaque commande.`;
+  hint.className = `field-hint qty-${state}`;
+}
+document.getElementById('pqty')?.addEventListener('input', updateQtyHint);
+
 function resetForm() {
   form.reset();
   document.getElementById('pid').value = '';
   document.getElementById('pcolor1').value = '#06B6A8';
   document.getElementById('pcolor2').value = '#FF6B5C';
   document.getElementById('pstatus').value = 'live';
-  document.getElementById('pstock').value  = 'in';
+  document.getElementById('pqty').value    = 10;
+  updateQtyHint();
   document.getElementById('imagePreviewWrap').style.display = 'none';
   formTitle.textContent = '➕ Ajouter un produit';
   submitBtn.textContent = 'Ajouter le produit';
@@ -172,7 +188,8 @@ form.addEventListener('submit', e => {
     price:    parseFloat(document.getElementById('pprice').value),
     oldPrice: document.getElementById('poldprice').value ? parseFloat(document.getElementById('poldprice').value) : null,
     badge:    document.getElementById('pbadge').value.trim(),
-    stock:    document.getElementById('pstock').value,
+    // `qty` fait foi ; `stock` (in/low/out) en est déduit par normalizeStock
+    qty:      Math.max(0, Math.floor(Number(document.getElementById('pqty').value)) || 0),
     status:   document.getElementById('pstatus').value,
     icon:     document.getElementById('picon').value.trim() || '🛍️',
     imageUrl: document.getElementById('pimage').value.trim(),
@@ -211,7 +228,8 @@ function editProduct(id) {
   document.getElementById('pprice').value    = p.price;
   document.getElementById('poldprice').value = p.oldPrice ?? '';
   document.getElementById('pbadge').value    = p.badge ?? '';
-  document.getElementById('pstock').value    = p.stock || 'in';
+  document.getElementById('pqty').value      = qtyOf(p);
+  updateQtyHint();
   document.getElementById('pstatus').value   = p.status || 'live';
   document.getElementById('picon').value     = p.icon;
   document.getElementById('pimage').value    = p.imageUrl ?? '';
@@ -319,7 +337,7 @@ function renderTable() {
     return;
   }
   tbody.innerHTML = list.map(p => {
-    const stockMap = { in:'✓ En stock', low:'⚠️ Bas', out:'✗ Rupture' };
+    const q = qtyOf(p);
     const status = p.status || 'live';
     return `
     <tr>
@@ -342,7 +360,7 @@ function renderTable() {
         <strong>${p.price.toFixed(2)} €</strong>
         ${p.oldPrice ? `<br><small style="text-decoration:line-through;opacity:.6">${p.oldPrice.toFixed(2)} €</small>` : ''}
       </td>
-      <td><small>${stockMap[p.stock || 'in']}</small></td>
+      <td><span class="qty-pill qty-${stockFromQty(q)}">${q}</span><br><small>${esc(stockText(p))}</small></td>
       <td><span class="row-status ${status}">${status === 'live' ? 'En ligne' : 'Brouillon'}</span></td>
       <td>
         <button class="btn-icon edit"   data-act="edit"   data-id="${p.id}" title="Modifier">✏️</button>

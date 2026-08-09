@@ -188,8 +188,9 @@ function cardHTML(p) {
        <div class="product-icon-fb" style="display:none;--c1:${p.color1};--c2:${p.color2}">${p.icon}</div>`
     : `<div class="product-icon-fb" style="--c1:${p.color1};--c2:${p.color2}">${p.icon}</div>`;
 
+  // Le compte exact crée l'urgence bien mieux qu'un « quelques pièces »
   let stockStrip = '';
-  if (p.stock === 'low') stockStrip = `<div class="stock-strip low">Plus que quelques pièces</div>`;
+  if (p.stock === 'low') stockStrip = `<div class="stock-strip low">${stockText(p)}</div>`;
   if (p.stock === 'out') stockStrip = `<div class="stock-strip out">Indisponible</div>`;
 
   const orderDisabled = p.stock === 'out' ? 'disabled' : '';
@@ -505,9 +506,10 @@ function openProductModal(productId) {
 
   // --- Stock ---
   const stockEl = document.getElementById('piStock');
+  const q = qtyOf(p);
   const stockMap = {
-    in:  { t: '✓ En stock à la boutique', c: 'ok' },
-    low: { t: '⚡ Plus que quelques pièces — ne tarde pas', c: 'low' },
+    in:  { t: `✓ En stock à la boutique (${q} disponibles)`, c: 'ok' },
+    low: { t: `⚡ ${stockText(p)} — ne tarde pas`, c: 'low' },
     out: { t: '✗ Rupture de stock', c: 'out' }
   };
   const st = stockMap[p.stock || 'in'];
@@ -651,8 +653,12 @@ function renderSizes() {
 
 /* ---------- Quantité ---------- */
 function updateQty(v) {
-  pdQty = Math.max(1, Math.min(20, v));
+  // On ne laisse pas choisir une quantité qui sera refusée à la commande
+  const max = Math.max(1, Math.min(20, CartDB.remainingFor(pdProduct?.id) || 1));
+  pdQty = Math.max(1, Math.min(max, v));
   document.getElementById('piQty').textContent = pdQty;
+  const plus = document.getElementById('piQtyPlus');
+  if (plus) plus.disabled = pdQty >= max;
 }
 document.getElementById('piQtyMinus')?.addEventListener('click', () => updateQty(pdQty - 1));
 document.getElementById('piQtyPlus')?.addEventListener('click', () => updateQty(pdQty + 1));
@@ -687,9 +693,12 @@ document.getElementById('piAdd')?.addEventListener('click', () => {
   if (!pdSize) { showToast('⚠ Choisis une taille'); document.getElementById('piSizes').scrollIntoView({ behavior:'smooth', block:'center' }); return; }
   // La couleur choisie est mémorisée avec la taille (ex. « M · Écru »)
   const label = pdColor ? `${pdSize} · ${pdColor}` : pdSize;
-  CartDB.add(pdProduct.id, label, pdQty);
+  const added = CartDB.add(pdProduct.id, label, pdQty);
+  if (!added) { showToast(`😕 ${pdProduct.name} : plus de stock disponible`); return; }
   updateCartCounter();
-  showToast(`🛒 ${pdProduct.name} (${label}) ×${pdQty}`);
+  showToast(added < pdQty
+    ? `🛒 ${pdProduct.name} (${label}) ×${added} — c'est tout ce qu'il reste`
+    : `🛒 ${pdProduct.name} (${label}) ×${added}`);
   closeProductModal();
   renderCart();
   openCartDrawer();
@@ -825,7 +834,10 @@ sizePickerAddBtn.addEventListener('click', () => {
   }
 
   // ----- Mode AJOUT -----
-  CartDB.add(selectedSizeProduct.id, size, 1);
+  if (!CartDB.add(selectedSizeProduct.id, size, 1)) {
+    showToast(`😕 ${productName} : plus de stock disponible`);
+    return;
+  }
   updateCartCounter();
   closeSizePicker();
   showToast(`🛒 Ajouté : ${productName} (${size})`);
@@ -1203,7 +1215,18 @@ function saveOrderLocal() {
     userEmail,
     status: 'envoyée'
   });
-  return sendReceiptEmail(order); // → { server, emailSent } pour l'écran de confirmation
+  return sendReceiptEmail(order).then(status => {
+    if (status.soldOut) {
+      // Le serveur a refusé faute de stock : la commande n'existe pas,
+      // on ne garde pas de trace locale qui polluerait « Mes commandes ».
+      OrderDB.remove(order.id);
+    } else {
+      // Miroir local du décrément fait par le serveur, pour que les
+      // fiches affichent le bon chiffre sans attendre la resynchro.
+      ProductDB.decrementStock(order.items);
+    }
+    return status;
+  });
 }
 
 /**
@@ -1231,8 +1254,11 @@ function sendReceiptEmail(order) {
       }))
     })
   })
-    .then(r => r.ok ? r.json() : { ok: false })
-    .then(d => ({ server: !!d.ok, emailSent: !!d.emailSent }))
+    .then(r => r.json().then(d => ({ ...d, httpStatus: r.status })).catch(() => ({ httpStatus: r.status })))
+    .then(d => d.httpStatus === 409
+      // Un autre client a pris la dernière pièce entre-temps
+      ? { server: false, soldOut: true, message: d.message, shortages: d.shortages || [] }
+      : { server: !!d.ok, emailSent: !!d.emailSent })
     .catch(() => ({ server: false }));
   return Promise.race([post, timeout]);
 }
@@ -1319,6 +1345,18 @@ orderForm.addEventListener('submit', async e => {
   const clientEmail = document.getElementById('orderEmail').value.trim();
   await tryCreateCheckout();            // dormant tant que la carte en ligne est désactivée
   const status = await saveOrderLocal(); // commande serveur + reçu e-mail (≤ 6 s)
+
+  if (status.soldOut) {
+    // Rupture pendant le remplissage du formulaire : on garde le panier
+    // intact pour que le client puisse simplement ajuster les quantités.
+    showToast(`😕 ${status.message || 'Article épuisé entre-temps'}`);
+    syncCatalogFromServer().then(() => { refreshCatalogViews(); renderCart(); });
+    pendingPickupCode = null;
+    btn.disabled = false;
+    btn.textContent = '✅ Confirmer ma commande';
+    return;
+  }
+
   showOrderSuccess(pendingPickupCode, status, clientEmail);
   pendingCheckoutUrl = null;
   pendingPickupCode = null;
@@ -1696,11 +1734,15 @@ document.addEventListener('keydown', e => {
    SYNCHRO CATALOGUE (audit V1) : si l'admin a publié un catalogue
    en ligne, on re-rend les grilles avec la version à jour.
    ============================================================ */
-syncCatalogFromServer().then(changed => {
-  if (!changed) return;
+/** Redessine toutes les vues qui dépendent du catalogue (dont le stock). */
+function refreshCatalogViews() {
   applyFilter('grid-vet');
   applyFilter('grid-bas');
   renderCarousel();
   renderFavorites();
   updateFavCounter();
+}
+
+syncCatalogFromServer().then(changed => {
+  if (changed) refreshCatalogViews();
 });

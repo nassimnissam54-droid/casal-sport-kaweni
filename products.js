@@ -493,6 +493,43 @@ const DEFAULT_PRODUCTS = [
 /* ============================================================
    API PRODUITS
    ============================================================ */
+/* ============================================================
+   STOCK NUMÉRIQUE
+   `qty` est la source de vérité : le nombre de pièces réellement
+   disponibles. Il se décrémente tout seul à chaque commande (côté
+   serveur, dans /api/orders) et se recrédite si la commande est
+   annulée. Le champ `stock` ('in'|'low'|'out') qu'affichent les
+   fiches produit en est simplement déduit — rien à saisir deux fois.
+   ============================================================ */
+const LOW_STOCK = 3;   // en dessous, on prévient « plus que quelques pièces »
+
+/** Repli pour les produits d'avant le stock numérique. */
+const QTY_FROM_STATUS = { in: 10, low: LOW_STOCK, out: 0 };
+
+/** Quantité disponible d'un produit, migration comprise. */
+function qtyOf(p) {
+  if (p && Number.isFinite(Number(p.qty))) return Math.max(0, Math.floor(Number(p.qty)));
+  return QTY_FROM_STATUS[p?.stock] ?? QTY_FROM_STATUS.in;
+}
+
+/** Statut d'affichage déduit de la quantité. */
+function stockFromQty(q) { return q <= 0 ? 'out' : (q <= LOW_STOCK ? 'low' : 'in'); }
+
+/** Rend `qty` et `stock` cohérents sur un produit (mutation en place). */
+function normalizeStock(p) {
+  p.qty = qtyOf(p);
+  p.stock = stockFromQty(p.qty);
+  return p;
+}
+
+/** Phrase affichable : « Plus que 2 pièces », « Épuisé »… */
+function stockText(p) {
+  const q = qtyOf(p);
+  if (q <= 0) return 'Épuisé';
+  if (q <= LOW_STOCK) return q === 1 ? 'Dernière pièce !' : `Plus que ${q} pièces`;
+  return 'En stock';
+}
+
 const ProductDB = {
   getAll() {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -500,25 +537,55 @@ const ProductDB = {
       this.saveAll(DEFAULT_PRODUCTS);
       return [...DEFAULT_PRODUCTS];
     }
-    try { return JSON.parse(raw); } catch { return [...DEFAULT_PRODUCTS]; }
+    try { return JSON.parse(raw).map(normalizeStock); } catch { return [...DEFAULT_PRODUCTS]; }
   },
   /** Produits visibles côté public (status=live ou non défini) */
   getLive() { return this.getAll().filter(p => (p.status || 'live') === 'live'); },
-  saveAll(list) { localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); },
+  saveAll(list) { localStorage.setItem(STORAGE_KEY, JSON.stringify(list.map(normalizeStock))); },
   add(p) {
     const list = this.getAll();
     p.id = list.length ? Math.max(...list.map(x=>x.id))+1 : 1;
     p.createdAt = Date.now();
     p.status = p.status || 'live';
-    p.stock  = p.stock  || 'in';
+    normalizeStock(p);
+    p.qtyUpdatedAt = Date.now();
     list.push(p); this.saveAll(list); return p;
   },
   update(id, data) {
     const list = this.getAll();
     const i = list.findIndex(p => p.id === id);
-    if (i >= 0) { list[i] = { ...list[i], ...data, id }; this.saveAll(list); }
+    if (i >= 0) {
+      // Toute écriture manuelle de la quantité est horodatée : c'est ce
+      // qui permet au serveur de savoir si l'inventaire saisi par le
+      // magasin est plus récent que ses propres décréments.
+      if (data.qty !== undefined && qtyOf(data) !== qtyOf(list[i])) data.qtyUpdatedAt = Date.now();
+      list[i] = normalizeStock({ ...list[i], ...data, id });
+      this.saveAll(list);
+    }
     return list[i];
   },
+
+  /* --- Miroir local des mouvements de stock ---------------------------
+     Le serveur fait foi (/api/orders décrémente le catalogue publié),
+     mais on applique le même mouvement localement pour que l'écran
+     affiche le bon chiffre immédiatement, sans attendre la resynchro. */
+  applyStockMove(lines, sign) {
+    const list = this.getAll();
+    let touched = false;
+    (lines || []).forEach(l => {
+      const p = list.find(x => x.id === Number(l.productId));
+      if (!p) return;
+      const n = Math.max(0, qtyOf(p) + sign * Math.max(1, Number(l.qty) || 1));
+      p.qty = n; p.stock = stockFromQty(n); p.qtyUpdatedAt = Date.now();
+      touched = true;
+    });
+    if (touched) this.saveAll(list);
+    return touched;
+  },
+  /** Retire du stock les articles d'une commande. */
+  decrementStock(lines) { return this.applyStockMove(lines, -1); },
+  /** Remet en stock les articles d'une commande annulée. */
+  restoreStock(lines)   { return this.applyStockMove(lines, +1); },
   remove(id) {
     const list = this.getAll().filter(p => p.id !== id);
     this.saveAll(list);
@@ -552,7 +619,7 @@ const ProductDB = {
   /** Export CSV de tout le catalogue */
   exportCSV() {
     const rows = this.getAll();
-    const headers = ['id','name','type','sub','cat','price','oldPrice','stock','status','sizes','material','desc','imageUrl'];
+    const headers = ['id','name','type','sub','cat','price','oldPrice','qty','stock','status','sizes','material','desc','imageUrl'];
     const csv = [
       headers.join(';'),
       ...rows.map(r => headers.map(h => `"${String(r[h] ?? '').replace(/"/g,'""')}"`).join(';'))
@@ -631,19 +698,40 @@ const CartDB = {
     catch { return []; }
   },
   count() { return this.getAll().reduce((s, i) => s + i.qty, 0); },
+
+  /** Stock disponible d'un produit, toutes tailles confondues. */
+  stockFor(productId) {
+    const p = ProductDB.getAll().find(x => x.id === productId);
+    return p ? qtyOf(p) : 0;
+  },
+  /** Ce qu'on peut encore ajouter au panier pour ce produit. */
+  remainingFor(productId, exceptSize = null) {
+    const inCart = this.getAll()
+      .filter(i => i.productId === productId && i.size !== exceptSize)
+      .reduce((s, i) => s + i.qty, 0);
+    return Math.max(0, this.stockFor(productId) - inCart);
+  },
+
+  /** Ajoute au panier sans jamais dépasser le stock réel.
+   *  Renvoie la quantité effectivement ajoutée (0 si épuisé). */
   add(productId, size, qty = 1) {
+    const max = this.remainingFor(productId);
+    const add = Math.max(0, Math.min(qty, max));
+    if (!add) return 0;
     const items = this.getAll();
     const ex = items.find(i => i.productId === productId && i.size === size);
-    if (ex) ex.qty += qty;
-    else items.push({ productId, size, qty });
+    if (ex) ex.qty += add;
+    else items.push({ productId, size, qty: add });
     this._save(items);
+    return add;
   },
   setQty(productId, size, qty) {
     const items = this.getAll();
     const i = items.find(x => x.productId === productId && x.size === size);
     if (!i) return;
     if (qty <= 0) return this.remove(productId, size);
-    i.qty = Math.min(99, qty);
+    // Plafond = stock du produit moins ce qui est déjà pris dans les autres tailles
+    i.qty = Math.max(1, Math.min(99, qty, this.remainingFor(productId, size)));
     this._save(items);
   },
   remove(productId, size) {

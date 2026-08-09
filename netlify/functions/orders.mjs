@@ -10,6 +10,9 @@
    - POST   (public) : création de commande. Validation stricte des
      champs, prix re-vérifiés contre le catalogue publié quand il
      existe, plafonds anti-abus, max 5 commandes/heure/IP.
+     Le stock du catalogue est décrémenté au passage de la commande
+     et recrédité si elle est annulée ou supprimée : le magasin n'a
+     rien à saisir après une vente.
    - GET    (admin, x-admin-key) : liste des commandes serveur.
    - PATCH  (admin) : { id, status } — met à jour le suivi.
    - DELETE (admin) : { id } — supprime la commande côté serveur
@@ -34,6 +37,72 @@ const esc = (s) => String(s).replace(/[&<>"']/g, (m) =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m]);
 
 const STATUSES = ['recue', 'confirmee', 'preparation', 'prete', 'retiree'];
+
+/* ============================================================
+   MOUVEMENTS DE STOCK
+   Le catalogue publié porte la quantité réelle (`qty`). À chaque
+   commande on la décrémente, à chaque annulation on la recrédite.
+
+   Deux clients qui commandent la dernière pièce en même temps
+   liraient le même catalogue et écriraient chacun leur version :
+   le second effacerait le décrément du premier. On écrit donc en
+   compare-and-swap (`onlyIfMatch` sur l'etag) et on recommence
+   la lecture si le catalogue a bougé entre-temps.
+   ============================================================ */
+const LOW_STOCK = 3;
+const QTY_FROM_STATUS = { in: 10, low: LOW_STOCK, out: 0 };
+
+const qtyOf = (p) =>
+  Number.isFinite(Number(p?.qty))
+    ? Math.max(0, Math.floor(Number(p.qty)))
+    : (QTY_FROM_STATUS[p?.stock] ?? QTY_FROM_STATUS.in);
+
+const stockFromQty = (q) => (q <= 0 ? 'out' : q <= LOW_STOCK ? 'low' : 'in');
+
+/**
+ * Applique un mouvement de stock sur le catalogue publié.
+ * @param sign -1 pour une commande, +1 pour une annulation
+ * @param check true = refuse si un article n'a pas assez de stock
+ * @returns { ok, shortages? } — shortages liste les articles manquants
+ */
+async function moveStock(store, lines, sign, { check = false } = {}) {
+  for (let attempt = 0; attempt < 4; attempt++) {
+    const res = await store.getWithMetadata('catalog', { type: 'json' });
+    if (!res || !Array.isArray(res.data)) return { ok: true, skipped: 'pas de catalogue publié' };
+    const catalog = res.data;
+
+    if (check) {
+      const shortages = [];
+      for (const l of lines) {
+        const p = catalog.find((x) => x.id === Number(l.productId));
+        if (!p) continue;                       // prix déjà validés en amont
+        const available = qtyOf(p);
+        if (available < l.qty) shortages.push({ productId: p.id, name: p.name, available });
+      }
+      if (shortages.length) return { ok: false, shortages };
+    }
+
+    const now = Date.now();
+    for (const l of lines) {
+      const p = catalog.find((x) => x.id === Number(l.productId));
+      if (!p) continue;
+      p.qty = Math.max(0, qtyOf(p) + sign * l.qty);
+      p.stock = stockFromQty(p.qty);
+      p.qtyUpdatedAt = now;
+    }
+
+    try {
+      const { modified } = await store.setJSON('catalog', catalog, { onlyIfMatch: res.etag });
+      if (modified) return { ok: true };
+      // etag périmé : quelqu'un a écrit entre notre lecture et notre écriture
+    } catch (e) {
+      console.error('Écriture du stock impossible :', e);
+      return { ok: true, skipped: 'erreur écriture' }; // ne bloque jamais la commande
+    }
+  }
+  console.error('Stock : 4 tentatives infructueuses, catalogue trop sollicité');
+  return { ok: true, skipped: 'conflit persistant' };
+}
 
 export default async (req, context) => {
   const store = getStore('casal-sport');
@@ -108,7 +177,22 @@ export default async (req, context) => {
     const computedTotal = Math.round(lines.reduce((s, l) => s + l.price * l.qty, 0) * 100) / 100;
     if (computedTotal > 5000) return json({ error: 'Montant trop élevé' }, 400);
 
+    /* Stock : on réserve AVANT d'enregistrer la commande. Si un article
+       vient d'être vendu à quelqu'un d'autre, on refuse et on dit
+       précisément ce qu'il reste — le client ajuste son panier. */
+    const move = await moveStock(store, lines, -1, { check: true });
+    if (!move.ok) {
+      return json({
+        error: 'Stock insuffisant',
+        shortages: move.shortages,
+        message: move.shortages
+          .map((s) => (s.available > 0 ? `${s.name} : plus que ${s.available} en stock` : `${s.name} : épuisé`))
+          .join(' · '),
+      }, 409);
+    }
+
     const order = {
+      stockApplied: !move.skipped,   // pour ne recréditer que ce qui a été retiré
       id: now,
       date: new Date(now).toISOString(),
       name, phone, email,
@@ -162,6 +246,11 @@ export default async (req, context) => {
         if (ord.status === 'retiree') return json({ error: 'Commande déjà retirée, annulation impossible.' }, 409);
         if (Date.now() - ord.id > 6 * 3600 * 1000)
           return json({ error: 'Le délai de 6 h pour annuler est dépassé.' }, 409);
+        // Les articles retournent en rayon, une seule fois.
+        if (ord.stockApplied) {
+          await moveStock(store, ord.items || [], +1);
+          ord.stockApplied = false;
+        }
         ord.status = 'annulee';
         ord.statusHistory = (ord.statusHistory || []).filter((h) => h.status !== 'annulee');
         ord.statusHistory.push({ status: 'annulee', date: Date.now(), by: 'client' });
@@ -191,6 +280,11 @@ export default async (req, context) => {
     try { body = await req.json(); } catch { return json({ error: 'JSON invalide' }, 400); }
     const id = Math.floor(Number(body.id));
     if (!id) return json({ error: 'Id invalide' }, 400);
+    // Supprimer une commande non retirée remet ses articles en rayon.
+    const doomed = await store.get(`orders/${id}`, { type: 'json' });
+    if (doomed && doomed.stockApplied && doomed.status !== 'retiree') {
+      await moveStock(store, doomed.items || [], +1);
+    }
     await store.delete(`orders/${id}`);
     return json({ ok: true });
   }

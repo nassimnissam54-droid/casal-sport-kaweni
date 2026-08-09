@@ -4593,3 +4593,32 @@ body:not(.admin-body) ::selection { background: rgba(255,77,61,0.22); color: var
   .type-chips::-webkit-scrollbar { display: none; }
   .type-chips .chip { flex-shrink: 0; }
 }
+
+/* ============================================================
+   STOCK NUMÉRIQUE (admin)
+   ============================================================ */
+.qty-pill {
+  display: inline-block;
+  min-width: 2.2rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-family: 'Anton', sans-serif;
+  font-size: 0.95rem;
+  text-align: center;
+  color: var(--blanc);
+  background: var(--success);
+}
+.qty-pill.qty-low { background: var(--warning); color: #241a00; }
+.qty-pill.qty-out { background: var(--danger); }
+
+.field-hint {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--gris-400);
+  text-transform: none;
+}
+.field-hint.qty-low { color: var(--warning); }
+.field-hint.qty-out { color: #ff8a80; }

@@ -148,12 +148,9 @@
               <label>Badge <small>(Nouveau, Top vente, -20%...)</small>
                 <input type="text" id="pbadge" placeholder="Laisser vide si aucun" />
               </label>
-              <label>Stock *
-                <select id="pstock" required>
-                  <option value="in">✓ En stock</option>
-                  <option value="low">⚠️ Plus que quelques pièces</option>
-                  <option value="out">✗ Rupture de stock</option>
-                </select>
+              <label>Quantité en stock *
+                <input type="number" id="pqty" min="0" max="9999" step="1" value="10" required />
+                <small class="field-hint" id="pqtyHint">Se décrémente tout seul à chaque commande.</small>
               </label>
               <label>Statut *
                 <select id="pstatus" required>
@@ -168,7 +165,10 @@
                 <input type="text" id="psizes" placeholder="S — M — L — XL" required />
               </label>
               <label class="full">📸 URL de la photo produit <small>(recommandé : Unsplash, Pexels, ou héberger sur Imgur)</small>
-                <input type="url" id="pimage" placeholder="https://exemple.com/photo.jpg" />
+                <!-- type=text et non url : les photos du magasin sont servies
+                     en chemin relatif (img/produits/…), qu'un input url refuse
+                     et qui bloquait l'enregistrement de ces produits. -->
+                <input type="text" id="pimage" placeholder="https://exemple.com/photo.jpg ou img/produits/photo.jpg" />
               </label>
               <label class="full">📁 OU Uploader une image <small>(stockée localement en base64, max 500 Ko recommandé)</small>
                 <input type="file" id="pfile" accept="image/*" />

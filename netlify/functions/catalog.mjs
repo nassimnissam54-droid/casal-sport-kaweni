@@ -25,6 +25,17 @@ const json = (data, status = 200) =>
 
 const S = (v, max) => String(v ?? '').slice(0, max);
 
+/* Stock numérique : `qty` fait foi, `stock` n'en est que l'affichage.
+   Les produits d'avant cette version n'ont pas de `qty` : on la déduit
+   de leur statut plutôt que de les faire tomber à zéro. */
+const LOW_STOCK = 3;
+const QTY_FROM_STATUS = { in: 10, low: LOW_STOCK, out: 0 };
+const qtyOf = (p) =>
+  Number.isFinite(Number(p?.qty))
+    ? Math.max(0, Math.min(99999, Math.floor(Number(p.qty))))
+    : (QTY_FROM_STATUS[p?.stock] ?? QTY_FROM_STATUS.in);
+const stockFromQty = (q) => (q <= 0 ? 'out' : q <= LOW_STOCK ? 'low' : 'in');
+
 function sanitizeProduct(p) {
   return {
     id: Math.floor(Number(p.id)) || 0,
@@ -39,7 +50,9 @@ function sanitizeProduct(p) {
     material: S(p.material, 300),
     sizes: S(p.sizes, 200),
     icon: S(p.icon, 8),
-    stock: ['in', 'low', 'out'].includes(p.stock) ? p.stock : 'in',
+    qty: qtyOf(p),
+    qtyUpdatedAt: Number(p.qtyUpdatedAt) || 0,
+    stock: stockFromQty(qtyOf(p)),
     status: p.status === 'draft' ? 'draft' : 'live',
     imageUrl: S(p.imageUrl, 600000), // autorise les data-URI (≤ 400 Ko côté admin)
     // Galerie : photos supplémentaires de la fiche produit
@@ -80,8 +93,28 @@ export default async (req) => {
       return json({ error: 'Catalogue trop volumineux (max 500 produits)' }, 400);
 
     const clean = body.catalog.map(sanitizeProduct).filter((p) => p.id > 0 && p.name);
+
+    /* Fusion des quantités.
+       L'admin publie le catalogue qu'il a en mémoire ; pendant ce temps
+       /api/orders a pu décrémenter le stock à cause de commandes. Sans
+       précaution, la publication ferait « remonter » le stock vendu.
+       On garde donc, pour chaque produit, la quantité la plus récemment
+       écrite — inventaire saisi en magasin ou décrément automatique. */
+    const current = (await store.get('catalog', { type: 'json' })) || [];
+    let preserved = 0;
+    for (const p of clean) {
+      const before = current.find((x) => x.id === p.id);
+      if (!before) continue;
+      if ((Number(before.qtyUpdatedAt) || 0) > (Number(p.qtyUpdatedAt) || 0)) {
+        p.qty = qtyOf(before);
+        p.stock = stockFromQty(p.qty);
+        p.qtyUpdatedAt = Number(before.qtyUpdatedAt) || 0;
+        preserved++;
+      }
+    }
+
     await store.setJSON('catalog', clean);
-    return json({ ok: true, count: clean.length });
+    return json({ ok: true, count: clean.length, stockPreserved: preserved });
   }
 
   return json({ error: 'Méthode non autorisée' }, 405);
