@@ -67,9 +67,22 @@ const stockFromQty = (q) => (q <= 0 ? 'out' : q <= LOW_STOCK ? 'low' : 'in');
  */
 async function moveStock(store, lines, sign, { check = false } = {}) {
   for (let attempt = 0; attempt < 4; attempt++) {
-    const res = await store.getWithMetadata('catalog', { type: 'json' });
-    if (!res || !Array.isArray(res.data)) return { ok: true, skipped: 'pas de catalogue publié' };
-    const catalog = res.data;
+    // Selon la version du SDK, getWithMetadata peut rendre le contenu
+    // déjà parsé ou encore sous forme de texte : on accepte les deux.
+    let res = null;
+    try { res = await store.getWithMetadata('catalog', { type: 'json' }); }
+    catch (e) { console.error('Lecture catalogue (metadata) :', e); }
+
+    let catalog = res?.data;
+    if (typeof catalog === 'string') { try { catalog = JSON.parse(catalog); } catch { catalog = null; } }
+
+    // Repli : pas d'etag disponible, on lit puis on écrit sans condition.
+    if (!Array.isArray(catalog)) {
+      const plain = await store.get('catalog', { type: 'json' });
+      if (!Array.isArray(plain)) return { ok: true, skipped: 'pas de catalogue publié' };
+      catalog = plain;
+      res = null;
+    }
 
     if (check) {
       const shortages = [];
@@ -91,13 +104,22 @@ async function moveStock(store, lines, sign, { check = false } = {}) {
       p.qtyUpdatedAt = now;
     }
 
+    // Sans etag exploitable, l'écriture conditionnelle est impossible :
+    // on écrit directement plutôt que de renoncer au décrément.
+    if (!res?.etag) {
+      try { await store.setJSON('catalog', catalog); return { ok: true, mode: 'direct' }; }
+      catch (e) { console.error('Écriture directe du stock impossible :', e); return { ok: true, skipped: 'erreur écriture' }; }
+    }
+
     try {
-      const { modified } = await store.setJSON('catalog', catalog, { onlyIfMatch: res.etag });
-      if (modified) return { ok: true };
+      const out = await store.setJSON('catalog', catalog, { onlyIfMatch: res.etag });
+      // Certaines versions ne renvoient rien : pas de nouvelle égale succès.
+      if (!out || out.modified !== false) return { ok: true, mode: 'cas' };
       // etag périmé : quelqu'un a écrit entre notre lecture et notre écriture
     } catch (e) {
-      console.error('Écriture du stock impossible :', e);
-      return { ok: true, skipped: 'erreur écriture' }; // ne bloque jamais la commande
+      console.error('Écriture conditionnelle refusée, repli direct :', e);
+      try { await store.setJSON('catalog', catalog); return { ok: true, mode: 'direct-fallback' }; }
+      catch (e2) { console.error('Écriture du stock impossible :', e2); return { ok: true, skipped: 'erreur écriture' }; }
     }
   }
   console.error('Stock : 4 tentatives infructueuses, catalogue trop sollicité');
@@ -216,7 +238,8 @@ export default async (req, context) => {
       return false;
     });
 
-    return json({ ok: true, id: now, emailSent });
+    // `stock` dit si le décrément a bien eu lieu — utile au diagnostic
+    return json({ ok: true, id: now, emailSent, stock: move.skipped || move.mode || 'applique' });
   }
 
   /* ---------------------------- Admin : liste ---------------------------- */
