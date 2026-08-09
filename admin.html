@@ -55,11 +55,11 @@
 
       <!-- Stats -->
       <section class="admin-stats">
-        <div class="admin-stat"><span id="statTotal">0</span><small>Produits totaux</small></div>
-        <div class="admin-stat"><span id="statLive">0</span><small>En ligne</small></div>
-        <div class="admin-stat"><span id="statDraft">0</span><small>Brouillons</small></div>
-        <div class="admin-stat"><span id="statPromo">0</span><small>En promo</small></div>
-        <div class="admin-stat"><span id="statOrders">0</span><small>Commandes reçues</small></div>
+        <button type="button" class="admin-stat" data-stat="total"  title="Voir tous les produits et filtrer par type"><span id="statTotal">0</span><small>Produits totaux</small></button>
+        <button type="button" class="admin-stat" data-stat="live"   title="Voir les produits en ligne"><span id="statLive">0</span><small>En ligne</small></button>
+        <button type="button" class="admin-stat" data-stat="draft"  title="Voir les brouillons"><span id="statDraft">0</span><small>Brouillons</small></button>
+        <button type="button" class="admin-stat" data-stat="promo"  title="Voir les produits en promo"><span id="statPromo">0</span><small>En promo</small></button>
+        <button type="button" class="admin-stat" data-stat="orders" title="Voir les commandes"><span id="statOrders">0</span><small>Commandes reçues</small></button>
       </section>
 
       <!-- Onglets -->
@@ -236,6 +236,8 @@
               </select>
             </div>
           </div>
+          <!-- Filtres rapides par type, pilotés par les tuiles de statistiques -->
+          <div class="type-chips" id="typeChips" hidden></div>
           <div class="admin-table-wrap">
             <table class="admin-table">
               <thead>

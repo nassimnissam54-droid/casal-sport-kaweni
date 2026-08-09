@@ -287,8 +287,20 @@ const filterCat   = document.getElementById('filterCat');
 const filterStatusEl = document.getElementById('filterStatus');
 
 [searchBox, filterType, filterCat, filterStatusEl].forEach(el =>
-  el.addEventListener('input', renderTable)
+  el.addEventListener('input', () => { renderTable(); renderTypeChips(); })
 );
+
+/* Filtre « en promo » : orthogonal aux trois listes déroulantes,
+   piloté par la tuile « En promo » et par la puce correspondante. */
+let promoOnly = false;
+
+/* Le type d'un produit, avec repli sur son type générique. */
+const subOf = p => p.sub || (p.type === 'basket' ? 'basket' : 'accessoire');
+
+const CHIP_ICONS = {
+  tshirt: '👕', chemise: '👔', robe: '👗', pantalon: '👖', veste: '🧥',
+  ensemble: '👚', short: '🩳', basket: '👟', accessoire: '👜'
+};
 
 function renderTable() {
   const q  = searchBox.value.trim().toLowerCase();
@@ -296,9 +308,10 @@ function renderTable() {
   const fc = filterCat.value;
   const fs = filterStatusEl.value;
   const list = ProductDB.getAll().filter(p =>
-    (ft === 'all' || (p.sub || (p.type === 'basket' ? 'basket' : 'accessoire')) === ft) &&
+    (ft === 'all' || subOf(p) === ft) &&
     (fc === 'all' || p.cat === fc)  &&
     (fs === 'all' || (p.status || 'live') === fs) &&
+    (!promoOnly || !!p.oldPrice) &&
     (!q || p.name.toLowerCase().includes(q) || (p.desc||'').toLowerCase().includes(q))
   );
   if (!list.length) {
@@ -350,6 +363,81 @@ document.getElementById('productsTbody').addEventListener('click', e => {
   ({ edit: editProduct, dup: duplicateProduct, toggle: toggleStatus, del: deleteProduct })[btn.dataset.act]?.(id);
 });
 
+/* ============ FILTRES RAPIDES PAR TYPE ============
+   Puces affichées sous les listes déroulantes : un appui = un type.
+   Les compteurs tiennent compte des autres filtres actifs (catégorie,
+   statut, recherche) pour ne jamais annoncer un résultat vide. */
+const typeChips = document.getElementById('typeChips');
+
+function renderTypeChips() {
+  if (!typeChips || typeChips.hidden) return;
+  const q  = searchBox.value.trim().toLowerCase();
+  const fc = filterCat.value;
+  const fs = filterStatusEl.value;
+  // Base = tout sauf le filtre de type lui-même
+  const base = ProductDB.getAll().filter(p =>
+    (fc === 'all' || p.cat === fc) &&
+    (fs === 'all' || (p.status || 'live') === fs) &&
+    (!q || p.name.toLowerCase().includes(q) || (p.desc||'').toLowerCase().includes(q))
+  );
+  const counts = {};
+  base.forEach(p => { const s = subOf(p); counts[s] = (counts[s] || 0) + 1; });
+  const active = filterType.value;
+
+  const chip = (val, icon, label, n, on) =>
+    `<button type="button" class="chip${on ? ' active' : ''}" data-chip="${val}">
+       ${icon} ${esc(label)} <b>${n}</b>
+     </button>`;
+
+  const parts = [chip('all', '📦', 'Tous', base.length, active === 'all' && !promoOnly)];
+  Object.keys(SUB_LABELS)
+    .filter(k => counts[k])
+    .forEach(k => parts.push(chip(k, CHIP_ICONS[k] || '•', SUB_LABELS[k], counts[k], active === k)));
+  const promoN = base.filter(p => p.oldPrice).length;
+  if (promoN) parts.push(chip('promo', '🔥', 'En promo', promoN, promoOnly));
+
+  typeChips.innerHTML = parts.join('');
+}
+
+typeChips?.addEventListener('click', e => {
+  const btn = e.target.closest('[data-chip]');
+  if (!btn) return;
+  const v = btn.dataset.chip;
+  if (v === 'promo')      { promoOnly = !promoOnly; }
+  else if (v === 'all')   { filterType.value = 'all'; promoOnly = false; }
+  else                    { filterType.value = v; }
+  renderTable();
+  renderTypeChips();
+});
+
+/* ============ TUILES DE STATISTIQUES CLIQUABLES ============
+   Chaque tuile ouvre la vue correspondante au lieu d'afficher
+   un chiffre mort. */
+function openProducts({ type = 'all', status = 'all', promo = false } = {}) {
+  document.querySelector('.admin-tab[data-pane="paneProducts"]')?.click();
+  searchBox.value = '';
+  filterType.value = type;
+  filterCat.value = 'all';
+  filterStatusEl.value = status;
+  promoOnly = promo;
+  typeChips.hidden = false;
+  renderTable();
+  renderTypeChips();
+  typeChips.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+document.querySelector('.admin-stats')?.addEventListener('click', e => {
+  const tile = e.target.closest('[data-stat]');
+  if (!tile) return;
+  switch (tile.dataset.stat) {
+    case 'total':  openProducts(); break;
+    case 'live':   openProducts({ status: 'live' }); break;
+    case 'draft':  openProducts({ status: 'draft' }); break;
+    case 'promo':  openProducts({ promo: true }); break;
+    case 'orders': document.querySelector('.admin-tab[data-pane="paneOrders"]')?.click(); break;
+  }
+});
+
 function refreshStats() {
   const all = ProductDB.getAll();
   document.getElementById('statTotal').textContent  = all.length;
@@ -362,7 +450,7 @@ function refreshStats() {
   badge.textContent = n ? ` (${n})` : '';
 }
 
-function refreshAll() { renderTable(); refreshStats(); renderToday(); }
+function refreshAll() { renderTable(); renderTypeChips(); refreshStats(); renderToday(); }
 
 /* ============================================================
    PUBLICATION EN LIGNE (audit V1) — Netlify Blobs

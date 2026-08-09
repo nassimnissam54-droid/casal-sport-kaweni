@@ -3095,7 +3095,21 @@ h3, .product-title {
   background: var(--gris-900);
   padding: 1.5rem;
   text-align: center;
+  /* Les tuiles sont des boutons : elles ouvrent la vue correspondante */
+  width: 100%;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, transform 0.2s;
 }
+.admin-stat:hover,
+.admin-stat:focus-visible {
+  background: var(--gris-800);
+  border-bottom-color: var(--corail);
+  transform: translateY(-2px);
+}
+.admin-stat:active { transform: translateY(0); }
 .admin-stat span {
   font-family: 'Anton', sans-serif;
   font-size: 2.2rem;
@@ -4516,4 +4530,66 @@ body:not(.admin-body) ::selection { background: rgba(255,77,61,0.22); color: var
 @media (prefers-reduced-motion: reduce) {
   .status-alert { animation: none; }
   .badge-mini.badge-alert { animation: none; }
+}
+
+/* ============================================================
+   FILTRES RAPIDES PAR TYPE (admin)
+   Puces révélées par les tuiles de statistiques : un appui
+   suffit pour isoler les baskets, les tee-shirts, les promos…
+   ============================================================ */
+.type-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.9rem 0 0.2rem;
+  border-top: 1px solid var(--gris-800);
+  margin-top: 0.9rem;
+}
+.type-chips .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 40px;
+  padding: 0.45rem 0.85rem;
+  background: var(--gris-800);
+  color: var(--gris-300);
+  border: 1px solid var(--gris-700);
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, border-color 0.18s;
+}
+.type-chips .chip b {
+  padding: 0.05rem 0.4rem;
+  background: rgba(255,255,255,0.09);
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+.type-chips .chip:hover,
+.type-chips .chip:focus-visible {
+  background: var(--gris-700);
+  color: var(--blanc);
+  border-color: var(--gris-600);
+}
+.type-chips .chip.active {
+  background: var(--corail);
+  color: var(--blanc);
+  border-color: var(--corail);
+}
+.type-chips .chip.active b { background: rgba(0,0,0,0.22); }
+
+@media (max-width: 640px) {
+  /* Une seule ligne défilante : la table reste visible sans scroller */
+  .type-chips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .type-chips::-webkit-scrollbar { display: none; }
+  .type-chips .chip { flex-shrink: 0; }
 }
