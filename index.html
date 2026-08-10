@@ -38,7 +38,7 @@
     "description": "Boutique de vêtements à Mamoudzou (Mayotte) — mode homme, femme, enfant, chaussures et accessoires. Commande en ligne, retrait gratuit en boutique.",
     "address": {
       "@type": "PostalAddress",
-      "streetAddress": "Rue du Commerce",
+      "streetAddress": "27 rue du Commerce",
       "addressLocality": "Mamoudzou",
       "postalCode": "97600",
       "addressRegion": "Mayotte",
@@ -47,7 +47,31 @@
     "areaServed": ["Mayotte"],
     "paymentAccepted": ["Cash", "Credit Card", "Bank Transfer"],
     "currenciesAccepted": "EUR",
-    "telephone": "+262 639 07 00 35"
+    "telephone": "+262 639 07 00 35",
+    "sameAs": [
+      "https://www.instagram.com/zakboutik/",
+      "https://www.facebook.com/p/Zak-Boutik-100091275030445/"
+    ],
+    "openingHoursSpecification": [
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Saturday"],
+        "opens": "07:30",
+        "closes": "18:00"
+      },
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": "Friday",
+        "opens": "07:30",
+        "closes": "12:30"
+      },
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": "Friday",
+        "opens": "13:30",
+        "closes": "18:00"
+      }
+    ]
   }
   </script>
 
@@ -340,11 +364,41 @@
       <div class="shop-icon"><svg class="icon icon-xl"><use href="#i-pin"/></svg></div>
       <div class="shop-info">
         <span class="shop-eyebrow">Notre boutique · Point de retrait de tes commandes</span>
-        <h2 class="shop-title">MAMOUDZOU · RUE DU COMMERCE</h2>
+        <h2 class="shop-title">MAMOUDZOU · 27 RUE DU COMMERCE</h2>
+        <!-- Statut rempli par script.js et rafraîchi chaque minute -->
+        <p class="shop-status" id="shopStatus" hidden>
+          <span class="status-dot"></span>
+          <strong class="status-label"></strong>
+          <span class="status-detail"></span>
+        </p>
       </div>
       <div class="shop-actions">
         <a href="https://wa.me/262639070035?text=Bonjour%20ZAK%20BOUTIK%20%F0%9F%91%8B%0AJ%27ai%20une%20question%20sur%20la%20boutique%20de%20Mamoudzou." class="btn" target="_blank">💬 Nous écrire</a>
-        <a href="https://www.google.com/maps/search/Rue+du+Commerce+Mamoudzou+Mayotte" target="_blank" rel="noopener" class="btn btn-outline">🗺️ Itinéraire</a>
+        <a href="https://www.google.com/maps/search/27+Rue+du+Commerce+Mamoudzou+97600+Mayotte" target="_blank" rel="noopener" class="btn btn-outline">🗺️ Itinéraire</a>
+      </div>
+    </div>
+
+    <!-- ---- Horaires de la semaine + réseaux ---- -->
+    <div class="shop-details">
+      <div class="shop-hours">
+        <h3>🕐 Horaires d'ouverture</h3>
+        <ul id="shopHours"><!-- rempli par script.js --></ul>
+        <p class="shop-hours-note">Heure de Mayotte</p>
+      </div>
+      <div class="shop-reach">
+        <h3>📍 Nous trouver</h3>
+        <address>
+          27 rue du Commerce<br>
+          97600 Mamoudzou · Mayotte
+        </address>
+        <div class="shop-socials">
+          <a href="https://www.instagram.com/zakboutik/" target="_blank" rel="noopener noreferrer" class="soc soc-ig">
+            <span class="soc-ic" aria-hidden="true">📷</span> Instagram
+          </a>
+          <a href="https://www.facebook.com/p/Zak-Boutik-100091275030445/" target="_blank" rel="noopener noreferrer" class="soc soc-fb">
+            <span class="soc-ic" aria-hidden="true">📘</span> Facebook
+          </a>
+        </div>
       </div>
     </div>
   </section>
@@ -603,10 +657,9 @@
         </a>
         <p>Boutique de vêtements rue du Commerce à <strong>Mamoudzou (Mayotte)</strong>. Mode homme, femme, enfant, chaussures et accessoires. Commande en ligne, retrait gratuit en boutique.</p>
         <div class="footer-socials">
-          <a href="#" aria-label="Instagram">📷</a>
-          <a href="#" aria-label="Facebook">📘</a>
-          <a href="#" aria-label="TikTok">🎵</a>
-          <a href="https://wa.me/33628782826" aria-label="WhatsApp">💬</a>
+          <a href="https://www.instagram.com/zakboutik/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">📷</a>
+          <a href="https://www.facebook.com/p/Zak-Boutik-100091275030445/" target="_blank" rel="noopener noreferrer" aria-label="Facebook">📘</a>
+          <a href="https://wa.me/262639070035" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">💬</a>
         </div>
       </div>
       <div class="footer-col">
@@ -643,7 +696,7 @@
         </div>
         <h4 style="margin-top:1.2rem">Retrait</h4>
         <ul>
-          <li>📍 Boutique rue du Commerce, Mamoudzou</li>
+          <li>📍 27 rue du Commerce, 97600 Mamoudzou</li>
           <li>🎫 Avec ton code de retrait</li>
           <li>🆓 Gratuit · sans livraison</li>
         </ul>

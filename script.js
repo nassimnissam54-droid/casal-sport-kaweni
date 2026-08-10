@@ -1734,6 +1734,52 @@ document.addEventListener('keydown', e => {
    SYNCHRO CATALOGUE (audit V1) : si l'admin a publié un catalogue
    en ligne, on re-rend les grilles avec la version à jour.
    ============================================================ */
+/* ============================================================
+   HORAIRES & STATUT DE LA BOUTIQUE
+   Pastille verte = ouvert · orange = ferme dans moins de 30 min
+   · rouge = fermé. Calculé sur l'heure de Mayotte (cf. products.js)
+   et rafraîchi chaque minute pour que la couleur reste juste sur
+   un onglet laissé ouvert.
+   ============================================================ */
+function renderShopStatus() {
+  const el = document.getElementById('shopStatus');
+  if (!el) return;
+  const { state, label, detail } = storeStatus();
+  el.hidden = false;
+  el.className = `shop-status is-${state}`;
+  el.querySelector('.status-label').textContent = label;
+  el.querySelector('.status-detail').textContent = detail;
+  el.setAttribute('aria-label', `${label}${detail ? ' — ' + detail : ''}`);
+}
+
+function renderShopHours() {
+  const ul = document.getElementById('shopHours');
+  if (!ul) return;
+  const today = storeNow().day;
+  // Semaine affichée du lundi au dimanche, comme on la lit sur une vitrine
+  const ordre = [1, 2, 3, 4, 5, 6, 0];
+  ul.innerHTML = ordre.map(d => {
+    const ferme = !(STORE_HOURS[d] || []).length;
+    return `<li class="${d === today ? 'is-today' : ''}${ferme ? ' is-closed' : ''}">
+      <span class="d">${DAY_NAMES[d]}${d === today ? ' <em>· aujourd\'hui</em>' : ''}</span>
+      <span class="h">${hoursText(d)}</span>
+    </li>`;
+  }).join('');
+}
+
+function initShopInfo() {
+  if (!document.getElementById('shopStatus')) return;
+  renderShopStatus();
+  renderShopHours();
+  // Une minute suffit : le passage vert → orange se joue à 30 min près
+  setInterval(() => { renderShopStatus(); renderShopHours(); }, 60_000);
+  // Un onglet réveillé après plusieurs heures doit se corriger tout de suite
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) { renderShopStatus(); renderShopHours(); }
+  });
+}
+initShopInfo();
+
 /** Redessine toutes les vues qui dépendent du catalogue (dont le stock). */
 function refreshCatalogViews() {
   applyFilter('grid-vet');

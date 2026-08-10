@@ -22,12 +22,101 @@ const CONTACT_INFO = {
   ],
   email: 'nassimnissam54@gmail.com',
   shopName: 'ZAK BOUTIK',
+  address: {
+    street:   '27 rue du Commerce',
+    postal:   '97600',
+    city:     'Mamoudzou',
+    region:   'Mayotte',
+    mapsQuery:'27+Rue+du+Commerce+Mamoudzou+97600+Mayotte'
+  },
   socials: {
-    instagram: 'https://instagram.com/',
-    facebook:  'https://facebook.com/',
-    tiktok:    'https://tiktok.com/'
+    instagram: 'https://www.instagram.com/zakboutik/',
+    facebook:  'https://www.facebook.com/p/Zak-Boutik-100091275030445/',
+    tiktok:    ''   // pas de compte TikTok connu : le bouton reste masqué
   }
 };
+
+/* ============================================================
+   HORAIRES D'OUVERTURE
+   Source : profil Instagram @zakboutik.
+   Créneaux en heure de MAYOTTE (UTC+3) : c'est l'heure du
+   magasin qui compte, pas celle du téléphone du visiteur — un
+   client en métropole verrait sinon « ouvert » à 5 h du matin.
+   0 = dimanche … 6 = samedi. Tableau vide = fermé ce jour-là.
+   ============================================================ */
+const STORE_TZ = 'Indian/Mayotte';
+const CLOSING_SOON_MIN = 30;          // sous ce délai, pastille orange
+
+const STORE_HOURS = {
+  0: [],                                        // dimanche : fermé
+  1: [['07:30', '18:00']],                      // lundi
+  2: [['07:30', '18:00']],                      // mardi
+  3: [['07:30', '18:00']],                      // mercredi
+  4: [['07:30', '18:00']],                      // jeudi
+  5: [['07:30', '12:30'], ['13:30', '18:00']],  // vendredi : pause 12h30–13h30
+  6: [['07:30', '18:00']]                       // samedi
+};
+
+const DAY_NAMES = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+
+const toMinutes = (hhmm) => {
+  const [h, m] = hhmm.split(':').map(Number);
+  return h * 60 + m;
+};
+const fromMinutes = (min) => `${String(Math.floor(min / 60)).padStart(2, '0')}h${String(min % 60).padStart(2, '0')}`;
+
+/** Jour et minute courants À MAYOTTE, quel que soit le fuseau du visiteur. */
+function storeNow(date = new Date()) {
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat('en-CA', {
+      timeZone: STORE_TZ, year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', hour12: false
+    }).formatToParts(date).map(p => [p.type, p.value])
+  );
+  // Date reconstruite en UTC à partir des composantes locales de Mayotte :
+  // getUTCDay() rend alors le bon jour de la semaine sur place.
+  const day = new Date(`${parts.year}-${parts.month}-${parts.day}T00:00:00Z`).getUTCDay();
+  const hour = Number(parts.hour) % 24;         // certains moteurs rendent « 24 » à minuit
+  return { day, minutes: hour * 60 + Number(parts.minute) };
+}
+
+/**
+ * État du magasin maintenant.
+ * @returns {{state:'open'|'soon'|'closed', label:string, detail:string}}
+ *  open   → vert   · soon → orange (ferme dans moins de 30 min) · closed → rouge
+ */
+function storeStatus(date = new Date()) {
+  const { day, minutes } = storeNow(date);
+
+  for (const [from, to] of (STORE_HOURS[day] || [])) {
+    const start = toMinutes(from), end = toMinutes(to);
+    if (minutes < start || minutes >= end) continue;
+    const left = end - minutes;
+    return left <= CLOSING_SOON_MIN
+      ? { state: 'soon',  label: 'Ferme bientôt', detail: `Fermeture dans ${left} min (à ${fromMinutes(end)})` }
+      : { state: 'open',  label: 'Ouvert',        detail: `Jusqu'à ${fromMinutes(end)}` };
+  }
+
+  // Fermé : on cherche la prochaine ouverture, aujourd'hui puis les jours suivants
+  const todayNext = (STORE_HOURS[day] || []).find(([from]) => toMinutes(from) > minutes);
+  if (todayNext) return { state: 'closed', label: 'Fermé', detail: `Ouvre à ${fromMinutes(toMinutes(todayNext[0]))}` };
+
+  for (let i = 1; i <= 7; i++) {
+    const d = (day + i) % 7;
+    const slots = STORE_HOURS[d] || [];
+    if (!slots.length) continue;
+    const quand = i === 1 ? 'demain' : DAY_NAMES[d].toLowerCase();
+    return { state: 'closed', label: 'Fermé', detail: `Ouvre ${quand} à ${fromMinutes(toMinutes(slots[0][0]))}` };
+  }
+  return { state: 'closed', label: 'Fermé', detail: '' };
+}
+
+/** Horaires d'un jour en texte : « 7h30 – 18h00 » ou « 7h30 – 12h30 · 13h30 – 18h00 ». */
+function hoursText(day) {
+  const slots = STORE_HOURS[day] || [];
+  if (!slots.length) return 'Fermé';
+  return slots.map(([a, b]) => `${fromMinutes(toMinutes(a))} – ${fromMinutes(toMinutes(b))}`).join(' · ');
+}
 
 /* ============================================================
    PAIEMENT
