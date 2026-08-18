@@ -4757,3 +4757,148 @@ body:not(.admin-body) ::selection { background: rgba(255,77,61,0.22); color: var
   }
   .shop-status { width: 100%; }
 }
+
+/* ============================================================
+   LES DEUX UNIVERS — Homme & Garçon / Femme & Fille
+   ============================================================ */
+.universe-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2rem;
+}
+.universe-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  padding: 2.2rem 1.8rem;
+  min-height: 190px;
+  border: 1px solid var(--gris-200);
+  border-radius: var(--r-sm, 4px);
+  background: var(--gris-50);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform 0.25s cubic-bezier(.2,.8,.2,1), box-shadow 0.25s, border-color 0.25s;
+}
+.universe-card::after {
+  /* Bande de couleur qui se remplit au survol : signal du choix */
+  content: '';
+  position: absolute;
+  left: 0; bottom: 0;
+  width: 100%; height: 4px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.35s cubic-bezier(.2,.8,.2,1);
+}
+.universe-card:hover,
+.universe-card:focus-visible {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.12);
+  border-color: currentColor;
+}
+.universe-card:hover::after,
+.universe-card:focus-visible::after,
+.universe-card.active::after { transform: scaleX(1); }
+
+.universe-card.u-h { color: #1E6FA8; }
+.universe-card.u-f { color: #C2306B; }
+
+.universe-card.active {
+  border-color: currentColor;
+  background: var(--blanc);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.10);
+}
+.universe-card.active .uc-go::after { content: ' · partie active'; opacity: 0.7; }
+
+.uc-icon  { font-size: 2.4rem; line-height: 1; margin-bottom: 0.5rem; }
+.uc-title {
+  font-family: 'Anton', sans-serif;
+  font-size: clamp(1.6rem, 4vw, 2.3rem);
+  letter-spacing: 0.02em;
+  color: var(--ink, #111);
+}
+.uc-sub   { font-size: 0.9rem; color: var(--gris-600); }
+.uc-go    {
+  margin-top: 0.9rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: currentColor;
+}
+
+/* ---- Bandeau de l'univers actif (sous le header) ---- */
+.universe-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+  padding: 0.55rem 1.2rem;
+  background: var(--noir);
+  color: var(--blanc);
+  font-size: 0.85rem;
+}
+.universe-bar .ub-icon { font-size: 1.1rem; }
+.universe-bar .ub-text { opacity: 0.9; }
+.universe-bar .ub-label { letter-spacing: 0.03em; }
+.universe-bar .ub-actions {
+  display: flex;
+  gap: 0.4rem;
+  margin-left: auto;
+  flex-wrap: wrap;
+}
+.universe-bar button {
+  min-height: 34px;
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.28);
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+.universe-bar button:hover,
+.universe-bar button:focus-visible { background: rgba(255,255,255,0.14); }
+.universe-bar .ub-swap.active {
+  background: var(--blanc);
+  color: var(--noir);
+  border-color: var(--blanc);
+}
+
+/* ---- Bascule dans le menu mobile ---- */
+.menu-universe {
+  display: flex;
+  gap: 0.6rem;
+  margin-bottom: 1.2rem;
+}
+.menu-u {
+  flex: 1;
+  min-height: 48px;
+  padding: 0.6rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.3);
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.menu-u.active { background: var(--blanc); color: var(--noir); border-color: var(--blanc); }
+
+@media (max-width: 640px) {
+  .universe-grid { grid-template-columns: 1fr; gap: 0.9rem; }
+  .universe-card { min-height: 0; padding: 1.5rem 1.3rem; }
+  .uc-icon { font-size: 2rem; }
+  .universe-bar { font-size: 0.8rem; padding: 0.5rem 0.9rem; }
+  .universe-bar .ub-text { width: 100%; }
+  .universe-bar .ub-actions { margin-left: 0; width: 100%; }
+  .universe-bar .ub-actions button { flex: 1; }
+}

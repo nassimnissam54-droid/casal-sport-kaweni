@@ -164,12 +164,23 @@
       </div>
     </div>
 
+    <!-- Bandeau de l'univers actif : rappel + sortie en un clic -->
+    <div class="universe-bar" id="universeBar" hidden>
+      <span class="ub-icon" aria-hidden="true">👔</span>
+      <span class="ub-text">Tu es dans la partie <strong class="ub-label">Homme &amp; Garçon</strong></span>
+      <div class="ub-actions">
+        <button type="button" class="ub-swap" data-universe="homme">👔 Homme</button>
+        <button type="button" class="ub-swap" data-universe="femme">👗 Femme</button>
+        <button type="button" class="ub-exit" id="universeExit">Voir toute la boutique ✕</button>
+      </div>
+    </div>
+
     <!-- Nav catégories avec mega menu -->
     <nav class="category-nav" aria-label="Catégories">
       <div class="category-track">
         <a href="#nouveautes" class="category-item featured">★ Nouveautés</a>
-        <a href="#vetements"  class="category-item" data-mega="megaFemme">Femme</a>
-        <a href="#vetements"  class="category-item" data-mega="megaHomme">Homme</a>
+        <a href="#vetements"  class="category-item" data-mega="megaFemme" data-universe-only="femme">Femme</a>
+        <a href="#vetements"  class="category-item" data-mega="megaHomme" data-universe-only="homme">Homme</a>
         <a href="#vetements"  class="category-item" data-mega="megaEnfant">Enfant</a>
         <a href="#baskets"    class="category-item" data-mega="megaBaskets">Chaussures</a>
         <a href="#vetements"  class="category-item" data-mega="megaEquipement" data-fsub="accessoire">Accessoires</a>
@@ -241,14 +252,14 @@
 
       <!-- Méga-menu Enfant -->
       <div class="mega-menu" id="megaEnfant">
-        <div class="mega-col">
+        <div class="mega-col" data-universe-only="homme">
           <h5>Garçon</h5>
           <a href="#vetements" data-fcat="garcon" data-fsub="tshirt">Tee-shirts</a>
           <a href="#vetements" data-fcat="garcon" data-fsub="ensemble">Ensembles</a>
           <a href="#vetements" data-fcat="garcon" data-fsub="short">Shorts</a>
           <a href="#baskets"   data-fcat="garcon" data-fsub="basket">Chaussures</a>
         </div>
-        <div class="mega-col">
+        <div class="mega-col" data-universe-only="femme">
           <h5>Fille</h5>
           <a href="#vetements" data-fcat="fille" data-fsub="robe">Robes</a>
           <a href="#vetements" data-fcat="fille" data-fsub="ensemble">Ensembles</a>
@@ -256,8 +267,8 @@
         </div>
         <div class="mega-col">
           <h5>Tout voir</h5>
-          <a href="#vetements" data-fcat="garcon">Tout Garçon</a>
-          <a href="#vetements" data-fcat="fille">Tout Fille</a>
+          <a href="#vetements" data-fcat="garcon" data-universe-only="homme">Tout Garçon</a>
+          <a href="#vetements" data-fcat="fille"  data-universe-only="femme">Tout Fille</a>
         </div>
         <div class="mega-col">
           <h5>Aide</h5>
@@ -274,10 +285,10 @@
       <div class="mega-menu" id="megaBaskets">
         <div class="mega-col">
           <h5>Chaussures par catégorie</h5>
-          <a href="#baskets" data-fcat="homme"  data-fsub="basket">Homme</a>
-          <a href="#baskets" data-fcat="femme"  data-fsub="basket">Femme</a>
-          <a href="#baskets" data-fcat="garcon" data-fsub="basket">Garçon</a>
-          <a href="#baskets" data-fcat="fille"  data-fsub="basket">Fille</a>
+          <a href="#baskets" data-fcat="homme"  data-fsub="basket" data-universe-only="homme">Homme</a>
+          <a href="#baskets" data-fcat="femme"  data-fsub="basket" data-universe-only="femme">Femme</a>
+          <a href="#baskets" data-fcat="garcon" data-fsub="basket" data-universe-only="homme">Garçon</a>
+          <a href="#baskets" data-fcat="fille"  data-fsub="basket" data-universe-only="femme">Fille</a>
         </div>
         <div class="mega-col">
           <h5>Femme</h5>
@@ -403,6 +414,30 @@
     </div>
   </section>
 
+  <!-- ============ LES DEUX UNIVERS ============ -->
+  <section class="section section-tight" id="univers">
+    <div class="section-head">
+      <div>
+        <span class="section-eyebrow">Choisis ta partie</span>
+        <h2 class="section-title">Deux univers</h2>
+      </div>
+    </div>
+    <div class="universe-grid">
+      <button type="button" class="universe-card u-h" data-universe="homme" data-universe-scroll>
+        <span class="uc-icon" aria-hidden="true">👔</span>
+        <span class="uc-title">HOMME</span>
+        <span class="uc-sub">Homme &amp; Garçon</span>
+        <span class="uc-go">Voir cette partie →</span>
+      </button>
+      <button type="button" class="universe-card u-f" data-universe="femme" data-universe-scroll>
+        <span class="uc-icon" aria-hidden="true">👗</span>
+        <span class="uc-title">FEMME</span>
+        <span class="uc-sub">Femme &amp; Fille</span>
+        <span class="uc-go">Voir cette partie →</span>
+      </button>
+    </div>
+  </section>
+
   <!-- ============ COLLECTIONS (tuiles catégories) ============ -->
   <section class="section section-tight" id="collections">
     <div class="section-head">
@@ -412,28 +447,28 @@
       </div>
     </div>
     <div class="collections-grid">
-      <a href="#vetements" class="collection-tile" data-cat="femme">
+      <a href="#vetements" class="collection-tile" data-cat="femme" data-universe-only="femme">
         <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=700&q=75" alt="Mode Femme" loading="lazy" decoding="async" />
         <div class="collection-tile-overlay">
           <h3>Femme</h3>
           <span>Explorer →</span>
         </div>
       </a>
-      <a href="#vetements" class="collection-tile" data-cat="homme">
+      <a href="#vetements" class="collection-tile" data-cat="homme" data-universe-only="homme">
         <img src="https://images.unsplash.com/photo-1490578474895-699cd4e2cf59?w=700&q=75" alt="Mode Homme" loading="lazy" decoding="async" />
         <div class="collection-tile-overlay">
           <h3>Homme</h3>
           <span>Explorer →</span>
         </div>
       </a>
-      <a href="#vetements" class="collection-tile" data-cat="garcon">
+      <a href="#vetements" class="collection-tile" data-cat="garcon" data-universe-only="homme">
         <img src="https://images.unsplash.com/photo-1503944583220-79d8926ad5e2?w=700&q=75" alt="Mode Garçon" loading="lazy" decoding="async" />
         <div class="collection-tile-overlay">
           <h3>Garçon</h3>
           <span>Explorer →</span>
         </div>
       </a>
-      <a href="#vetements" class="collection-tile" data-cat="fille">
+      <a href="#vetements" class="collection-tile" data-cat="fille" data-universe-only="femme">
         <img src="https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?w=700&q=75" alt="Mode Fille" loading="lazy" decoding="async" />
         <div class="collection-tile-overlay">
           <h3>Fille</h3>
@@ -730,9 +765,14 @@
       <button class="burger-btn" id="menuClose" aria-label="Fermer">×</button>
     </div>
     <nav>
+      <!-- Bascule d'univers, en tête du menu mobile -->
+      <div class="menu-universe">
+        <button type="button" class="menu-u" data-universe="homme">👔 Partie Homme</button>
+        <button type="button" class="menu-u" data-universe="femme">👗 Partie Femme</button>
+      </div>
       <a href="#nouveautes" class="menu-link">★ Nouveautés</a>
-      <a href="#vetements"  class="menu-link">Femme</a>
-      <a href="#vetements"  class="menu-link">Homme</a>
+      <a href="#vetements"  class="menu-link" data-universe-only="femme">Femme</a>
+      <a href="#vetements"  class="menu-link" data-universe-only="homme">Homme</a>
       <a href="#vetements"  class="menu-link">Enfant</a>
       <a href="#baskets"    class="menu-link">Chaussures</a>
       <a href="#vetements"  class="menu-link" data-fsub="accessoire">Accessoires</a>

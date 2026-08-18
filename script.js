@@ -43,8 +43,22 @@ const SORT_LABELS = {
   'rating':     'Mieux notés'
 };
 
+/* ============ UNIVERS (Homme & Garçon / Femme & Fille) ============
+   Choix persistant qui se superpose à TOUS les filtres : grilles,
+   nouveautés, favoris, produits similaires. Lu depuis l'URL (?u=)
+   pour qu'un lien partagé ouvre le bon univers, puis mémorisé. */
+let currentUniverse = (() => {
+  const fromUrl = new URLSearchParams(location.search).get('u');
+  if (UNIVERSES[fromUrl]) { localStorage.setItem(UNIVERSE_KEY, fromUrl); return fromUrl; }
+  const saved = localStorage.getItem(UNIVERSE_KEY);
+  return UNIVERSES[saved] ? saved : null;
+})();
+
+/** Restreint une liste de produits à l'univers actif. */
+const scopeToUniverse = list => list.filter(p => inUniverse(p, currentUniverse));
+
 function filterList(state) {
-  let list = ProductDB.getLive().filter(p => p.type === state.type);
+  let list = scopeToUniverse(ProductDB.getLive()).filter(p => p.type === state.type);
   if (state.cats.length)   list = list.filter(p => state.cats.includes(p.cat));
   if (state.subs && state.subs.length) list = list.filter(p => state.subs.includes(p.sub));
   if (state.sports && state.sports.length) list = list.filter(p => state.sports.includes(p.sport));
@@ -421,7 +435,7 @@ window.addEventListener('resize', () => { if (!sortSheet.hidden) closeSortSheet(
 function renderCarousel() {
   const car = document.getElementById('carouselNew');
   if (!car) return;
-  car.innerHTML = ProductDB.newest(10).map(cardHTML).join('');
+  car.innerHTML = scopeToUniverse(ProductDB.newest(30)).slice(0, 10).map(cardHTML).join('');
   bindCardActions(car);
 }
 document.getElementById('carouselPrev')?.addEventListener('click', () => document.getElementById('carouselNew').scrollBy({ left: -540, behavior: 'smooth' }));
@@ -440,7 +454,7 @@ function renderFavorites() {
   const sub  = document.getElementById('favSubtitle');
   if (!grid) return;
   const ids = WishlistDB.getAll();
-  const list = ProductDB.getLive().filter(p => ids.includes(p.id));
+  const list = scopeToUniverse(ProductDB.getLive()).filter(p => ids.includes(p.id));
   if (!list.length) {
     if (sub) sub.textContent = "Aucun favori — clique sur le ♡ d'un produit pour l'ajouter.";
     grid.innerHTML = '';
@@ -707,7 +721,7 @@ document.getElementById('piAdd')?.addEventListener('click', () => {
 /* ---------- Suggestions ---------- */
 function renderSimilar() {
   const p = pdProduct;
-  const similar = ProductDB.getLive()
+  const similar = scopeToUniverse(ProductDB.getLive())
     .filter(x => x.id !== p.id && (x.sub === p.sub || x.cat === p.cat))
     .slice(0, 4);
   const box = document.getElementById('piSimilar');
@@ -1595,6 +1609,7 @@ document.addEventListener('keydown', e => {
 });
 
 /* ============ INIT ============ */
+renderUniverseUI();      // avant les grilles : l'univers conditionne leur contenu
 renderCarousel();
 applyFilter('grid-vet');
 applyFilter('grid-bas');
@@ -1734,6 +1749,71 @@ document.addEventListener('keydown', e => {
    SYNCHRO CATALOGUE (audit V1) : si l'admin a publié un catalogue
    en ligne, on re-rend les grilles avec la version à jour.
    ============================================================ */
+/* ============================================================
+   BASCULE D'UNIVERS
+   Un seul point d'entrée : tout ce qui dépend de l'univers est
+   redessiné, et l'URL suit pour qu'un lien reste partageable.
+   ============================================================ */
+function setUniverse(u, { scroll = false } = {}) {
+  currentUniverse = UNIVERSES[u] ? u : null;
+  if (currentUniverse) localStorage.setItem(UNIVERSE_KEY, currentUniverse);
+  else localStorage.removeItem(UNIVERSE_KEY);
+
+  // Les filtres de catégorie de l'ancien univers n'ont plus de sens
+  Object.values(filterState).forEach(s => { s.cats = []; });
+
+  const url = new URL(location.href);
+  if (currentUniverse) url.searchParams.set('u', currentUniverse);
+  else url.searchParams.delete('u');
+  history.replaceState(null, '', url);
+
+  renderUniverseUI();
+  applyFilter('grid-vet');
+  applyFilter('grid-bas');
+  renderCarousel();
+  renderFavorites();
+  updateFavCounter();
+
+  if (scroll) document.getElementById('vetements')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/** Reflète l'univers actif : boutons, bandeau, libellés de sections. */
+function renderUniverseUI() {
+  document.querySelectorAll('[data-universe]').forEach(el =>
+    el.classList.toggle('active', el.dataset.universe === currentUniverse));
+
+  document.body.classList.toggle('u-homme', currentUniverse === 'homme');
+  document.body.classList.toggle('u-femme', currentUniverse === 'femme');
+
+  const bar = document.getElementById('universeBar');
+  if (bar) {
+    const u = UNIVERSES[currentUniverse];
+    bar.hidden = !u;
+    if (u) {
+      bar.querySelector('.ub-icon').textContent = u.icon;
+      bar.querySelector('.ub-label').textContent = u.sub;
+    }
+  }
+
+  // Les mega-menus de l'univers opposé n'ont plus lieu d'être
+  document.querySelectorAll('[data-universe-only]').forEach(el => {
+    const only = el.dataset.universeOnly;
+    el.hidden = !!currentUniverse && only !== currentUniverse;
+  });
+}
+
+document.addEventListener('click', e => {
+  const btn = e.target.closest('[data-universe]');
+  if (btn) {
+    e.preventDefault();
+    // Re-cliquer sur l'univers actif le quitte : on revient à toute la boutique
+    const next = btn.dataset.universe === currentUniverse ? null : btn.dataset.universe;
+    setUniverse(next, { scroll: !!next && btn.hasAttribute('data-universe-scroll') });
+    return;
+  }
+  if (e.target.closest('#universeExit')) { e.preventDefault(); setUniverse(null); }
+});
+
 /* ============================================================
    HORAIRES & STATUT DE LA BOUTIQUE
    Pastille verte = ouvert · orange = ferme dans moins de 30 min

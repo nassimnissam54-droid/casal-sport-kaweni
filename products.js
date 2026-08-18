@@ -224,6 +224,31 @@ const SUB_LABELS = {
 };
 
 /* ============================================================
+   UNIVERS — les deux parties distinctes de la boutique
+   « Homme » regroupe homme + garçon, « Femme » regroupe femme +
+   fille. Les accessoires unisexes (cat 'mixte' : sacs, casquettes,
+   ceintures) restent visibles dans les deux : les cacher partout
+   reviendrait à ne plus jamais les vendre.
+   ============================================================ */
+const UNIVERSE_KEY = 'zak_universe_v1';
+
+const UNIVERSES = {
+  homme: { label: 'Homme',  sub: 'Homme & Garçon', icon: '👔', cats: ['homme', 'garcon'] },
+  femme: { label: 'Femme',  sub: 'Femme & Fille',  icon: '👗', cats: ['femme', 'fille'] }
+};
+
+/** Catégories visibles dans un univers (accessoires mixtes compris). */
+function universeCats(u) {
+  return UNIVERSES[u] ? [...UNIVERSES[u].cats, 'mixte'] : null;
+}
+
+/** true si le produit appartient à l'univers (ou si aucun univers actif). */
+function inUniverse(p, u) {
+  const cats = universeCats(u);
+  return !cats || cats.includes(p.cat);
+}
+
+/* ============================================================
    PRODUITS PAR DEFAUT (avec photos Unsplash + stock + textes plus emotionnels)
    ============================================================ */
 const NOW = Date.now();
