@@ -484,6 +484,7 @@ let pdQty     = 1;
 function openProductModal(productId) {
   const p = ProductDB.getAll().find(x => x.id === productId);
   if (!p) return;
+  trackProductView(p.id);
   pdProduct = p;
   pdImages  = productImages(p);
   pdIndex   = 0;
@@ -1608,7 +1609,49 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && !sharePopover.hidden) closeSharePopover();
 });
 
+/* ============================================================
+   LES PLUS ACHETÉS DU MOMENT
+   Classement réel des ventes des 30 derniers jours, calculé par le
+   serveur à partir des commandes. La section reste masquée tant
+   qu'il n'y a pas assez de ventes pour qu'un classement veuille
+   dire quelque chose — un « top 3 » bâti sur deux commandes
+   décrédibilise plus qu'il ne vend.
+   ============================================================ */
+const BESTSELLER_MIN = 3;   // en dessous, aucun classement n'est affiché
+
+async function renderBestsellers() {
+  const section = document.getElementById('bestsellers');
+  const grid = document.getElementById('grid-best');
+  if (!section || !grid) return;
+
+  let top = [];
+  try {
+    const r = await fetch('/api/stats?top=1');
+    if (!r.ok) return;
+    ({ top = [] } = await r.json());
+  } catch { return; }          // serveur injoignable : la section reste masquée
+
+  const live = scopeToUniverse(ProductDB.getLive());
+  const list = top
+    .map(t => ({ p: live.find(x => x.id === t.productId), sold: t.sold }))
+    .filter(x => x.p)          // produit retiré du catalogue depuis la vente
+    .slice(0, 4);
+
+  if (list.length < BESTSELLER_MIN) { section.hidden = true; return; }
+
+  section.hidden = false;
+  grid.innerHTML = list.map(({ p, sold }, i) => `
+    <div class="best-item">
+      <span class="best-rank">${i + 1}</span>
+      ${cardHTML(p)}
+      <span class="best-count">${sold} vendu${sold > 1 ? 's' : ''} ce mois-ci</span>
+    </div>`).join('');
+  bindCardActions(grid);
+}
+
 /* ============ INIT ============ */
+trackVisit();
+renderBestsellers();
 renderUniverseUI();      // avant les grilles : l'univers conditionne leur contenu
 renderCarousel();
 applyFilter('grid-vet');
@@ -1750,6 +1793,39 @@ document.addEventListener('keydown', e => {
    en ligne, on re-rend les grilles avec la version à jour.
    ============================================================ */
 /* ============================================================
+   MESURE DE FRÉQUENTATION
+   Une visite par session de navigateur, et une vue par fiche
+   produit ouverte. Aucun cookie, aucun identifiant envoyé : le
+   serveur ne reçoit qu'un signal anonyme et n'agrège que des
+   compteurs par jour. Le marqueur de session reste dans le
+   navigateur et ne sert qu'à ne pas compter dix fois la même
+   personne pendant qu'elle navigue.
+   ============================================================ */
+const VISIT_FLAG = 'zak_visit_sent';
+
+function trackEvent(payload) {
+  // keepalive : le signal part même si la page se ferme juste après
+  fetch('/api/stats', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+    keepalive: true
+  }).catch(() => { /* statistique indisponible : sans effet sur la boutique */ });
+}
+
+function trackVisit() {
+  try {
+    if (sessionStorage.getItem(VISIT_FLAG)) return;
+    sessionStorage.setItem(VISIT_FLAG, '1');
+  } catch { /* navigation privée : on compte la visite, sans mémoire */ }
+  trackEvent({ type: 'visit' });
+}
+
+function trackProductView(id) {
+  if (id) trackEvent({ type: 'view', productId: id });
+}
+
+/* ============================================================
    BASCULE D'UNIVERS
    Un seul point d'entrée : tout ce qui dépend de l'univers est
    redessiné, et l'URL suit pour qu'un lien reste partageable.
@@ -1773,6 +1849,7 @@ function setUniverse(u, { scroll = false } = {}) {
   renderCarousel();
   renderFavorites();
   updateFavCounter();
+  renderBestsellers();     // le classement se restreint aussi à la partie choisie
 
   if (scroll) document.getElementById('vetements')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }

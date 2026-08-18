@@ -65,8 +65,86 @@
       <!-- Onglets -->
       <div class="admin-tabs">
         <button class="admin-tab active" data-pane="paneToday">☀️ Aujourd'hui <span id="todayBadge"></span></button>
+        <button class="admin-tab" data-pane="paneStats">📊 Statistiques</button>
         <button class="admin-tab" data-pane="paneProducts">📦 Produits</button>
         <button class="admin-tab" data-pane="paneOrders">📨 Toutes les commandes <span id="ordersBadge"></span></button>
+      </div>
+
+      <!-- ============ PANE STATISTIQUES ============ -->
+      <div id="paneStats" hidden>
+        <section class="admin-panel">
+          <div class="panel-head">
+            <h3>📊 Fréquentation &amp; ventes</h3>
+            <div class="stats-head-actions">
+              <span class="stats-period">30 derniers jours</span>
+              <button class="btn-ghost" id="statsRefresh" type="button">🔄 Actualiser</button>
+            </div>
+          </div>
+
+          <!-- Chiffres de synthèse -->
+          <div class="kpi-row">
+            <div class="kpi">
+              <span class="kpi-n" id="kpiVisits">—</span>
+              <span class="kpi-l">Visites</span>
+            </div>
+            <div class="kpi">
+              <span class="kpi-n" id="kpiOrders">—</span>
+              <span class="kpi-l">Commandes</span>
+            </div>
+            <div class="kpi">
+              <span class="kpi-n" id="kpiRevenue">—</span>
+              <span class="kpi-l">Chiffre d'affaires</span>
+            </div>
+            <div class="kpi">
+              <span class="kpi-n" id="kpiConv">—</span>
+              <span class="kpi-l">Visites qui commandent</span>
+            </div>
+          </div>
+
+          <div id="statsMessage" class="stats-message" hidden></div>
+
+          <!-- Deux graphiques distincts : euros et visites ne partagent pas
+               d'échelle, les superposer sur deux axes tromperait la lecture -->
+          <figure class="chart-figure">
+            <figcaption>
+              <span class="chart-title"><span class="swatch sw-sales"></span>Chiffre d'affaires par jour</span>
+              <span class="chart-sub" id="chartSalesSub"></span>
+            </figcaption>
+            <div class="chart-box" id="chartSales"></div>
+          </figure>
+
+          <figure class="chart-figure">
+            <figcaption>
+              <span class="chart-title"><span class="swatch sw-visits"></span>Visites par jour</span>
+              <span class="chart-sub" id="chartVisitsSub"></span>
+            </figcaption>
+            <div class="chart-box" id="chartVisits"></div>
+          </figure>
+
+          <!-- Classements -->
+          <div class="tops">
+            <div class="top-block">
+              <h4>👀 Les plus regardés</h4>
+              <p class="top-note">Fiches produit ouvertes par les visiteurs</p>
+              <ol class="top-list" id="topViewed"></ol>
+            </div>
+            <div class="top-block">
+              <h4>🏆 Les plus vendus</h4>
+              <p class="top-note">Quantités commandées, annulations déduites</p>
+              <ol class="top-list" id="topSold"></ol>
+            </div>
+          </div>
+
+          <details class="stats-table-wrap">
+            <summary>Voir les chiffres jour par jour (mêmes données que les graphiques)</summary>
+            <div class="admin-table-wrap">
+              <table class="admin-table stats-table">
+                <thead><tr><th>Jour</th><th>Visites</th><th>Commandes</th><th>Chiffre d'affaires</th></tr></thead>
+                <tbody id="statsTbody"></tbody>
+              </table>
+            </div>
+          </details>
+        </section>
       </div>
 
       <!-- ============ PANE AUJOURD'HUI (comptoir) ============ -->

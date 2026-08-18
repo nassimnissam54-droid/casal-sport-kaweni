@@ -4902,3 +4902,207 @@ body:not(.admin-body) ::selection { background: rgba(255,77,61,0.22); color: var
   .universe-bar .ub-actions { margin-left: 0; width: 100%; }
   .universe-bar .ub-actions button { flex: 1; }
 }
+
+/* ============================================================
+   STATISTIQUES ADMIN — fréquentation & ventes
+   Couleurs de données validées pour le fond sombre du panneau :
+   bande de luminosité, séparation daltonisme (ΔE 13 protan),
+   contraste ≥ 5,7:1. Grille et axes volontairement effacés.
+   ============================================================ */
+.stats-head-actions { display: flex; align-items: center; gap: 0.8rem; }
+.stats-period {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gris-500);
+}
+
+/* ---- Chiffres de synthèse ---- */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--gris-800);
+  border: 1px solid var(--gris-800);
+  margin-bottom: 1.6rem;
+}
+.kpi { background: var(--gris-900); padding: 1.1rem 1rem; }
+.kpi-n {
+  display: block;
+  font-family: 'Anton', sans-serif;
+  font-size: 1.9rem;
+  line-height: 1.05;
+  color: var(--blanc);
+  font-variant-numeric: tabular-nums;
+}
+.kpi-l {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gris-500);
+}
+
+.stats-message {
+  padding: 0.9rem 1.1rem;
+  margin-bottom: 1.4rem;
+  background: rgba(240,160,48,0.14);
+  border-left: 3px solid var(--warning);
+  color: #FFC978;
+  font-size: 0.88rem;
+}
+
+/* ---- Graphiques ---- */
+.chart-figure { margin: 0 0 1.8rem; }
+.chart-figure figcaption {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.6rem;
+}
+.chart-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gris-300);
+}
+.swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+.sw-sales  { background: #149C90; }
+.sw-visits { background: #CE7F20; }
+.chart-sub { font-size: 0.78rem; color: var(--gris-500); }
+
+.chart-box { position: relative; }
+.chart { display: block; max-width: 100%; }
+.ch-grid { stroke: var(--gris-800); stroke-width: 1; }
+.ch-axis { stroke: var(--gris-700); stroke-width: 1; }
+.ch-tick, .ch-day {
+  fill: var(--gris-500);
+  font-size: 10px;
+  font-family: 'Inter', sans-serif;
+}
+.ch-tick { text-anchor: end; }
+.ch-day  { text-anchor: middle; }
+.ch-hit  { fill: transparent; }
+.ch-bar  { cursor: default; }
+.ch-bar:hover .ch-hit { fill: rgba(255,255,255,0.06); }
+
+.ch-tip {
+  position: absolute;
+  top: -4px;
+  transform: translate(-50%, -100%);
+  background: var(--blanc);
+  color: var(--noir);
+  padding: 0.35rem 0.6rem;
+  border-radius: var(--r-xs);
+  font-size: 0.76rem;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+  z-index: 2;
+}
+.ch-tip strong { display: block; font-variant-numeric: tabular-nums; }
+.ch-tip span   { opacity: 0.6; font-size: 0.7rem; }
+
+/* ---- Classements ---- */
+.tops {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 1.6rem;
+  margin: 2rem 0 1.4rem;
+}
+.top-block h4 {
+  margin: 0 0 0.15rem;
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gris-300);
+}
+.top-note { margin: 0 0 0.8rem; font-size: 0.72rem; color: var(--gris-500); }
+.top-list { list-style: none; margin: 0; padding: 0; counter-reset: rang; }
+.top-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--gris-800);
+  font-size: 0.86rem;
+}
+.top-list li::before {
+  counter-increment: rang;
+  content: counter(rang);
+  font-family: 'Anton', sans-serif;
+  color: var(--gris-600);
+  min-width: 1.2rem;
+  font-variant-numeric: tabular-nums;
+}
+.top-list .tl-name {
+  flex: 1;
+  /* Sans min-width:0, un élément flex ne descend pas sous la largeur de
+     son texte : la coupure « … » ne s'appliquerait jamais et un nom de
+     produit long pousserait toute la page vers la droite. */
+  min-width: 0;
+  color: var(--gris-200);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.top-list .tl-val { color: var(--gris-400); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.top-list .tl-empty { color: var(--gris-600); font-style: italic; }
+.top-list .tl-empty::before { content: ''; min-width: 0; }
+
+.stats-table-wrap summary {
+  cursor: pointer;
+  padding: 0.7rem 0;
+  font-size: 0.82rem;
+  color: var(--gris-400);
+}
+.stats-table .admin-table td { font-variant-numeric: tabular-nums; }
+
+@media (max-width: 780px) {
+  .kpi-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tops { grid-template-columns: minmax(0, 1fr); gap: 1.4rem; }
+  .kpi-n { font-size: 1.5rem; }
+}
+
+/* ============================================================
+   LES PLUS VENDUS (côté client)
+   ============================================================ */
+.best-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.2rem;
+}
+.best-item { position: relative; display: flex; flex-direction: column; }
+.best-rank {
+  position: absolute;
+  top: 0.6rem; left: 0.6rem;
+  z-index: 2;
+  width: 30px; height: 30px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  background: var(--noir);
+  color: var(--blanc);
+  font-family: 'Anton', sans-serif;
+  font-size: 0.95rem;
+  font-variant-numeric: tabular-nums;
+}
+.best-count {
+  margin-top: 0.5rem;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--palmier);
+}
+
+@media (max-width: 900px) { .best-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 460px) { .best-grid { grid-template-columns: 1fr; } }

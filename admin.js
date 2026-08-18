@@ -91,10 +91,11 @@ document.querySelectorAll('.admin-tab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
-    document.querySelectorAll('#paneToday, #paneProducts, #paneOrders').forEach(p => p.hidden = true);
+    document.querySelectorAll('#paneToday, #paneStats, #paneProducts, #paneOrders').forEach(p => p.hidden = true);
     document.getElementById(tab.dataset.pane).hidden = false;
     if (tab.dataset.pane === 'paneOrders') renderOrders();
     if (tab.dataset.pane === 'paneToday')  renderToday();
+    if (tab.dataset.pane === 'paneStats')  loadStats();
   });
 });
 
@@ -380,6 +381,178 @@ document.getElementById('productsTbody').addEventListener('click', e => {
   const id = parseInt(btn.dataset.id, 10);
   ({ edit: editProduct, dup: duplicateProduct, toggle: toggleStatus, del: deleteProduct })[btn.dataset.act]?.(id);
 });
+
+/* ============================================================
+   STATISTIQUES — fréquentation & ventes
+   Deux graphiques séparés plutôt qu'un seul à deux axes : des
+   euros et des visites n'ont pas la même échelle, et les
+   superposer ferait lire des croisements qui n'existent pas.
+   Couleurs validées pour le fond sombre de l'admin (bande de
+   luminosité, séparation daltonisme, contraste ≥ 3:1).
+   ============================================================ */
+const C_SALES  = '#149C90';
+const C_VISITS = '#CE7F20';
+
+let statsData = null;
+
+const eur = n => n.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' €';
+const jourCourt = iso => {
+  const [, m, d] = iso.split('-');
+  return `${d}/${m}`;
+};
+
+/** Histogramme journalier en SVG : barres fines, extrémités arrondies,
+ *  survol au jour près. `fmt` met en forme la valeur du repère. */
+function barChart(container, serie, cle, couleur, fmt) {
+  const el = typeof container === 'string' ? document.getElementById(container) : container;
+  if (!el) return;
+  const data = serie.map(d => ({ jour: d.day, v: Number(d[cle]) || 0 }));
+  const max = Math.max(...data.map(d => d.v), 1);
+
+  // Le SVG est dessiné à la largeur réelle du conteneur : un viewBox fixe
+  // étiré par preserveAspectRatio="none" déformerait les textes et
+  // déborderait de la page sur un écran étroit.
+  const W = Math.max(300, Math.round(el.clientWidth || 720));
+  const H = 190, padL = 44, padR = 8, padT = 12, padB = 26;
+  const iw = W - padL - padR, ih = H - padT - padB;
+  const bw = iw / data.length;
+  const barW = Math.max(3, bw - 2);          // 2 px de fond entre deux barres
+
+  // Graduations : 3 repères discrets, jamais devant les données
+  const ticks = [0, max / 2, max];
+  const y = v => padT + ih - (v / max) * ih;
+
+  const grille = ticks.map(t => `
+    <line x1="${padL}" y1="${y(t).toFixed(1)}" x2="${W - padR}" y2="${y(t).toFixed(1)}" class="ch-grid"/>
+    <text x="${padL - 8}" y="${(y(t) + 4).toFixed(1)}" class="ch-tick">${fmt(t, true)}</text>`).join('');
+
+  const barres = data.map((d, i) => {
+    const x = padL + i * bw + (bw - barW) / 2;
+    const h = d.v === 0 ? 0 : Math.max(2, (d.v / max) * ih);
+    const r = Math.min(4, barW / 2, h);      // coins arrondis côté sommet uniquement
+    // Pas de tabindex : le focus sur un <g> SVG n'émet aucun événement,
+    // une barre focusable resterait donc muette au clavier. Les valeurs
+    // restent lisibles par aria-label et par le tableau « jour par jour ».
+    return `<g class="ch-bar" role="listitem"
+              aria-label="${jourCourt(d.jour)} : ${fmt(d.v)}"
+              data-jour="${jourCourt(d.jour)}" data-val="${esc(fmt(d.v))}">
+        <rect x="${(padL + i * bw).toFixed(1)}" y="${padT}" width="${bw.toFixed(1)}" height="${ih}" class="ch-hit"/>
+        ${h ? `<path d="M${x.toFixed(1)},${(padT + ih).toFixed(1)} V${(y(d.v) + r).toFixed(1)}
+               a${r},${r} 0 0 1 ${r},${-r} h${(barW - 2 * r).toFixed(1)}
+               a${r},${r} 0 0 1 ${r},${r} V${(padT + ih).toFixed(1)} Z" fill="${couleur}"/>` : ''}
+      </g>`;
+  }).join('');
+
+  // Pas des dates calculé sur la place disponible : il faut ~34 px par
+  // libellé « 12/08 » pour qu'ils ne se chevauchent pas.
+  const pas = Math.max(1, Math.ceil(34 / bw));
+  const libelles = data.map((d, i) =>
+    (i % pas === 0 || i === data.length - 1)
+      ? `<text x="${(padL + i * bw + bw / 2).toFixed(1)}" y="${H - 8}" class="ch-day">${jourCourt(d.jour)}</text>`
+      : '').join('');
+
+  el.innerHTML = `
+    <svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" class="chart" role="list" aria-label="Valeurs par jour">
+      ${grille}${barres}${libelles}
+      <line x1="${padL}" y1="${padT + ih}" x2="${W - padR}" y2="${padT + ih}" class="ch-axis"/>
+    </svg>
+    <div class="ch-tip" hidden></div>`;
+
+  const tip = el.querySelector('.ch-tip');
+  const montrer = g => {
+    tip.innerHTML = `<strong>${g.dataset.val}</strong><span>${g.dataset.jour}</span>`;
+    tip.hidden = false;
+    const r = g.getBoundingClientRect(), b = el.getBoundingClientRect();
+    tip.style.left = `${Math.min(Math.max(r.left - b.left + r.width / 2, 40), b.width - 40)}px`;
+  };
+  el.querySelectorAll('.ch-bar').forEach(g =>
+    g.addEventListener('mouseenter', () => montrer(g)));
+  el.addEventListener('mouseleave', () => { tip.hidden = true; });
+}
+
+function renderStats() {
+  const d = statsData;
+  if (!d) return;
+  const t = d.totals;
+
+  document.getElementById('kpiVisits').textContent  = t.visits.toLocaleString('fr-FR');
+  document.getElementById('kpiOrders').textContent  = t.orders.toLocaleString('fr-FR');
+  document.getElementById('kpiRevenue').textContent = eur(t.revenue);
+  document.getElementById('kpiConv').textContent    = t.conversion === null ? '—' : `${t.conversion} %`;
+
+  const jours = d.series.length;
+  const caMoy = t.orders ? t.revenue / t.orders : 0;
+  document.getElementById('chartSalesSub').textContent =
+    t.orders ? `${t.orders} commande${t.orders > 1 ? 's' : ''} · panier moyen ${eur(caMoy)}` : 'Aucune commande sur la période';
+  document.getElementById('chartVisitsSub').textContent =
+    t.visits ? `${Math.round(t.visits / jours)} visites par jour en moyenne` : 'Aucune visite enregistrée pour l\'instant';
+
+  barChart('chartSales',  d.series, 'revenue', C_SALES,  (v, court) => court ? Math.round(v) + ' €' : eur(v));
+  barChart('chartVisits', d.series, 'visits',  C_VISITS, (v, court) => String(Math.round(v)));
+
+  const nom = id => ProductDB.getAll().find(p => p.id === id)?.name || `Article #${id}`;
+  const liste = (el, rows, unite) => {
+    el.innerHTML = rows.length
+      ? rows.slice(0, 5).map(r => `
+        <li>
+          <span class="tl-name">${esc(nom(r.productId))}</span>
+          <span class="tl-val">${r.views ?? r.qty} ${unite}</span>
+        </li>`).join('')
+      : '<li class="tl-empty">Rien à afficher pour l\'instant.</li>';
+  };
+  liste(document.getElementById('topViewed'), d.topViewed, 'vues');
+  liste(document.getElementById('topSold'),   d.topSold,   'vendus');
+
+  document.getElementById('statsTbody').innerHTML = [...d.series].reverse().map(s => `
+    <tr>
+      <td>${jourCourt(s.day)}</td>
+      <td>${s.visits}</td>
+      <td>${s.orders}</td>
+      <td>${s.revenue ? eur(s.revenue) : '—'}</td>
+    </tr>`).join('');
+}
+
+async function loadStats() {
+  const key = adminKey();
+  const msg = document.getElementById('statsMessage');
+  if (!key) { msg.hidden = false; msg.textContent = '🔑 Reconnecte-toi pour voir les statistiques.'; return; }
+  try {
+    const r = await fetch('/api/stats', { headers: { 'x-admin-key': key } });
+    if (r.status === 401) {
+      msg.hidden = false;
+      msg.textContent = '⚠️ Statistiques indisponibles : ADMIN_PASSWORD doit être configuré sur Netlify avec CE mot de passe.';
+      return;
+    }
+    if (!r.ok) throw new Error(r.status);
+    statsData = await r.json();
+    msg.hidden = true;
+    renderStats();
+  } catch {
+    msg.hidden = false;
+    msg.textContent = 'Statistiques indisponibles hors ligne (elles viennent du serveur).';
+  }
+}
+
+document.getElementById('statsRefresh')?.addEventListener('click', loadStats);
+
+/* Les graphiques sont dessinés à la largeur réelle de leur conteneur.
+   Un ResizeObserver couvre tous les cas où cette largeur change :
+   rotation du téléphone, redimensionnement, et surtout le passage du
+   panneau de masqué à visible — où la largeur vaut 0 juste avant. */
+let redrawTimer;
+if (window.ResizeObserver) {
+  const ro = new ResizeObserver(entries => {
+    if (!statsData) return;
+    const utile = entries.some(e => e.contentRect.width > 0);
+    if (!utile) return;
+    clearTimeout(redrawTimer);
+    redrawTimer = setTimeout(renderStats, 120);
+  });
+  ['chartSales', 'chartVisits'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) ro.observe(el);
+  });
+}
 
 /* ============ FILTRES RAPIDES PAR TYPE ============
    Puces affichées sous les listes déroulantes : un appui = un type.
