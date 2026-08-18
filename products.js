@@ -373,7 +373,7 @@ const DEFAULT_PRODUCTS = [
      Photos officielles des marques, transmises par le fournisseur.
      Prix indicatifs alignés sur le marché : à ajuster dans l'admin
      selon les tarifs réellement pratiqués en boutique. */
-  { id:111, type:'basket', sub:'basket', cat:'homme', name:'Nike P-6000 Noir Intégral',
+  { id:120, type:'basket', sub:'basket', cat:'homme', name:'Nike P-6000 Noir Intégral',
     price:119.99, oldPrice:null, badge:'Nouveau',
     desc:"Le noir sur noir, du lacet à la semelle. Cette silhouette running des années 2000 revient sans un gramme de nostalgie de trop : tu la mets avec tout, elle ne jure avec rien. Celle que tu enfiles quand tu n'as pas envie de réfléchir à ta tenue, et qui te fait quand même remarquer.",
     material:'Mesh respirant · Empiècements cuir synthétique · Semelle caoutchouc',
@@ -383,7 +383,7 @@ const DEFAULT_PRODUCTS = [
     colorOptions:[{name:'Noir intégral',hex:'#111111'}],
     color1:'#1a1a1a', color2:'#3a3a3a', createdAt: D(0), rating:4.9 },
 
-  { id:112, type:'basket', sub:'basket', cat:'homme', name:'Nike P-6000 Rouge & Argent',
+  { id:121, type:'basket', sub:'basket', cat:'homme', name:'Nike P-6000 Rouge & Argent',
     price:124.99, oldPrice:null, badge:'Nouveau',
     desc:"Le rouge qui ne demande la permission à personne. Panneaux argent métallisé, mesh écarlate, semelle blanche : c'est la paire qui attrape la lumière du parking avant même que tu sois descendu de voiture. À porter avec du sobre — elle parle déjà assez fort.",
     material:'Mesh · Empiècements métallisés · Semelle caoutchouc',
