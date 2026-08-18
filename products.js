@@ -463,6 +463,16 @@ const DEFAULT_PRODUCTS = [
     colorOptions:[{name:'Noir / Blanc',hex:'#2a2a2a'}],
     color1:'#2a2a2a', color2:'#e8e8e8', createdAt: D(0), rating:4.9 },
 
+  { id:122, type:'vetement', sub:'tshirt', cat:'homme', name:'Maillot Mesh 77 Blanc',
+    price:39.99, oldPrice:null, badge:'Nouveau',
+    desc:"Tu l'enfiles par-dessus un tee-shirt blanc, tu descends en ville, et la soirée prend un autre tour. Le mesh laisse filer l'air quand Mamoudzou étouffe : tu restes frais pendant que les autres cherchent l'ombre. Le 77 en bordeaux, c'est le détail dont on te reparle le lendemain. Ce maillot ne demande rien à personne — il annonce simplement que tu es arrivé.",
+    material:'Maille filet ajourée · Coupe oversize · Col V bordé',
+    sizes:'S — M — L — XL — XXL',
+    icon:'👕', qty:7, status:'live',
+    imageUrl:'img/produits/ig-n1.jpg',
+    colorOptions:[{name:'Blanc / Bordeaux',hex:'#f2f2f2'}],
+    color1:'#f5f5f5', color2:'#8c2f39', createdAt: D(0), rating:4.9 },
+
   /* ===================== FEMME ===================== */
   { id:1, type:'vetement', sub:'robe', cat:'femme', name:'Robe Midi Fleurie',
     price:39.99, oldPrice:null, badge:'',
