@@ -226,9 +226,12 @@ const SUB_LABELS = {
 /* ============================================================
    UNIVERS — les deux parties distinctes de la boutique
    « Homme » regroupe homme + garçon, « Femme » regroupe femme +
-   fille. Les accessoires unisexes (cat 'mixte' : sacs, casquettes,
-   ceintures) restent visibles dans les deux : les cacher partout
-   reviendrait à ne plus jamais les vendre.
+   fille.
+
+   Séparation STRICTE : un article appartient à une seule partie,
+   jamais aux deux. Un article resté en catégorie « mixte » n'est
+   donc affiché dans aucune des deux — il faut lui donner une vraie
+   catégorie dans l'admin pour qu'il soit vu par les clients.
    ============================================================ */
 const UNIVERSE_KEY = 'zak_universe_v1';
 
@@ -237,9 +240,19 @@ const UNIVERSES = {
   femme: { label: 'Femme',  sub: 'Femme & Fille',  icon: '👗', cats: ['femme', 'fille'] }
 };
 
-/** Catégories visibles dans un univers (accessoires mixtes compris). */
+/** Catégories d'une partie. Aucune n'est partagée avec l'autre. */
 function universeCats(u) {
-  return UNIVERSES[u] ? [...UNIVERSES[u].cats, 'mixte'] : null;
+  return UNIVERSES[u] ? [...UNIVERSES[u].cats] : null;
+}
+
+/** Partie d'un produit, ou null s'il n'en a pas (catégorie « mixte »). */
+function universeOfCat(cat) {
+  return Object.keys(UNIVERSES).find(u => UNIVERSES[u].cats.includes(cat)) || null;
+}
+
+/** Articles sans partie : invisibles dès qu'un client en choisit une. */
+function productsWithoutUniverse(list) {
+  return list.filter(p => !universeOfCat(p.cat));
 }
 
 /** true si le produit appartient à l'univers (ou si aucun univers actif). */

@@ -127,6 +127,31 @@ function setAdminUniverse(u) {
   if (statsData) renderStats();
 }
 
+/* Un article sans partie (catégorie « Sans partie ») n'apparaît nulle
+   part dès qu'un client choisit Homme ou Femme. On le signale plutôt
+   que de le laisser dormir invisible dans le catalogue. */
+function renderOrphanWarning() {
+  const box = document.getElementById('orphanWarn');
+  if (!box) return;
+  const orphelins = productsWithoutUniverse(ProductDB.getAll().filter(p => (p.status || 'live') === 'live'));
+  box.hidden = orphelins.length === 0;
+  if (!orphelins.length) return;
+  document.getElementById('orphanCount').textContent =
+    `${orphelins.length} article${orphelins.length > 1 ? 's' : ''} en ligne`;
+}
+
+document.getElementById('orphanShow')?.addEventListener('click', () => {
+  setAdminUniverse(null);                 // ces articles n'existent dans aucune partie
+  filterCat.value = 'mixte';
+  filterType.value = 'all';
+  filterStatusEl.value = 'all';
+  searchBox.value = '';
+  renderTable();
+  renderTypeChips();
+  document.querySelector('.admin-tab[data-pane="paneProducts"]')?.click();
+  document.getElementById('productsTbody')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+});
+
 function renderAdminUniverseUI() {
   document.querySelectorAll('[data-adminu]').forEach(b =>
     b.classList.toggle('active', (b.dataset.adminu || null) === adminUniverse));
@@ -736,7 +761,7 @@ function refreshStats() {
   badge.textContent = n ? ` (${n})` : '';
 }
 
-function refreshAll() { renderTable(); renderTypeChips(); refreshStats(); renderToday(); }
+function refreshAll() { renderTable(); renderTypeChips(); refreshStats(); renderToday(); renderOrphanWarning(); }
 
 /* ============================================================
    PUBLICATION EN LIGNE (audit V1) — Netlify Blobs

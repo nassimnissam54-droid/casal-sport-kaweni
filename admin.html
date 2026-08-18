@@ -197,6 +197,16 @@
       <!-- ============ PANE PRODUITS ============ -->
       <div id="paneProducts" hidden>
 
+        <!-- Articles sans partie : invisibles dès qu'un client choisit
+             Homme ou Femme. Signalé ici pour qu'ils ne dorment pas. -->
+        <div class="orphan-warn" id="orphanWarn" hidden>
+          <div class="ow-text">
+            <strong id="orphanCount"></strong>
+            <span>n'apparaissent ni dans la partie Homme, ni dans la partie Femme : leur catégorie est « Sans partie ». Les clients qui ont choisi une partie ne les verront pas.</span>
+          </div>
+          <button type="button" class="btn-ghost" id="orphanShow">Voir ces articles</button>
+        </div>
+
         <!-- Formulaire ajout / modif -->
         <section class="admin-panel">
           <h3 id="formTitle">➕ Ajouter un produit</h3>
@@ -225,7 +235,7 @@
                   <option value="femme">Femme</option>
                   <option value="garcon">Garçon</option>
                   <option value="fille">Fille</option>
-                  <option value="mixte">Mixte / Accessoires</option>
+                  <option value="mixte">Sans partie — ni Homme ni Femme</option>
                 </select>
               </label>
               <label>Prix (€) *
@@ -316,7 +326,7 @@
                 <option value="femme">Femme</option>
                 <option value="garcon">Garçon</option>
                 <option value="fille">Fille</option>
-                  <option value="mixte">Mixte / Accessoires</option>
+                  <option value="mixte">Sans partie — ni Homme ni Femme</option>
               </select>
               <select id="filterStatus">
                 <option value="all">Tous statuts</option>
