@@ -136,6 +136,17 @@ export default async (req, context) => {
   const totalVisits = series.reduce((s, x) => s + x.visits, 0);
   const totalOrders = series.reduce((s, x) => s + x.orders, 0);
 
+  /* Le taux de conversion n'a de sens que si la mesure des visites
+     couvre la même période que les commandes. Au démarrage, des
+     commandes antérieures au comptage donneraient un taux absurde
+     (150 % observé en production). On ne le calcule qu'à partir d'un
+     volume qui veut dire quelque chose, et on le borne à 100 %. */
+  const MIN_VISITES_FIABLE = 30;
+  const premierJourMesure = series.find((s) => s.visits > 0)?.day || null;
+  const conversion = totalVisits >= MIN_VISITES_FIABLE
+    ? Math.min(100, Math.round((totalOrders / totalVisits) * 1000) / 10)
+    : null;
+
   // Purge des journées trop anciennes. Faite ici, à la consultation du
   // tableau de bord (rare), plutôt qu'à chaque visite enregistrée.
   purgeOldDays(store).catch((e) => console.error('Purge des statistiques :', e));
@@ -146,8 +157,10 @@ export default async (req, context) => {
       visits: totalVisits,
       orders: totalOrders,
       revenue: Math.round(series.reduce((s, x) => s + x.revenue, 0) * 100) / 100,
-      // Part des visites qui aboutissent à une commande
-      conversion: totalVisits ? Math.round((totalOrders / totalVisits) * 1000) / 10 : null,
+      // Part des visites qui aboutissent à une commande (null tant que
+      // le volume mesuré est trop faible pour être significatif)
+      conversion,
+      measuredSince: premierJourMesure,
     },
     topViewed: Object.entries(viewsTotal)
       .map(([id, n]) => ({ productId: Number(id), views: n }))

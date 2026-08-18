@@ -478,7 +478,12 @@ function renderStats() {
   document.getElementById('kpiVisits').textContent  = t.visits.toLocaleString('fr-FR');
   document.getElementById('kpiOrders').textContent  = t.orders.toLocaleString('fr-FR');
   document.getElementById('kpiRevenue').textContent = eur(t.revenue);
-  document.getElementById('kpiConv').textContent    = t.conversion === null ? '—' : `${t.conversion} %`;
+  const conv = document.getElementById('kpiConv');
+  conv.textContent = t.conversion === null ? '—' : `${t.conversion} %`;
+  // Dire pourquoi le chiffre est vide vaut mieux qu'un tiret muet
+  conv.nextElementSibling.textContent = t.conversion === null
+    ? 'Visites qui commandent · mesure en cours'
+    : 'Visites qui commandent';
 
   const jours = d.series.length;
   const caMoy = t.orders ? t.revenue / t.orders : 0;
