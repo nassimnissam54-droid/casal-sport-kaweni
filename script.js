@@ -1818,7 +1818,9 @@ function trackVisit() {
     if (sessionStorage.getItem(VISIT_FLAG)) return;
     sessionStorage.setItem(VISIT_FLAG, '1');
   } catch { /* navigation privée : on compte la visite, sans mémoire */ }
-  trackEvent({ type: 'visit' });
+  // La partie consultée accompagne la visite : le magasin voit ainsi
+  // laquelle de ses deux boutiques attire le plus de monde.
+  trackEvent({ type: 'visit', u: currentUniverse || undefined });
 }
 
 function trackProductView(id) {

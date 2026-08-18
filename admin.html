@@ -53,6 +53,17 @@
 
     <main class="admin-main">
 
+      <!-- Partie de la boutique : filtre les produits et les statistiques.
+           Volontairement SANS effet sur les commandes : masquer une
+           commande au comptoir ferait rater un client qui se présente. -->
+      <div class="admin-universe" role="group" aria-label="Partie de la boutique">
+        <span class="au-label">Partie :</span>
+        <button type="button" class="au-btn active" data-adminu="">Toute la boutique</button>
+        <button type="button" class="au-btn" data-adminu="homme">👔 Homme &amp; Garçon</button>
+        <button type="button" class="au-btn" data-adminu="femme">👗 Femme &amp; Fille</button>
+        <span class="au-note" id="auNote"></span>
+      </div>
+
       <!-- Stats -->
       <section class="admin-stats">
         <button type="button" class="admin-stat" data-stat="total"  title="Voir tous les produits et filtrer par type"><span id="statTotal">0</span><small>Produits totaux</small></button>

@@ -60,6 +60,7 @@ function logout() {
 function showDashboard() {
   loginScreen.classList.add('hidden');
   dashboard.classList.remove('hidden');
+  renderAdminUniverseUI();   // avant refreshAll : la partie conditionne les listes
   refreshAll();
   // Récupère la version en ligne du catalogue (édition multi-appareils)
   syncCatalogFromServer().then(changed => { if (changed) refreshAll(); });
@@ -85,6 +86,69 @@ document.getElementById('logoutBtn').addEventListener('click', logout);
 // Session déjà ouverte : n'ouvre le dashboard qu'une fois TOUT le script
 // initialisé (sinon renderTable crashe sur les const déclarées plus bas).
 document.addEventListener('DOMContentLoaded', () => { if (isLogged()) showDashboard(); });
+
+/* ============================================================
+   PARTIE DE LA BOUTIQUE (admin)
+   Restreint les produits et les statistiques à Homme & Garçon ou
+   Femme & Fille. Les commandes, elles, ne sont JAMAIS filtrées :
+   un client qui se présente avec son code doit être retrouvé quelle
+   que soit la partie affichée à l'écran.
+
+   Clé distincte de celle du site public : le magasin et le client
+   partagent le même navigateur sur le poste de la boutique, choisir
+   « Femme » dans l'admin ne doit pas basculer la vitrine.
+   ============================================================ */
+const ADMIN_UNIVERSE_KEY = 'zak_admin_universe_v1';
+
+let adminUniverse = (() => {
+  const u = localStorage.getItem(ADMIN_UNIVERSE_KEY);
+  return UNIVERSES[u] ? u : null;
+})();
+
+/** Restreint une liste de produits à la partie choisie. */
+const scopeAdmin = list => list.filter(p => inUniverse(p, adminUniverse));
+
+/** Vrai si la catégorie appartient à la partie affichée. */
+function catInAdminUniverse(cat) {
+  if (!adminUniverse) return true;
+  return (universeCats(adminUniverse) || []).includes(cat);
+}
+
+function setAdminUniverse(u) {
+  adminUniverse = UNIVERSES[u] ? u : null;
+  if (adminUniverse) localStorage.setItem(ADMIN_UNIVERSE_KEY, adminUniverse);
+  else localStorage.removeItem(ADMIN_UNIVERSE_KEY);
+
+  // Un filtre de catégorie hérité de l'autre partie ne montrerait rien
+  if (adminUniverse && !catInAdminUniverse(filterCat.value)) filterCat.value = 'all';
+
+  renderAdminUniverseUI();
+  refreshAll();
+  if (statsData) renderStats();
+}
+
+function renderAdminUniverseUI() {
+  document.querySelectorAll('[data-adminu]').forEach(b =>
+    b.classList.toggle('active', (b.dataset.adminu || null) === adminUniverse));
+
+  const note = document.getElementById('auNote');
+  if (note) {
+    note.textContent = adminUniverse
+      ? 'Produits et statistiques filtrés · les commandes restent toutes visibles'
+      : '';
+  }
+
+  // Les catégories de l'autre partie n'ont plus de sens dans les listes
+  document.querySelectorAll('#pcat option, #filterCat option').forEach(o => {
+    const val = o.value;
+    o.hidden = val !== 'all' && !catInAdminUniverse(val);
+  });
+}
+
+document.querySelector('.admin-universe')?.addEventListener('click', e => {
+  const btn = e.target.closest('[data-adminu]');
+  if (btn) setAdminUniverse(btn.dataset.adminu || null);
+});
 
 /* ============ ONGLETS ============ */
 document.querySelectorAll('.admin-tab').forEach(tab => {
@@ -326,7 +390,7 @@ function renderTable() {
   const ft = filterType.value;
   const fc = filterCat.value;
   const fs = filterStatusEl.value;
-  const list = ProductDB.getAll().filter(p =>
+  const list = scopeAdmin(ProductDB.getAll()).filter(p =>
     (ft === 'all' || subOf(p) === ft) &&
     (fc === 'all' || p.cat === fc)  &&
     (fs === 'all' || (p.status || 'live') === fs) &&
@@ -473,7 +537,20 @@ function barChart(container, serie, cle, couleur, fmt) {
 function renderStats() {
   const d = statsData;
   if (!d) return;
-  const t = d.totals;
+  const u = adminUniverse;
+
+  /* Série et totaux recalculés pour la partie affichée. Le serveur a
+     ventilé le chiffre d'affaires ligne par ligne : une commande mixte
+     n'est comptée en double dans aucun des deux chiffres d'affaires. */
+  const serie = d.series.map(s => u
+    ? { day: s.day, visits: s.visitsBy?.[u] ?? 0, orders: s.byUniverse?.[u]?.orders ?? 0, revenue: s.byUniverse?.[u]?.revenue ?? 0 }
+    : s);
+
+  const somme = cle => serie.reduce((acc, x) => acc + (x[cle] || 0), 0);
+  const t = u
+    ? { visits: somme('visits'), orders: somme('orders'), revenue: Math.round(somme('revenue') * 100) / 100,
+        conversion: null, measuredSince: d.totals.measuredSince }
+    : d.totals;
 
   document.getElementById('kpiVisits').textContent  = t.visits.toLocaleString('fr-FR');
   document.getElementById('kpiOrders').textContent  = t.orders.toLocaleString('fr-FR');
@@ -485,20 +562,31 @@ function renderStats() {
     ? 'Visites qui commandent · mesure en cours'
     : 'Visites qui commandent';
 
-  const jours = d.series.length;
+  const jours = serie.length;
   const caMoy = t.orders ? t.revenue / t.orders : 0;
+  const suffixe = u ? ` · partie ${UNIVERSES[u].sub}` : '';
   document.getElementById('chartSalesSub').textContent =
-    t.orders ? `${t.orders} commande${t.orders > 1 ? 's' : ''} · panier moyen ${eur(caMoy)}` : 'Aucune commande sur la période';
+    t.orders ? `${t.orders} commande${t.orders > 1 ? 's' : ''} · panier moyen ${eur(caMoy)}${suffixe}`
+             : `Aucune commande sur la période${suffixe}`;
   document.getElementById('chartVisitsSub').textContent =
-    t.visits ? `${Math.round(t.visits / jours)} visites par jour en moyenne` : 'Aucune visite enregistrée pour l\'instant';
+    t.visits ? `${Math.round(t.visits / jours)} visites par jour en moyenne${suffixe}`
+             : (u ? 'Aucune visite sur cette partie pour l\'instant' : 'Aucune visite enregistrée pour l\'instant');
 
-  barChart('chartSales',  d.series, 'revenue', C_SALES,  (v, court) => court ? Math.round(v) + ' €' : eur(v));
-  barChart('chartVisits', d.series, 'visits',  C_VISITS, (v, court) => String(Math.round(v)));
+  barChart('chartSales',  serie, 'revenue', C_SALES,  (v, court) => court ? Math.round(v) + ' €' : eur(v));
+  barChart('chartVisits', serie, 'visits',  C_VISITS, (v, court) => String(Math.round(v)));
 
   const nom = id => ProductDB.getAll().find(p => p.id === id)?.name || `Article #${id}`;
+  // Les classements suivent la partie affichée : la catégorie du produit
+  // est fournie par le serveur, avec repli sur le catalogue local pour
+  // un article vendu puis retiré du catalogue publié.
+  const dansLaPartie = r => {
+    const cat = r.cat || ProductDB.getAll().find(p => p.id === r.productId)?.cat;
+    return catInAdminUniverse(cat);
+  };
   const liste = (el, rows, unite) => {
-    el.innerHTML = rows.length
-      ? rows.slice(0, 5).map(r => `
+    const vus = rows.filter(dansLaPartie).slice(0, 5);
+    el.innerHTML = vus.length
+      ? vus.map(r => `
         <li>
           <span class="tl-name">${esc(nom(r.productId))}</span>
           <span class="tl-val">${r.views ?? r.qty} ${unite}</span>
@@ -508,7 +596,7 @@ function renderStats() {
   liste(document.getElementById('topViewed'), d.topViewed, 'vues');
   liste(document.getElementById('topSold'),   d.topSold,   'vendus');
 
-  document.getElementById('statsTbody').innerHTML = [...d.series].reverse().map(s => `
+  document.getElementById('statsTbody').innerHTML = [...serie].reverse().map(s => `
     <tr>
       <td>${jourCourt(s.day)}</td>
       <td>${s.visits}</td>
@@ -571,7 +659,7 @@ function renderTypeChips() {
   const fc = filterCat.value;
   const fs = filterStatusEl.value;
   // Base = tout sauf le filtre de type lui-même
-  const base = ProductDB.getAll().filter(p =>
+  const base = scopeAdmin(ProductDB.getAll()).filter(p =>
     (fc === 'all' || p.cat === fc) &&
     (fs === 'all' || (p.status || 'live') === fs) &&
     (!q || p.name.toLowerCase().includes(q) || (p.desc||'').toLowerCase().includes(q))
@@ -635,7 +723,9 @@ document.querySelector('.admin-stats')?.addEventListener('click', e => {
 });
 
 function refreshStats() {
-  const all = ProductDB.getAll();
+  // Les quatre premières tuiles comptent la partie affichée ; la
+  // cinquième compte toutes les commandes, jamais filtrées.
+  const all = scopeAdmin(ProductDB.getAll());
   document.getElementById('statTotal').textContent  = all.length;
   document.getElementById('statLive').textContent   = all.filter(p => (p.status||'live') === 'live').length;
   document.getElementById('statDraft').textContent  = all.filter(p => p.status === 'draft').length;

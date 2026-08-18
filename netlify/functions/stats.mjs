@@ -31,6 +31,12 @@ const json = (data, status = 200, cache = 'no-store') =>
 const DAYS_KEPT = 90;             // trois mois d'historique suffisent au commerce
 const dayKey = (d = new Date()) => d.toISOString().slice(0, 10);
 
+/* Les deux parties de la boutique. Les accessoires unisexes ('mixte')
+   n'appartiennent à aucune : les compter dans les deux gonflerait le
+   chiffre d'affaires total. Ils restent dans le cumul général. */
+const UNIVERSE_OF = { homme: 'homme', garcon: 'homme', femme: 'femme', fille: 'femme' };
+const universeOf = (cat) => UNIVERSE_OF[cat] || null;
+
 /** Les N derniers jours au format AAAA-MM-JJ, du plus ancien au plus récent. */
 function lastDays(n) {
   const out = [];
@@ -59,6 +65,10 @@ export default async (req, context) => {
 
     if (type === 'visit') {
       day.visits = (day.visits || 0) + 1;
+      // Partie consultée, quand le visiteur en a choisi une
+      const u = universeOf(body.u === 'homme' ? 'homme' : body.u === 'femme' ? 'femme' : null);
+      if (u === 'homme') day.visitsHomme = (day.visitsHomme || 0) + 1;
+      if (u === 'femme') day.visitsFemme = (day.visitsFemme || 0) + 1;
     } else {
       const id = Math.floor(Number(body.productId));
       if (!id) return json({ error: 'Produit inconnu' }, 400);
@@ -97,40 +107,67 @@ export default async (req, context) => {
   const days = lastDays(30);
   const stats = await Promise.all(days.map((d) => store.get(`stats/${d}`, { type: 'json' })));
 
-  // Fréquentation par jour + cumul des vues produit
+  // Fréquentation par jour + cumul des vues produit, ventilés par partie
   const viewsTotal = {};
   const traffic = days.map((d, i) => {
     const s = stats[i] || {};
     Object.entries(s.views || {}).forEach(([id, n]) => {
       viewsTotal[id] = (viewsTotal[id] || 0) + n;
     });
-    return { day: d, visits: s.visits || 0 };
+    return {
+      day: d,
+      visits: s.visits || 0,
+      visitsBy: { homme: s.visitsHomme || 0, femme: s.visitsFemme || 0 },
+    };
   });
 
-  // Ventes par jour, recalculées depuis les commandes
+  /* Ventes par jour, recalculées depuis les commandes.
+     Le catalogue donne la catégorie de chaque produit, ce qui permet de
+     ventiler le chiffre d'affaires LIGNE PAR LIGNE entre les deux
+     parties — une commande mixte n'est donc comptée en double nulle
+     part. Pour le nombre de commandes en revanche, une commande qui
+     contient les deux compte dans les deux : on ne peut pas couper une
+     commande en deux. */
+  const catalog = (await store.get('catalog', { type: 'json' })) || [];
+  const catOf = Object.fromEntries(catalog.map((p) => [p.id, p.cat]));
+
   const orders = await allOrders(store);
-  const byDay = Object.fromEntries(days.map((d) => [d, { orders: 0, revenue: 0 }]));
+  const vide = () => ({ orders: 0, revenue: 0, byU: { homme: { orders: 0, revenue: 0 }, femme: { orders: 0, revenue: 0 } } });
+  const byDay = Object.fromEntries(days.map((d) => [d, vide()]));
   const sold = {};
   for (const o of orders) {
     if (o.status === 'annulee') continue;          // une annulation n'est pas une vente
     const d = dayKey(new Date(o.id));
     const total = Number(o.totalComputed) || 0;
+    const presentes = new Set();
     if (byDay[d]) { byDay[d].orders += 1; byDay[d].revenue += total; }
     for (const l of o.items || []) {
       const id = Number(l.productId);
       if (!id) continue;
-      sold[id] = sold[id] || { qty: 0, revenue: 0, name: l.productName || '' };
+      const cat = catOf[id];
+      const u = universeOf(cat);
+      const ligne = (Number(l.price) || 0) * (Number(l.qty) || 0);
+      if (u && byDay[d]) { byDay[d].byU[u].revenue += ligne; presentes.add(u); }
+      sold[id] = sold[id] || { qty: 0, revenue: 0, name: l.productName || '', cat: cat || null };
       sold[id].qty += Number(l.qty) || 0;
-      sold[id].revenue += (Number(l.price) || 0) * (Number(l.qty) || 0);
+      sold[id].revenue += ligne;
       if (l.productName) sold[id].name = l.productName;
+      if (cat) sold[id].cat = cat;
     }
+    if (byDay[d]) presentes.forEach((u) => { byDay[d].byU[u].orders += 1; });
   }
 
+  const arrondi = (n) => Math.round(n * 100) / 100;
   const series = days.map((d, i) => ({
     day: d,
     visits: traffic[i].visits,
+    visitsBy: traffic[i].visitsBy,
     orders: byDay[d].orders,
-    revenue: Math.round(byDay[d].revenue * 100) / 100,
+    revenue: arrondi(byDay[d].revenue),
+    byUniverse: {
+      homme: { orders: byDay[d].byU.homme.orders, revenue: arrondi(byDay[d].byU.homme.revenue) },
+      femme: { orders: byDay[d].byU.femme.orders, revenue: arrondi(byDay[d].byU.femme.revenue) },
+    },
   }));
 
   const totalVisits = series.reduce((s, x) => s + x.visits, 0);
@@ -162,14 +199,16 @@ export default async (req, context) => {
       conversion,
       measuredSince: premierJourMesure,
     },
+    // `cat` accompagne chaque entrée : l'admin filtre les classements
+    // par partie sans avoir à interroger le catalogue de son côté.
     topViewed: Object.entries(viewsTotal)
-      .map(([id, n]) => ({ productId: Number(id), views: n }))
+      .map(([id, n]) => ({ productId: Number(id), views: n, cat: catOf[id] || null }))
       .sort((a, b) => b.views - a.views)
-      .slice(0, 10),
+      .slice(0, 30),
     topSold: Object.entries(sold)
-      .map(([id, v]) => ({ productId: Number(id), name: v.name, qty: v.qty, revenue: Math.round(v.revenue * 100) / 100 }))
+      .map(([id, v]) => ({ productId: Number(id), name: v.name, qty: v.qty, revenue: arrondi(v.revenue), cat: v.cat }))
       .sort((a, b) => b.qty - a.qty)
-      .slice(0, 10),
+      .slice(0, 30),
   });
 };
 

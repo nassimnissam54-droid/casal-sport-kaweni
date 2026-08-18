@@ -5106,3 +5106,56 @@ body:not(.admin-body) ::selection { background: rgba(255,77,61,0.22); color: var
 
 @media (max-width: 900px) { .best-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 460px) { .best-grid { grid-template-columns: 1fr; } }
+
+/* ============================================================
+   PARTIE DE LA BOUTIQUE (admin)
+   ============================================================ */
+.admin-universe {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  padding: 0.8rem 0 1.2rem;
+  border-bottom: 1px solid var(--gris-800);
+  margin-bottom: 1.4rem;
+}
+.au-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gris-500);
+  margin-right: 0.2rem;
+}
+.au-btn {
+  min-height: 38px;
+  padding: 0.4rem 0.95rem;
+  border-radius: 999px;
+  border: 1px solid var(--gris-700);
+  background: var(--gris-900);
+  color: var(--gris-300);
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, border-color 0.18s;
+}
+.au-btn:hover,
+.au-btn:focus-visible { background: var(--gris-800); color: var(--blanc); }
+.au-btn.active {
+  background: var(--blanc);
+  color: var(--noir);
+  border-color: var(--blanc);
+}
+.au-note {
+  flex: 1 1 100%;
+  font-size: 0.74rem;
+  color: var(--gris-500);
+}
+
+@media (max-width: 640px) {
+  .admin-universe { gap: 0.4rem; }
+  .au-label { flex: 1 1 100%; margin-bottom: 0.2rem; }
+  .au-btn { flex: 1; font-size: 0.76rem; padding: 0.4rem 0.6rem; }
+}
