@@ -600,7 +600,11 @@ function renderStats() {
   barChart('chartSales',  serie, 'revenue', C_SALES,  (v, court) => court ? Math.round(v) + ' €' : eur(v));
   barChart('chartVisits', serie, 'visits',  C_VISITS, (v, court) => String(Math.round(v)));
 
-  const nom = id => ProductDB.getAll().find(p => p.id === id)?.name || `Article #${id}`;
+  // Le catalogue d'abord, puis le nom conservé dans la commande : un
+  // produit retiré du catalogue garde ainsi son nom dans les classements
+  // au lieu de devenir « Article #12 ».
+  const nom = (id, secours) =>
+    ProductDB.getAll().find(p => p.id === id)?.name || secours || `Article #${id}`;
   // Les classements suivent la partie affichée : la catégorie du produit
   // est fournie par le serveur, avec repli sur le catalogue local pour
   // un article vendu puis retiré du catalogue publié.
@@ -613,7 +617,7 @@ function renderStats() {
     el.innerHTML = vus.length
       ? vus.map(r => `
         <li>
-          <span class="tl-name">${esc(nom(r.productId))}</span>
+          <span class="tl-name">${esc(nom(r.productId, r.name))}</span>
           <span class="tl-val">${r.views ?? r.qty} ${unite}</span>
         </li>`).join('')
       : '<li class="tl-empty">Rien à afficher pour l\'instant.</li>';
