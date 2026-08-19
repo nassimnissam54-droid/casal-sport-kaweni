@@ -180,10 +180,27 @@ function resetFilters(id) {
 function renderGrid(gridId, list) {
   const grid = document.getElementById(gridId);
   if (!grid) return;
-  grid.innerHTML = list.length
-    ? list.map(cardHTML).join('')
-    : `<p style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--gris-600);letter-spacing:.1em;text-transform:uppercase;font-size:.8rem">Aucun produit trouvé.</p>`;
+  grid.innerHTML = list.length ? list.map(cardHTML).join('') : emptyGridHTML();
   bindCardActions(grid);
+}
+
+/** Message d'une grille vide. Quand c'est la partie choisie qui n'a
+ *  aucun article, un « Aucun produit trouvé » laisse le visiteur devant
+ *  une page blanche sans issue : on nomme la cause et on offre la
+ *  sortie vers le reste de la boutique. */
+function emptyGridHTML() {
+  const u = UNIVERSES[currentUniverse];
+  if (u) {
+    return `<div class="grid-empty">
+        <p class="ge-title">La partie ${esc(u.sub)} est vide pour le moment</p>
+        <p class="ge-sub">Les articles arrivent bientôt. En attendant, le reste de la boutique t'attend.</p>
+        <button type="button" class="btn" id="universeExitEmpty">Voir toute la boutique</button>
+      </div>`;
+  }
+  return `<div class="grid-empty">
+      <p class="ge-title">Aucun article ne correspond</p>
+      <p class="ge-sub">Essaie d'enlever un filtre ou de modifier ta recherche.</p>
+    </div>`;
 }
 
 /* ============ CARTE PRODUIT ============ */
@@ -1890,7 +1907,10 @@ document.addEventListener('click', e => {
     setUniverse(next, { scroll: !!next && btn.hasAttribute('data-universe-scroll') });
     return;
   }
-  if (e.target.closest('#universeExit')) { e.preventDefault(); setUniverse(null); }
+  if (e.target.closest('#universeExit') || e.target.closest('#universeExitEmpty')) {
+    e.preventDefault();
+    setUniverse(null);
+  }
 });
 
 /* ============================================================
