@@ -473,6 +473,16 @@ const DEFAULT_PRODUCTS = [
     colorOptions:[{name:'Blanc / Bordeaux',hex:'#f2f2f2'}],
     color1:'#f5f5f5', color2:'#8c2f39', createdAt: D(0), rating:4.9 },
 
+  { id:123, type:'vetement', sub:'ensemble', cat:'homme', name:'Ensemble Polo Zippé Noir Col Blanc',
+    price:74.99, oldPrice:null, badge:'Nouveau',
+    desc:"Le noir qui pose, et le col blanc qui tranche. Dans cet ensemble tu bouges peu — tu n'en as pas besoin. La coupe large tombe toute seule, le zip s'ouvre juste ce qu'il faut, la broderie ne se lit que si on s'approche. C'est la tenue des soirées où tu n'as rien à prouver à personne : elle parle avant toi, et elle parle bas.",
+    material:'Maille douce · Col et poignets contrastés · Zip quart · Pantalon ample assorti',
+    sizes:'S — M — L — XL — XXL',
+    icon:'👔', qty:6, status:'live',
+    imageUrl:'img/produits/ig-n2.jpg',
+    colorOptions:[{name:'Noir / Blanc',hex:'#1a1a1a'}],
+    color1:'#1a1a1a', color2:'#f0f0f0', createdAt: D(0), rating:5.0 },
+
   /* ===================== FEMME ===================== */
   { id:1, type:'vetement', sub:'robe', cat:'femme', name:'Robe Midi Fleurie',
     price:39.99, oldPrice:null, badge:'',
